@@ -1,0 +1,5 @@
+.idea/*
+*.pyc
+*.sqlite3
+account/migrations/*
+notes/migrations/*
