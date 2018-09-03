@@ -13,6 +13,8 @@ function formControlAdd(name){
 
 var tags = ["input", "textarea", "select", "file", "checkbox"]
 
-for(var x = 0; x < tags.length; x++){
-    formControlAdd(tags[x]);
-}
+$(document).ready(function () {
+    for(var x = 0; x < tags.length; x++){
+        formControlAdd(tags[x]);
+    }
+})
