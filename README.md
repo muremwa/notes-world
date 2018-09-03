@@ -12,7 +12,7 @@ the frontend requires [**Bootstrap framework**](http://getbootstrap.com "Bootstr
 
 1. Clone the repo
     ```bash
-        git clone https://www.github.com/muremwa/notes-world
+        git clone https://www.github.com/muremwa/notes-world.git
     ```
 
 2. Install the requirements
