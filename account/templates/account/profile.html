@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}profile{% endblock title %}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'account/css/profile.css' %}">{% endblock style %}
+{% block profile %}active{% endblock profile %}
+
+{% block content %}
+    <div class="container">
+        <h2>profile</h2>
+        <p class="lead">your profile details</p>
+
+        <div class="row">
+            <div class="col-md-4">
+                <img id="user-image" class="" src="{{ user.profile.image.url }}" alt="user iamge"/>
+            </div>
+            <div class="col-md-6">
+                <h2>name</h2>
+                {% if user.first_name %}
+                    <p>{{ user.first_name }} {{ user.last_name }}</p>
+                {% else %}
+                    <a href="{% url 'base_account:profile-edit' user.pk%}" class="btn btn-link">add a name</a>
+                {% endif %}
+                <hr>
+                <h2>user name</h2>
+                <p>{{ user.username }}</p>
+                <hr>
+                <h2>date joined</h2>
+                <p>{{ user.date_joined }}</p>
+                {% if user.profile.gender %}
+                    <hr>    
+                    <h2>gender</h2>
+                    <p>{{ user.profile.gender }}</p>
+                {% endif %}
+                {% if user.profile.occupation %}
+                    <hr>
+                    <h2>occupation</h2>
+                    <p>{{ user.profile.occupation }}</p>
+                {% endif %}
+            </div>
+        </div>
+        <br />
+        <div><a href="{% url 'base_account:profile-edit' user.pk%}" class="btn btn-primary">edit profile</a></div>
+
+    </div>
+{% endblock content %}

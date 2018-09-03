@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}edit profile{% endblock title %}
+
+{% block profile %}active{% endblock profile %}
+
+{% block content %}
+    <style type="text/css">
+        #profile-form {
+            border: 0.4px solid rgb(230, 179, 170);
+            border-radius: 5px;
+            padding: 2em;
+        }
+    </style>
+
+    <div class="container">
+        {% if user.profile.id == profile.id %}
+        <h2 class="text-center">Edit your profile</h2>
+        <form class="col-md-8 container" id="profile-form" method="post" action="" enctype="multipart/form-data">
+            {% include "form_template.html" %}
+            <input class="btn-outline col-sm-3" type="submit" value="update">
+            <a type="url" href="{% url 'base_account:profile' %}" class="btn-outline col-sm-3">abort</a>
+        </form>
+        {% else %}
+            <h2>action is forbiden!</h2>
+        {% endif %}
+    </div>
+
+{% endblock content %}

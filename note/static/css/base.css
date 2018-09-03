@@ -1,0 +1,26 @@
+/* * {
+    border: 1px solid blue;
+} */
+html {
+    font-size: 14px;
+    font-family: "roboto", sans-serif;
+}
+
+h1 {
+    font-family: calibri, sans-serif;
+    font-size: 4em;
+    color: cornflowerblue;
+    /* border: 1px solid blue; */
+    margin-right: 0.7em;
+}
+
+h2 {
+    font-family: calibri, sans-serif;
+    font-size: 2em;
+    color: cadetblue;
+    /* border: 1px solid blue; */
+}
+
+#navbar a {
+    font-size: 1.4em;
+}

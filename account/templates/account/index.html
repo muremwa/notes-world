@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}account{% endblock title %}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'account/css/index.css' %}">{% endblock style %}
+{% block account %}active{% endblock account %}
+
+{% block content %}
+
+    <div class="container" id="index">
+        <div id="info">
+            <h1>notes world</h1>
+            <p class="lead bco">welcome to notes world. enjoy our services for free. <a href="#">create</a> notes and collaborate with other users and connect
+                share your notes to your connected friends. change editing permisions and more. <a href="{% url 'base_account:sign-up' %}">sign up</a> for 
+                a free account. if you have an account go ahead and <a href="{% url 'login' %}">login</a> if you already have an account and
+                 {% if no_of_users > 0 %}connect with the {{ no_of_users }} user of notes world{% else %} grow our community {% endif %}
+            </p>
+        </div>
+        <hr>
+        <div id="links" class="container col-sm-5">
+            {% if user.is_authenticated %}
+            <a href="#" class="bco col-sm-5" style="padding: 1em;">add notes</a>
+            {% else %}
+            <div class="row bco">
+                <div class="col-sm-6 text-center">
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary">sign in</a>
+                </div>
+                <div class="col-sm-6 text-center">
+                    <a href="{% url 'base_account:sign-up' %}" class="btn btn-outline-info">sign up</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <hr>
+        <div class="container">
+            <h1 class="text-center bco" id="f">features</h1>
+
+            <div class="each-f">
+                <h2 class="bco">desktop note editor import(* unreleased)</h2>
+                <img class="index-images" src="{% static 'account/images/now.png' %}" alt="index images">
+                <p class="bco">import from desktop note editors including onenote, notepad, notepad++, wordpad and more. get the <a href="#">list</a> of 
+                    supported editors. <a href="#">learn more</a>
+                </p>
+            </div>
+            <hr>
+
+            <div class="each-f">
+                <h2 class="bco">save locally(* unreleased)</h2>
+                <img class="index-images" src="{% static 'account/images/phase3.png' %}" alt="index images">
+                <p class="bco">save your note on desktop as a portable digital file(PDF), word document or in markdown <a href="#">learn more</a>
+                </p>
+            </div>
+            <hr>
+
+            <div class="each-f">
+                <h2 class="bco">product of <a href="#">house of m</a></h2>
+                <img class="index-images" src="{% static 'account/images/house.jpg' %}" alt="index images">
+                <p class="bco">developed and maintained by house of m inc <a href="#">visit site</a>
+                </p>
+            </div>
+            <hr>
+        </div>
+    </div>
+
+    
+{% endblock content %}

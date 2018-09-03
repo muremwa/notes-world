@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}sigup{% endblock title %}
+{% block style %}<link href="{% static 'account/css/signup.css' %}" type="text/css" rel="stylesheet">{% endblock style %}
+
+{% block signup %}active{% endblock signup %}
+
+{% block content %}
+    <div class="col-sm-7 container">
+        <div class="text-center">
+            <h2>Sign up for notes world</h2>
+            <p class="lead">sign up and create your first note and collaborate with others</p>
+        </div>
+            
+        <div id="signup-form" class="container col-sm-7">
+            {% if form.errors %}
+                <span class="text-danger">{{ form.errors}}</span>
+            {% endif %}
+            <form method="post" action="">
+                {% include "form_template.html" %}
+                <hr>
+                <input class="btn-outline col-sm-3" type="submit" value="sign up">
+                <p>already have an account? <a href="{% url 'login' %}">sign in</a></p>
+            </form>
+        </div>
+    </div>
+        
+        
+{% endblock content %}
