@@ -78,9 +78,9 @@ DATABASES = {
     }
 }
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "note/static"),
-)
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, "note/static"),
+# )
 
 
 # Password validation
