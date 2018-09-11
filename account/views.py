@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect, reverse
 from .forms import SignUpForm, ProfileForm
-from django.views.generic import UpdateView
+from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
+from django.views import View
 
 # models
 from .models import Profile
@@ -13,21 +12,27 @@ from django.contrib.auth import authenticate, login
 
 
 # account page
-def index(request):
-    users = Profile.objects.all().count()
-    return render(request, 'account/index.html', {
-        # "heading2": title,
-        "no_of_users": users,
-    })
+class AccountIndex(generic.TemplateView):
+    template_name = 'account/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["no_of_users"] = Profile.objects.all().count()
 
 
 # signup
-def signUp(request):
-    if request.user.is_authenticated:
-        logout(request)
+class SignUp(View):
+    form_class = SignUpForm
+    template_name = 'account/signup.html',
 
-    if request.method == "POST":
-        form = SignUpForm(request.POST)
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, {
+            "form": self.form_class,
+            "input_name": "sign up",
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
@@ -37,21 +42,19 @@ def signUp(request):
             return redirect(reverse("base_account:profile"))
 
 
-    else:
-        form = SignUpForm()
-
-    return render(request, 'account/signup.html', {"form": form})
-
-
 # profile
-@login_required
-def profile(request):
-    return render(request, 'account/profile.html')
+class ProfilePage(LoginRequiredMixin, generic.TemplateView):
+    template_name = 'account/profile.html'
 
 
 # profile edit
-class ProfileEditView(LoginRequiredMixin, UpdateView):
+class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     model = Profile
     form_class = ProfileForm
     template_name = "account/profile_create.html"
     template_name_suffix = "_create"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['input_name'] = "edit profile"
+        return context

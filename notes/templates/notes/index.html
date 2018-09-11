@@ -1,12 +1,38 @@
 {% extends "base.html" %}
-
+{% load staticfiles %}
 {% block title %}notes{% endblock title %}
-
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'notes/css/index.css' %}"/>{% endblock style %}
 {% block notes %}active{% endblock notes %}
 
 {% block content %}
-    <h1>This will be the notes index page</h1>
+    {% comment %} <h1>This will be the notes index page</h1>
     <h2>you will see all your notes here</h2>
-    <p class="lead">site is still under construction <a href="https://www.github.com/muremwa/notes-world">contribute</a></p>
+    <p class="lead">site is still under construction <a href="https://www.github.com/muremwa/notes-world/">contribute</a></p> {% endcomment %}
+
+    <div class="container">
+        <h2>your notes</h2>
+        <hr>
+        {% if notes %}
+            <small>you have {{ notes.count }} note</small>
+            <!-- each note -->
+            <div class="row">
+            {% for note in notes %}
+                <div class="each-note col-md-3">
+                    <a href="{{ note.get_absolute_url }}"><h3>{{ note.title }}</h3></a>
+                    <hr>
+                    {% if note.get_last_modified %}
+                    <span class="text-info">last modified {{ note.get_last_modified }}</span><br />
+                    {% endif %}
+                    <p><span class="text-danger">{{ note.get_privacy }}</span> | <span class="text-info">{% if note.collaborative %}collaborative{% else %}not collaborative{% endif %}</span></p>
+                    <hr>
+                    <span class="text-info">created {{ note.created }}</span>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <h1>you have no notes yet</h1>
+            <a class="btn btn-link" href="{% url 'notes:note-create' %}">start creating now</a>
+        {% endif %}
+    </div>
 
 {% endblock content %}

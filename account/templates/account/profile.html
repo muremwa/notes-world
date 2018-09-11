@@ -25,6 +25,11 @@
                 <h2>user name</h2>
                 <p>{{ user.username }}</p>
                 <hr>
+                {% if user.profile.pen_name %}
+                    <h2>pen name</h2>
+                    <p>{{ user.profile.pen_name }}</p>
+                    <hr>
+                {% endif %}
                 <h2>date joined</h2>
                 <p>{{ user.date_joined }}</p>
                 {% if user.profile.gender %}

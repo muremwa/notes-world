@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}confirm-delete{% endblock title %}
+{% block notes %}active{% endblock notes %}
+
+{% block content %}
+    <div class="col-sm-9 container">
+    {% if note.user.id == user.id %}
+        <div>
+            <h2>Are you sure you want to delete {{ note.title }}</h2>
+            <p class="text-info">once {{ note.title }} is deleted it cannot be recovered!</p>
+            <form class="form-inline" method="post">
+                {% csrf_token %}
+                <input type="submit" class="col-sm-2 btn btn-outline-danger" value="delete">
+                <a style="margin-left: 10px" href="{% url 'notes:note-page' note.id %}" class="col-sm-2 btn btn-outline-primary">cancel</a>
+            </form>
+        </div>
+    {% else %}
+        <div class="container">
+            {% include "action_forbiden.html" %}
+        </div>
+    {% endif %}
+    </div>
+{% endblock content %}

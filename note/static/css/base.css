@@ -16,7 +16,7 @@ h1 {
 
 h2 {
     font-family: calibri, sans-serif;
-    font-size: 2em;
+    /* font-size: 2em; */
     color: cadetblue;
     /* border: 1px solid blue; */
 }

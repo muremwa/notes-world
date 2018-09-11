@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}{{ note.title }} - {{ user }}{% endblock title %}
+{% block topScript %}<script src="http://127.0.0.1/assets/js/marked.min.js"></script>{% endblock topScript %}
+{% block notes %}active{% endblock notes %}
+
+{% block content %}
+    <div class="container">
+        <h2>{{ note.title }}</h2>{% if note.user != user %}<small>your note</small>{% endif %}
+        {% if note.get_last_modified %}<h5>last modified {{ note.get_last_modified }}</h3>{% endif %}
+        <h5>created {{note.created }}</h3>
+        <br />
+        <hr>
+        <div class="row">
+            <div class="col-sm-8">
+                <p id="js-note">{{ note.content }}</p>
+            </div>
+            <script type="text/javascript">
+                let content = document.getElementById("js-note");
+                let markedContent = marked(content.innerText);
+                content.innerHTML = markedContent;
+                
+            </script>
+            <div class="col-sm-4">
+                <div class="align-content-center">
+                    {% if note.collaborative %}
+                    <span class="text-info">Collabrators</span>
+                    <ul>
+                        {% for c in collaborators %}
+                            {% if c.pen_name %}
+                                <li class="text-info">{{ c.pen_name }}</li>
+                            {% else %}
+                                <li class="text-info">{{ c.user }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                        <span class="text-info">{{ note.title }} is has no collaborators</span><br />
+                        <a href="#" class="btn btn-link">add Collabrators</a>                    
+                    {% endif %}
+                </div>
+                <hr>
+                <div class="align-content-center">
+                    {% if note.privacy == "PR" %}
+                        <span class="text-info">{{ note.get_privacy }}</span>
+                        <p>Only you can see {{ note.title }}</p>
+                    {% else %}
+                        {% if note.privacy == "CO" %}
+                            <span class="text-warning">{{ note.get_privacy }}</span>
+                            <p>Only your connected friends can see {{ note.title }}</p>
+                        {% else %}
+                            <span class="text-danger">{{ note.get_privacy }}</span>
+                            <p>{{ note.title }} is visible to everyone on notes-world. <a href="#" class="btn btn-link">change this</a></p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <hr>
+                <div class="align-content-center">
+                    {% if note.user.id == user.id %}
+                        <a class="btn btn-outline-dark" href="{% url 'notes:note-edit' note.id %}">Edit {{ note.title|truncatechars:12 }}</a>
+                        <a style="margin-left: 10px;" class="btn btn-outline-danger" href="{% url 'notes:note-delete' note.id %}">delete {{ note.title|truncatechars:12 }}</a>
+                    {% else %}
+                        <a class="btn btn-outline-primary" href="{% url 'notes:note-edit' note.id %}">Edit {{ note.title|truncatechars:12 }}</a>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+    </div>
+{% endblock content %}

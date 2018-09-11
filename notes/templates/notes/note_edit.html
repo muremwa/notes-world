@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}note-edit{% endblock title %}
+{% block style %}{{ form.media }}{% endblock style %}
+{% block notes %}active{% endblock notes %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-9">
+                {% if input_name == "new note" %}
+                    <h2>{{ input_name }}</h2>
+                    <div>
+                        {% include "form_template.html" %}
+                    </div>
+                {% else %}
+                    {% if note.user.id == user.id %}
+                        <h2>{{ input_name }}</h2>
+                        <div>
+                            {% include "form_template.html" %}
+                        </div>
+                    {% else %}
+                        {% include 'action_forbiden.html' %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

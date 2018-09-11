@@ -15,6 +15,7 @@ class Profile(models.Model):
     image = models.ImageField(default="profile.jpg", blank=True, null=True)
     occupation = models.CharField(max_length=100, blank=True, null=True)
     gender = models.CharField(max_length=3, choices=gender_options, blank=True, null=True)
+    pen_name = models.CharField(max_length=200)
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):

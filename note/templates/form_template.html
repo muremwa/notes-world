@@ -1,7 +1,11 @@
-{% csrf_token %}
-{% for field in form %}
-    <div class="form-group">
-        <label>{{ field.label_tag }}</label>
-        {{ field }}
-    </div>
-{% endfor %}
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label_tag }}</label>
+            {{ field }}
+        </div>
+    {% endfor %}
+    <hr>
+    <input type="submit" class="col-sm-3 btn-outline" value="{{ input_name }}">
+</form>

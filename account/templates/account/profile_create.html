@@ -16,13 +16,12 @@
     <div class="container">
         {% if user.profile.id == profile.id %}
         <h2 class="text-center">Edit your profile</h2>
-        <form class="col-md-8 container" id="profile-form" method="post" action="" enctype="multipart/form-data">
+        <div class="col-md-8 container" id="profile-form">
             {% include "form_template.html" %}
-            <input class="btn-outline col-sm-3" type="submit" value="update">
             <a type="url" href="{% url 'base_account:profile' %}" class="btn-outline col-sm-3">abort</a>
-        </form>
+        </div>
         {% else %}
-            <h2>action is forbiden!</h2>
+            {% include 'action_forbiden.html' %}
         {% endif %}
     </div>
 

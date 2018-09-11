@@ -1,0 +1,5 @@
+.each-note {
+    border: 1px solid rgba(112, 128, 144, 0.5);
+    margin: 1.3em;
+    border-radius: 8px;
+}

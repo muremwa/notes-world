@@ -17,12 +17,10 @@
             {% if form.errors %}
                 <span class="text-danger">{{ form.errors}}</span>
             {% endif %}
-            <form method="post" action="">
+            <div>
                 {% include "form_template.html" %}
-                <hr>
-                <input class="btn-outline col-sm-3" type="submit" value="sign up">
                 <p>already have an account? <a href="{% url 'login' %}">sign in</a></p>
-            </form>
+            </div>
         </div>
     </div>
         
