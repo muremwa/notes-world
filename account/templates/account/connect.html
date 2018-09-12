@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}connect{% endblock title %}
+{% block style %}<link href="{% static 'account/css/connect.css' %}" type="text/css" rel="stylesheet">{% endblock style %}
+
+{% block account %}active{% endblock account %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8">
+            {% if connected %}
+                <!-- Connected users -->
+                <h2>Your connected users</h2>
+                {% for friend in connected %}
+                <div class="row user">
+                    <div class="col-sm-2">
+                        <img class="user-img" alt="image of {{ friend.username }}" src="{{ friend.profile.image.url }}">
+                    </div>
+                    <div class="col-sm-9 user-info">
+                        <span class="text-info">{{ friend.get_full_name }}</span>
+                        <br />
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="url" value="{% url 'base_account:exit' friend.id %}">
+                            <button class="btn btn-outline-danger disconnect-button" type="submit">dis-connect</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Connection suggestions -->
+            <h2>choose other users to connect with</h2>
+            {% for friend in suggestions %}
+            <div class="row user">
+                <div class="col-sm-2">
+                    <img class="user-img" alt="image of {{ friend.username }}" src="{{ friend.profile.image.url }}">
+                </div>
+                <div class="col-sm-9 user-info">
+                    <span class="text-info">{{ friend.first_name }} {{ friend.last_name }}</span>
+                    <br />
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="url" value="{% url 'base_account:connect' friend.id %}">
+                        <button type="submit" class="btn btn-outline-info connect-button">connect</button>
+                    </form>
+                </div>
+            </div>
+            <hr>
+            {% endfor %}
+        </div>
+        <div class="col-sm-4">
+            {% if requests %}
+            <!-- Connection requests -->
+            <h2>Connection requests</h2>
+            {% for friend in requests %}
+            <div class="row user">
+                <div class="col-sm-2">
+                    <img class="user-img" alt="image of {{ friend.conn_sender.username }}" src="{{ friend.conn_sender.profile.image.url }}">
+                </div>
+                <div class="col-sm-9 user-info">
+                    <span class="text-info">{{ friend.conn_sender.get_full_name }}</span>
+                    <br />
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="url" value="{% url 'base_account:accept' friend.id %}">
+                        <input type="hidden" name="deny_url" value="{% url 'base_account:deny' friend.id %}">
+                        <button type="submit" name="approve" class="btn btn-outline-dark accept-button">approve</button>
+                        <button name="deny" class="btn btn-outline-danger deny-button">deny</button>
+                    </form>
+                </div>
+            </div>
+            <hr>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block bottomScript %}<script src="{% static 'account/js/connect.js' %}"></script>{% endblock bottomScript %}

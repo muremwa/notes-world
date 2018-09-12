@@ -7,7 +7,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-
 class Profile(models.Model):
     gender_options = (("M", "MALE"), ("F", "FEMALE"), ("NON", "PREFER NOT TO SAY"),)
 
@@ -29,5 +28,24 @@ class Profile(models.Model):
     def __str__(self):
         return "profile for {}".format(self.user)
 
-    def get_absolute_url(self):
+    @staticmethod
+    def get_absolute_url():
         return reverse("base_account:profile")
+
+
+# connected users
+class Connection(models.Model):
+    conn_sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    conn_receiver = models.ForeignKey(Profile, blank=False, on_delete=models.CASCADE)
+    since = models.DateTimeField(auto_now_add=True)
+    approved = models.BooleanField(default=False)
+
+    def get_status(self):
+        if self.approved:
+            status = "approved"
+        else:
+            status = "pending"
+        return status
+
+    def __str__(self):
+        return "connection between {} and {}".format(self.conn_sender, self.conn_receiver)

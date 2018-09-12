@@ -35,7 +35,7 @@
                 </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link {% block profile %}{% endblock profile %}" href="{% url 'base_account:profile' %}">profile</a>
+                        <a class="nav-link {% block profile %}{% endblock profile %}" href="{% url 'base_account:profile' %}">profile {{ user.get_full_name }}</a>
                     </li>   
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">sign out</a>
@@ -66,7 +66,7 @@
     </footer>
 
     <!-- I serve my own files locally -->
-    <script src="http://localhost/assets/js/jquery-3.2.1.slim.min.js"></script>
+    <script src="http://localhost/assets/js/jquery.js"></script>
     <script src="http://localhost/assets/js/bootstrap.min.js"></script>
 
 

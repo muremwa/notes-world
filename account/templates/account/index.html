@@ -19,7 +19,8 @@
         <hr>
         <div id="links" class="container col-sm-5">
             {% if user.is_authenticated %}
-            <a href="#" class="bco col-sm-5" style="padding: 1em;">add notes</a>
+            <a href="{% url 'notes:note-create' %}" class="bco col-sm-5" style="padding: 1em;">add notes</a>
+            <a href="{% url 'base_account:connected' %}" class="bco col-sm-5" style="padding: 1em;">connect</a>
             {% else %}
             <div class="row bco">
                 <div class="col-sm-6 text-center">

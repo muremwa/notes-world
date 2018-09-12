@@ -7,7 +7,13 @@ made in [**Django 2.0**](https://djangoproject.com  "Django website")
 
 **Note**
 the frontend requires [**Bootstrap framework**](http://getbootstrap.com "Bootstrap wesite") 4.x and [JQuery](http://jquery.com "JQuery website")
+ - - -
+## Features
+1. User can ***sign* up** and ***sign in***.
+2. users can <span style="color: yellow;">send</span>, <span style="color: yellow;">accept</span> or <span style="color: yellow;">deny</span> connection requests from other users just like **<span style="color: blue;">facebook</span> friend requests.**
+3. User can create notes in **Markdown**
 
+- - -
 ## getting started
 
 1. Clone the repo
@@ -15,23 +21,23 @@ the frontend requires [**Bootstrap framework**](http://getbootstrap.com "Bootstr
         git clone https://www.github.com/muremwa/notes-world.git
     ```
 
-2. Install the requirements
+1. Install the requirements
     ```bash
         pip install requirements.txt
     ```
 
-3. Make migartions
+1. Make migartions
     ```bash
         python manage.py makemigartions notes
         python manage.py makemigartions account
         python manage.py migrate
     ```
 
-4. Run Local server 
+1. Run Local server 
     ```bash
         python manage.py runserver
     ```
 
-5. Browse
+2. Browse
 
-    Psing your browser navigate to your local server at [port 8000](http://127.0.0.1:8000)
+    Using your browser navigate to your local server at [port 8000](http://127.0.0.1:8000)

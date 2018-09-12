@@ -11,9 +11,10 @@
 
     <div class="container">
         <h2>your notes</h2>
+        <a href="{% url 'note:note-create' %}" class="btn btn-outline-dark">add note</a>
         <hr>
         {% if notes %}
-            <small>you have {{ notes.count }} note</small>
+            <small>you have {{ notes.count }} notes</small>
             <!-- each note -->
             <div class="row">
             {% for note in notes %}

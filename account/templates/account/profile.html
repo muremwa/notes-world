@@ -17,7 +17,7 @@
             <div class="col-md-6">
                 <h2>name</h2>
                 {% if user.first_name %}
-                    <p>{{ user.first_name }} {{ user.last_name }}</p>
+                    <p>{{ user.get_full_name }}</p>
                 {% else %}
                     <a href="{% url 'base_account:profile-edit' user.pk%}" class="btn btn-link">add a name</a>
                 {% endif %}
@@ -45,7 +45,10 @@
             </div>
         </div>
         <br />
-        <div><a href="{% url 'base_account:profile-edit' user.pk%}" class="btn btn-primary">edit profile</a></div>
+        <div>
+            <a href="{% url 'base_account:profile-edit' user.pk%}" class="btn btn-primary">edit profile</a>
+            <a href="{% url 'base_account:connected' %}" class="btn btn-primary">socialize</a>
+        </div>
 
     </div>
 {% endblock content %}
