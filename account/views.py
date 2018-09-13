@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views import View
+from django.http import Http404
 from django.db.models import Q
 from django.http import JsonResponse
 import random
@@ -24,27 +25,25 @@ class AccountIndex(generic.TemplateView):
         context["no_of_users"] = Profile.objects.all().count()
 
 
-# signup
-class SignUp(View):
-    form_class = SignUpForm
-    template_name = 'account/signup.html',
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {
-            "form": self.form_class,
-            "input_name": "sign up",
-        })
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+# sign up
+def sign_up(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect(reverse("base_account:profile"))
+            return redirect(reverse('base_account:profile'))
 
+    else:
+        form = SignUpForm()
+
+    return render(request, 'account/signup.html', {
+        'form': form,
+        'input_name': "sign up"
+    })
 
 # profile
 class ProfilePage(LoginRequiredMixin, generic.TemplateView):
@@ -116,7 +115,7 @@ def connect(request, id):
     if request.method == "POST":
         response = {}
         sender = request.user
-        receiver = User.objects.get(pk=id).profile
+        receiver = get_object_or_404(User, pk=id).profile
         qset = (
             Q(conn_sender=request.user) &
             Q(conn_receiver=receiver)
@@ -140,6 +139,9 @@ def connect(request, id):
 
         return JsonResponse(response)
 
+    else:
+        raise Http404
+
 
 # accept a connection request
 def accept(request, id):
@@ -149,6 +151,7 @@ def accept(request, id):
 
         if _connection.approved:
             response['state'] = "already approved"
+            response['accepted'] = False
         else:
             _connection.approved = True
             _connection.save()
@@ -156,6 +159,8 @@ def accept(request, id):
             response['accepted'] = True
 
         return JsonResponse(response)
+    else:
+        raise Http404
 
 
 # delete an existing request
@@ -189,6 +194,8 @@ def dis_connect(request, id):
             response['state'] = "disconnected"
 
         return JsonResponse(response)
+    else:
+        raise Http404
 
 
 # deny a connection request
@@ -203,8 +210,7 @@ def deny(request, id):
         elif conn_request.approved:
             response['denied'] = False
             response['state'] = "you cannot deny an approved request"
-        else:
-            response['denied'] = False
-            response['state'] = "the request no longer exists"
 
         return JsonResponse(response)
+    else:
+        raise Http404

@@ -9,7 +9,7 @@ urlpatterns = [
     path('', views.AccountIndex.as_view(), name="account-index"),
 
     # account/signup/
-    path('signup/', views.SignUp.as_view(), name="sign-up"),
+    path('signup/', views.sign_up, name="sign-up"),
 
     # account/profile/
     path('profile/', views.ProfilePage.as_view(), name="profile"),
@@ -23,8 +23,8 @@ urlpatterns = [
     # account/connect/user4/send  (ajax)
     path('connect/user<int:id>/send', views.connect, name="connect"),
 
-    # account/connect/user4/accept (ajax)
-    path('connect/user<int:id>/accept', views.accept, name="accept"),
+    # account/connect/request4/accept (ajax)
+    path('connect/request<int:id>/accept', views.accept, name="accept"),
 
     # account/connect/user4/exit  (ajax)
     path('connect/user<int:id>/exit', views.dis_connect, name="exit"),

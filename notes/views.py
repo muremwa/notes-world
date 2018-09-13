@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, reverse
 from django.views import generic
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # models & forms (local imports)
 from .models import Note
@@ -23,7 +24,7 @@ class NoteIndex(generic.ListView):
 
 
 # each note page
-class NotePage(generic.DetailView):
+class NotePage(LoginRequiredMixin, generic.DetailView):
     template_name = 'notes/note.html'
     model = Note
 
@@ -34,7 +35,7 @@ class NotePage(generic.DetailView):
 
 
 # note creation
-class NoteCreate(generic.CreateView):
+class NoteCreate(LoginRequiredMixin, generic.CreateView):
     form_class = NoteForm
     template_name = 'notes/note_edit.html'
 
@@ -50,7 +51,7 @@ class NoteCreate(generic.CreateView):
 
 
 # note editing
-class NoteEdit(generic.UpdateView):
+class NoteEdit(LoginRequiredMixin, generic.UpdateView):
     model = Note
     form_class = NoteForm
     template_name = 'notes/note_edit.html'
@@ -62,6 +63,6 @@ class NoteEdit(generic.UpdateView):
 
 
 # note delete
-class NoteDelete(generic.DeleteView):
+class NoteDelete(LoginRequiredMixin, generic.DeleteView):
     model = Note
     success_url = reverse_lazy("notes:index")

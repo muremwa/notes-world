@@ -60,7 +60,7 @@ class Note(models.Model):
 
     # url
     def get_absolute_url(self):
-        return reverse("notes:note-page", args=str(self.id))
+        return reverse("notes:note-page", args=[str(self.id)])
 
     # get a readable name
     def __str__(self):
