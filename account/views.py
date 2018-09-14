@@ -45,6 +45,7 @@ def sign_up(request):
         'input_name': "sign up"
     })
 
+
 # profile
 class ProfilePage(LoginRequiredMixin, generic.TemplateView):
     template_name = 'account/profile.html'
@@ -99,7 +100,6 @@ class ConnectedUser(generic.TemplateView):
                 if suggestion != self.request.user and suggestion not in suggestions and not status:
                     suggestions.append(suggestion)
 
-
         return render(request, self.template_name, {
             'suggestions': suggestions,
             "connected": connected,
@@ -108,11 +108,11 @@ class ConnectedUser(generic.TemplateView):
 
 
 # send a connection request
-def connect(request, id):
+def connect(request, conn_id):
     if request.method == "POST":
         response = {}
         sender = request.user
-        receiver = get_object_or_404(User, pk=id).profile
+        receiver = get_object_or_404(User, pk=conn_id).profile
         exists = Connection.objects.exist(user_1=sender, user_2=receiver.user)
         if not exists:
             Connection.objects.create(
@@ -131,10 +131,10 @@ def connect(request, id):
 
 
 # accept a connection request
-def accept(request, id):
+def accept(request, conn_id):
     if request.method == "POST":
         response = {}
-        _connection = get_object_or_404(Connection, pk=id)
+        _connection = get_object_or_404(Connection, pk=conn_id)
 
         if _connection.approved:
             response['state'] = "already approved"
@@ -151,9 +151,9 @@ def accept(request, id):
 
 
 # delete an existing request
-def dis_connect(request, id):
+def dis_connect(request, conn_id):
     if request.method == "POST":
-        friend = get_object_or_404(User, pk=id)
+        friend = get_object_or_404(User, pk=conn_id)
         response = {}
         status = Connection.objects.exist(request.user, friend)
 
@@ -172,9 +172,9 @@ def dis_connect(request, id):
 
 
 # deny a connection request
-def deny(request, id):
+def deny(request, conn_id):
     if request.method == "POST":
-        conn_request = get_object_or_404(Connection, pk=id)
+        conn_request = get_object_or_404(Connection, pk=conn_id)
         response = {}
         if not conn_request.approved:
             conn_request.delete()

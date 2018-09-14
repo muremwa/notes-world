@@ -21,15 +21,15 @@ urlpatterns = [
     path('connect/', views.ConnectedUser.as_view(), name="connected"),
 
     # account/connect/user4/send  (ajax)
-    path('connect/user<int:id>/send', views.connect, name="connect"),
+    path('connect/user<int:conn_id>/send', views.connect, name="connect"),
 
     # account/connect/request4/accept (ajax)
-    path('connect/request<int:id>/accept', views.accept, name="accept"),
+    path('connect/request<int:conn_id>/accept', views.accept, name="accept"),
 
     # account/connect/user4/exit  (ajax)
-    path('connect/user<int:id>/exit', views.dis_connect, name="exit"),
+    path('connect/user<int:conn_id>/exit', views.dis_connect, name="exit"),
 
     # account/connect/request6/deny  (ajax)
-    path('connect/request<int:id>/deny', views.deny, name="deny"),
+    path('connect/request<int:conn_id>/deny', views.deny, name="deny"),
 
 ]
