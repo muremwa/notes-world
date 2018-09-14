@@ -70,25 +70,21 @@ class ConnectedUser(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         users = User.objects.all()
         suggestions = []
+
+        # checks whether a user has requests to them and they aren't approved
         qset_1 = (
             Q(conn_receiver=self.request.user.profile) &
             Q(approved=False)
         )
         requests = Connection.objects.filter(qset_1).distinct()
+
+        # looking for connection that exist for the user
         qset = (
             Q(conn_sender=self.request.user.profile.user) |
             Q(conn_receiver=self.request.user.profile)
         )
         connected = []
-        checking = []
         connected_obj = Connection.objects.filter(qset).distinct()
-
-        for obj in connected_obj:
-            if obj.conn_sender == self.request.user:
-                checking.append(obj.conn_receiver.user)
-            else:
-                checking.append(obj.conn_sender)
-
         for obj in connected_obj:
             if obj.approved:
                 if obj.conn_sender == self.request.user:
@@ -99,7 +95,8 @@ class ConnectedUser(generic.TemplateView):
         # suggestions
         for i in range(10):
                 suggestion = random.choice(users)
-                if suggestion != self.request.user and suggestion not in suggestions and suggestion not in checking:
+                status = Connection.objects.exist(request.user, suggestion)
+                if suggestion != self.request.user and suggestion not in suggestions and not status:
                     suggestions.append(suggestion)
 
 
@@ -116,18 +113,8 @@ def connect(request, id):
         response = {}
         sender = request.user
         receiver = get_object_or_404(User, pk=id).profile
-        qset = (
-            Q(conn_sender=request.user) &
-            Q(conn_receiver=receiver)
-        )
-        qset_2 = (
-            Q(conn_sender=receiver.user) &
-            Q(conn_receiver=request.user.profile)
-        )
-        checking_1 = Connection.objects.filter(qset)
-        checking_2 = Connection.objects.filter(qset_2)
-
-        if len(checking_1) == 0 and len(checking_2) == 0:
+        exists = Connection.objects.exist(user_1=sender, user_2=receiver.user)
+        if not exists:
             Connection.objects.create(
                 conn_sender=sender,
                 conn_receiver=receiver
@@ -168,27 +155,13 @@ def dis_connect(request, id):
     if request.method == "POST":
         friend = get_object_or_404(User, pk=id)
         response = {}
-        qset_1 = (
-            Q(conn_sender=request.user) &
-            Q(conn_receiver=friend.profile)
-        )
-        qset_2 = (
-            Q(conn_sender=friend) &
-            Q(conn_receiver=request.user.profile)
-        )
+        status = Connection.objects.exist(request.user, friend)
 
-        _connection = Connection.objects.filter(qset_1)
-        _connection_2 = Connection.objects.filter(qset_2)
-
-        if len(_connection_2) == 0 and len(_connection) == 0:
+        if not status:
             response['exited'] = False
             response['state'] = "connection no longer exists"
         else:
-            if len(_connection) > 0:
-                connection = _connection[0]
-            else:
-                connection = _connection_2[0]
-
+            connection = Connection.objects.get_conn(request.user, friend)
             connection.delete()
             response['exited'] = True
             response['state'] = "disconnected"

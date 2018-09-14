@@ -33,7 +33,7 @@ class ViewsTest(TestCase):
     # views return 200
     @tag('account_200')
     def test_views_200(self):
-        print("testing views with no arguements")
+        print("testing views with no arguments")
         paths = [
             ["account-index", 'account/index.html'],
             ["profile", 'account/profile.html'],

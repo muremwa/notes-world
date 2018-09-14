@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from notes.models import Note
 
 
-class TestViews(TestCase, Client):
+class TestViews(TestCase):
     # set up
     def setUp(self):
         self.user_1 = User.objects.create(username="testing", password="testing")

@@ -16,6 +16,7 @@ class Note(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     privacy = models.CharField(max_length=2, choices=privacy_options, default="PR")
     collaborators = models.ManyToManyField(Profile, blank=True)
+    objects = models.Manager()
 
     # get the last time it was modified
     def get_last_modified(self):
