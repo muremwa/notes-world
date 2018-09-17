@@ -17,6 +17,7 @@ class Profile(models.Model):
     gender = models.CharField(max_length=3, choices=gender_options, blank=True, null=True)
     pen_name = models.CharField(max_length=200)
     objects = models.Manager()
+
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}collaboration{% endblock title %}
+
+{% block notes %}active{% endblock notes %}
+
+{% block content %}
+<style type="text/css">
+    .coll-note {
+        border: 1px solid cadetblue;
+        border-radius: 8px;
+        margin-top: 1em;
+    }
+</style>
+<div class="container">
+    <h2>notes that you can collaborate on</h2>
+    <hr />
+    {% if collaborations %}
+        {% for collaboration in collaborations %}   
+            <div class="coll-note col-md-8">
+                <h3>{{ collaboration.title }}</h3>
+                <span>by {{ collaboration.user }}</span>
+                <hr/>
+                <p>last modified {{ collaboration.get_last_modified }} by {{ collaboration.get_last_modifier }}</p>
+                <p>created {{ collaboration.created|date }} at {{ collaboration.created|time }} </p>
+                <hr />
+                <p>{{ collaboration.collaborators.all.count }} collaborators</p>
+                <a class="btn btn-link" href="{% url 'notes:note-edit' collaboration.id %}">edit</a>
+            </div>
+        {% endfor %} 
+    {% else %}
+        <h1 class="lead">nothing to show here</h1>
+    {% endif %}
+
+</div>
+  
+{% endblock content %}

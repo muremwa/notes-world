@@ -29,17 +29,22 @@
                     {% if note.collaborative %}
                     <span class="text-info">Collabrators</span>
                     <ul>
-                        {% for c in collaborators %}
-                            {% if c.pen_name %}
-                                <li class="text-info">{{ c.pen_name }}</li>
-                            {% else %}
-                                <li class="text-info">{{ c.user }}</li>
-                            {% endif %}
-                        {% endfor %}
+                        {% if collaborators %}
+                            {% for c in collaborators %}
+                                {% if c.pen_name %}
+                                    <li class="text-info">{{ c.pen_name }}</li>
+                                {% else %}
+                                    <li class="text-info">{{ c.user }}</li>
+                                {% endif %}
+                            {% endfor %}
+                            <a href="#" class="btn btn-link">add Collabrators</a>                    
+                        {% else %}
+                            <a href="#" class="btn btn-link">add Collabrators</a>                    
+                        {% endif %}
                     </ul>
                     {% else %}
-                        <span class="text-info">{{ note.title }} is has no collaborators</span><br />
-                        <a href="#" class="btn btn-link">add Collabrators</a>                    
+                        <span class="text-info">{{ note.title }} is not collaborative</span><br />
+                        <a href="#" class="btn btn-link">change that</a>                    
                     {% endif %}
                 </div>
                 <hr>

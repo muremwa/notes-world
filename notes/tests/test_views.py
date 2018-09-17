@@ -1,5 +1,5 @@
 from django.test import TestCase, tag
-from django.shortcuts import reverse
+from django.shortcuts import reverse, NoReverseMatch
 
 from django.contrib.auth.models import User
 from notes.models import Note
@@ -23,7 +23,7 @@ class TestViews(TestCase):
         for path in paths:
             try:
                 url = reverse("notes:"+path)
-            except:
+            except NoReverseMatch:
                 url = reverse("notes:"+path, args=[str(self.note.id)])
             print(url)
             response = self.client.get(url)
@@ -47,12 +47,24 @@ class TestViews(TestCase):
         print("testing note creation")
         url = reverse("notes:note-create")
         valid_data = {
-            "pk": 10,
-            "user": self.user_1,
+            "user": self.user_2,
             "title": "test title",
-            "content" : "test content",
+            "content": "test content",
         }        
 
         valid_response = self.client.post(url, data=valid_data)
-        self.assertEqual(valid_response.status_code, 200)    
-        self.assertTemplateUsed(valid_response, 'notes/note_edit.html')   
+        self.assertEqual(valid_response.status_code, 200)
+        self.assertTemplateUsed(valid_response, 'notes/note_edit.html')
+
+    # test collaborate page
+    @tag('collaborate_page')
+    def test_collaborate(self):
+        print('testing collaborate page')
+        self.note.collaborators.add(self.user_2.profile)
+        self.client.force_login(user=self.user_2)
+        url = reverse('notes:collaborate_page')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'notes/collaboration-page.html')
+        self.assertEqual(response.context['collaborations'], Note.objects.collaborations(self.user_2))
+        self.assertEqual(response.context['collaborations'][0], self.note)

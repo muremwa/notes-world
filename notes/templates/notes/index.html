@@ -8,6 +8,7 @@
     <div class="container">
         <h2>your notes</h2>
         <a href="{% url 'notes:note-create' %}" class="btn btn-outline-dark">add note</a>
+        <a href="{% url 'notes:collaborate_page' %}" class="btn btn-outline-dark">collaborate</a>
         <hr>
         {% if notes %}
             <small>you have {{ notes.count }} notes</small>

@@ -59,10 +59,27 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['input_name'] = "edit note"
+        context['collaborators'] = context['note'].collaborators.all()
+        print("here")
+        print(context['collaborators'])
         return context
+
+    def form_valid(self, form):
+        form.instance.last_modifier = int(self.request.user.id)
+        return super().form_valid(form)
 
 
 # note delete
 class NoteDelete(LoginRequiredMixin, generic.DeleteView):
     model = Note
     success_url = reverse_lazy("notes:index")
+
+
+# collaborations page
+class Collaborations(generic.TemplateView):
+    template_name = "notes/collaboration-page.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collaborations'] = Note.objects.collaborations(self.request.user)
+        return context

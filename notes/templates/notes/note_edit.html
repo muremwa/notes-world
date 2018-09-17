@@ -22,7 +22,14 @@
                             {% include "form_template.html" %}
                         </div>
                     {% else %}
-                        {% include 'action_forbiden.html' %}
+                        {% if user.profile in collaborators %}
+                            <h2>you are editing {{ note.user }}'s note ({{ note.title }})</h2>
+                            <div>
+                                {% include "form_template.html" %}
+                            </div>
+                        {% else %}
+                            {% include 'action_forbiden.html' %}
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             </div>

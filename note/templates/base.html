@@ -36,7 +36,10 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link {% block profile %}{% endblock profile %}" href="{% url 'base_account:profile' %}">profile {{ user.get_full_name }}</a>
-                    </li>   
+                    </li>{% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}" target="_blank">admin page</a>
+                    </li>{% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">sign out</a>
                     </li>

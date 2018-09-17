@@ -18,4 +18,7 @@ urlpatterns = [
 
     # notes/delete/note34/
     path("delete/note<int:pk>/", views.NoteDelete.as_view(), name="note-delete"),
+
+    # notes/collaboration/
+    path("collaborations/", views.Collaborations.as_view(), name="collaborate_page"),
 ]

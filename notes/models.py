@@ -2,7 +2,24 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.urls import reverse
+
 from account.models import Profile
+
+
+class NoteManager(models.Manager):
+    @staticmethod
+    def collaborations(user):
+        """
+        :param user: the user to get all the notes they can collaborate on
+        :return: an array of notes
+        """
+        collaborations = []
+        user = User.objects.get(id=user.id)
+        notes = Note.objects.all()
+        for note in notes:
+            if user.profile in note.collaborators.all():
+                collaborations.append(note)
+        return collaborations
 
 
 # notes model
@@ -14,9 +31,17 @@ class Note(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     collaborative = models.BooleanField(default=False)
     last_modified = models.DateTimeField(auto_now=True)
+    last_modifier = models.CharField(max_length=5, blank=True, null=True)
     privacy = models.CharField(max_length=2, choices=privacy_options, default="PR")
     collaborators = models.ManyToManyField(Profile, blank=True)
-    objects = models.Manager()
+    objects = NoteManager()
+
+    class Meta:
+        ordering = ["-created"]
+
+        # get a readable name
+    def __str__(self):
+        return "{} by {}".format(self.title, self.user)
 
     # get the last time it was modified
     def get_last_modified(self):
@@ -49,6 +74,13 @@ class Note(models.Model):
 
         return respond_with
 
+    # last modifier
+    def get_last_modifier(self):
+        modifier = None
+        if self.last_modifier:
+            modifier = User.objects.get(id=self.last_modifier)
+        return modifier
+
     # get privacy name
     def get_privacy(self):
         if self.privacy == "PR":
@@ -62,14 +94,6 @@ class Note(models.Model):
     # url
     def get_absolute_url(self):
         return reverse("notes:note-page", args=[str(self.id)])
-
-    # get a readable name
-    def __str__(self):
-        return "{} by {}".format(self.title, self.user)
-
-
-    class Meta:
-        ordering = ["-created"]
 
 
 # comments model

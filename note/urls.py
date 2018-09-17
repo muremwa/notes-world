@@ -25,6 +25,8 @@ urlpatterns = [
     # api(s)
     path('api/', include('api.urls')),
 
+    # favicon
+    path('favicon.ico', RedirectView.as_view(url="/static/favicon.ico"))
 ]
 
 
