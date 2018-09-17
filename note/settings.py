@@ -33,8 +33,10 @@ INSTALLED_APPS = [
     # local apps
     'account.apps.AccountConfig',
     'notes.apps.NotesConfig',
+    'api.apps.ApiConfig',
     # 3rd party
     'pagedown',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
