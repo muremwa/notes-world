@@ -5,3 +5,4 @@ django-pagedown==1.0.5
 django-widget-tweaks==1.4.2
 markdown2==2.3.5
 Pillow==5.1.0
+gunicorn
