@@ -7,4 +7,4 @@ markdown2==2.3.5
 Pillow==5.1.0
 gunicorn
 djangorestframework
-whitenoise
+whitenoise==3.0
