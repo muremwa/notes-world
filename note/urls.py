@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, reverse
 from django.views.generic import RedirectView
 
 # static and media
@@ -26,7 +26,7 @@ urlpatterns = [
     path('api/', include('api.urls')),
 
     # favicon
-    path('favicon.ico', RedirectView.as_view(url="/static/favicon.ico"))
+    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL+"favicon.ico")),
 ]
 
 
