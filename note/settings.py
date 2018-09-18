@@ -15,10 +15,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'covz8c$cu*@rz51f_533ggd9cs$+kc
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = bool(os.environ.get('DJANGO_DEBUG', False))
+DEBUG = bool(os.environ.get('DJANGO_DEBUG', True))
 
-ALLOWED_HOSTS = ["notes-world.herokuapp.com"]
+# ALLOWED_HOSTS = ["notes-world.herokuapp.com"]
 
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -79,9 +80,9 @@ DATABASES = {
     }
 }
 
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, "note/static"),
-# )
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "note/static"),
+)
 
 
 # Password validation
@@ -126,17 +127,17 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'note/static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'note/static')
 
 
-db_from_env = dj_database_url.config(conn_max_age=500)
+# db_from_env = dj_database_url.config(conn_max_age=500)
 
-DATABASES['default'].update(db_from_env)
+# DATABASES['default'].update(db_from_env)
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+# PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+# STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 
-STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, 'static'),)
+# STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, 'static'),)
 
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
