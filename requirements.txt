@@ -8,3 +8,4 @@ Pillow==5.1.0
 gunicorn
 djangorestframework
 whitenoise==3.0
+django-heroku
