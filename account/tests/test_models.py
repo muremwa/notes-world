@@ -15,12 +15,8 @@ class AccountModelTest(TestCase):
 
     def test_profile_created(self):
         print("testing if a profile is made when a user is created...")
-        try:
-            test_profile = Profile.objects.get(user=self.user_1)
-            print(test_profile)
-        except:
-            test_profile = None
-            print(test_profile)
+        test_profile = Profile.objects.get(user=self.user_1)
+        print(test_profile)
         self.assertEqual(test_profile.user, self.user_1)
 
     # test the model manager for connection
@@ -37,7 +33,6 @@ class AccountModelTest(TestCase):
         state_3 = Connection.objects.exist(self.user_3, self.user_1)
         self.assertEqual(state_3, False)
 
-
     # returns the connection
     @tag('get-connection')
     def test_connection_manager_get_conn(self):
@@ -50,3 +45,20 @@ class AccountModelTest(TestCase):
 
         connection_3 = Connection.objects.get_conn(self.user_1, self.user_3)
         self.assertEqual(connection_3, None)
+
+    # test get_user_conn
+    @tag('get_user_conn')
+    def test_get_user_conn(self):
+        print("testing get_user_conn")
+        conns = Connection.objects.get_user_conn(self.user_2)
+        self.assertEqual(conns, [])
+
+        self.connection_1.approved = True
+        self.connection_1.save()
+        conns = Connection.objects.get_user_conn(self.user_2)
+        self.assertEqual(conns, [self.user_1])
+
+        self.connection_2.approved = True
+        self.connection_2.save()
+        conns = Connection.objects.get_user_conn(self.user_2)
+        self.assertEqual(conns, [self.user_3, self.user_1])

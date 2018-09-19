@@ -78,6 +78,27 @@ class ConnectionManager(models.Manager):
 
         return result
 
+    def get_user_conn(self, user):
+        """
+        looking for connection that exist for the user
+        :param user:
+        :return:
+        """
+        qset = (
+                models.Q(conn_sender=user) |
+                models.Q(conn_receiver=user.profile)
+        )
+        connected = []
+        connected_obj = Connection.objects.filter(qset)
+        for obj in connected_obj:
+            if obj.approved:
+                if obj.conn_sender == user:
+                    connected.append(obj.conn_receiver.user)
+                else:
+                    connected.append(obj.conn_sender)
+
+        return connected
+
 
 # connected users
 class Connection(models.Model):

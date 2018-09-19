@@ -78,21 +78,6 @@ class ConnectedUser(generic.TemplateView):
             Q(approved=False)
         )
         requests = Connection.objects.filter(qset_1).distinct()
-
-        # looking for connection that exist for the user
-        qset = (
-            Q(conn_sender=self.request.user.profile.user) |
-            Q(conn_receiver=self.request.user.profile)
-        )
-        connected = []
-        connected_obj = Connection.objects.filter(qset).distinct()
-        for obj in connected_obj:
-            if obj.approved:
-                if obj.conn_sender == self.request.user:
-                    connected.append(obj.conn_receiver.user)
-                else:
-                    connected.append(obj.conn_sender)
-
         # suggestions
         for i in range(10):
                 suggestion = random.choice(users)
@@ -102,7 +87,7 @@ class ConnectedUser(generic.TemplateView):
 
         return render(request, self.template_name, {
             'suggestions': suggestions,
-            "connected": connected,
+            "connected": Connection.objects.get_user_conn(self.request.user),
             "requests": requests,
         })
 

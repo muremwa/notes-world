@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}edit collaborators for {{ note.name }}{% endblock title %}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'notes/css/collaborators.css' %}"/>{% endblock style %}
+{% block notes %}active{% endblock notes %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="text-center col-md-12">
+                <h2>Edit collaborators for {{ note.title }} <small><a href="{{ note.get_absolute_url }}">see</a></small></h2>
+            </div>
+            {% if collaborators %}
+            <div class="col-md-6">
+                <h2>Current collaborators</h3>
+                {% for collaborator in collaborators %}
+                <div class="row user">
+                    <div class="col-sm-2">
+                        <img class="user-img" alt="image of {{ collaborator.username }}" src="{{ collaborator.image.url }}">
+                    </div>
+                    <div class="col-sm-9 user-info">
+                        <span class="text-info">{{ collaborator.user.get_full_name }}</span>
+                        <br />
+                        <a href="{% url 'notes:remove-collaborator' note.id collaborator.id %}" class="btn btn-link">remove</a>
+                        <hr />
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-md-6">
+                {% if suggestions %}
+                <h2>people you can add</h2>
+                {% for suggestion in suggestions %}
+                <div class="row user">
+                    <div class="col-sm-2">
+                        <img class="user-img" alt="image of {{ suggestion.username }}" src="{{ suggestion.profile.image.url }}">
+                    </div>
+                    <div class="col-sm-9 user-info">
+                        <span class="text-info">{{ suggestion.get_full_name }}</span>
+                        <br />
+                        <a href="{% url 'notes:add-collaborator' note.id suggestion.id %}" class="btn btn-link">add</a>
+                        <hr />
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                    <h2>you seem to have no one you can add <small><a href="{% url 'base_account:connected' %}">click here to connect to more people</a></small></h2>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

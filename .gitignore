@@ -1,6 +1,6 @@
 .idea/*
 *.pyc
-*.sqlite3
+db.sqlite3
 account/migrations/*
 notes/migrations/*
 note/static/css/bootstrap.min.css
