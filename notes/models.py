@@ -3,19 +3,38 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from django.urls import reverse
 
-from account.models import Profile
+from account.models import Profile, Connection
 
 
+# notes manager
 class NoteManager(models.Manager):
-    @staticmethod
-    def collaborations(user):
+    def notes_user_can_see(self, user):
+        """
+        takes a user and returns all notes from the users connected users
+        :param user: user type
+        :return: array of notes(queryset)
+        """
+        user = User.objects.get(id=user.id)
+        connected_users = Connection.objects.get_user_conn(user)
+        qsets = []
+        notes = []
+        for connected_user in connected_users:
+            user_notes = Note.objects.filter(user=connected_user)
+            qsets.append(user_notes)
+        for qset in qsets:
+            for n in qset:
+                if n.collaborative:
+                    notes.append(n)
+        return notes
+
+    def collaborations(self, user):
         """
         :param user: the user to get all the notes they can collaborate on
         :return: an array of notes
         """
         collaborations = []
-        user = User.objects.get(id=user.id)
-        notes = Note.objects.all()
+        notes = self.notes_user_can_see(user)
+
         for note in notes:
             if user.profile in note.collaborators.all():
                 collaborations.append(note)

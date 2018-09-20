@@ -3,6 +3,7 @@ from django.shortcuts import reverse, NoReverseMatch
 
 from django.contrib.auth.models import User
 from notes.models import Note
+from account.models import Connection
 
 
 class TestViews(TestCase):
@@ -10,6 +11,7 @@ class TestViews(TestCase):
     def setUp(self):
         self.user_1 = User.objects.create(username="testing", password="testing")
         self.user_2 = User.objects.create(username="testing1", password="testing1")
+        self.connection = Connection.objects.create(conn_sender=self.user_2, conn_receiver=self.user_1.profile, approved=True)
         self.client.force_login(self.user_1)
         self.note = Note.objects.create(
             user=self.user_1,
@@ -158,3 +160,27 @@ class TestViews(TestCase):
         note = Note.objects.get(id=self.note_1.id)
         self.assertEqual(note.collaborative, True)
         self.assertEqual(note.privacy, "PB")
+
+    # testing remove collaboration
+    @tag('remove-collaborative')
+    def test_remove_collaboration(self):
+        print("testing remove collaboration")
+        self.client.force_login(self.user_1)
+
+        url = reverse("notes:undo-collaborative", args=[str(1000)])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        self.note.collaborators.add(self.user_2.profile)
+        self.note.save()
+        url = reverse("notes:undo-collaborative", args=[str(self.note.id)])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("notes:note-page", args=[str(self.note.id)]))
+        note = Note.objects.get(id=self.note.id)
+        self.assertEqual(note.collaborators.all().count(), 0)
+        self.assertEqual(note.collaborative, False)
+
+        self.client.force_login(self.user_2)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)

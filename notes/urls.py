@@ -34,4 +34,7 @@ urlpatterns = [
     # notes/note34/make_collaborative/
     path("notes/note<int:note_id>/make_collaborative/", views.make_collaborative, name="make-collaborative"),
 
+    # notes/note34/undo_collaborative/
+    path("note/note<int:note_id>/undo_collaborative/", views.undo_collaborative, name="undo-collaborative"),
+
 ]

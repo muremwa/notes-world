@@ -1,9 +1,13 @@
+# django imports
 from django.shortcuts import redirect, reverse,  get_object_or_404
 from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
+
+# other imports
+from itertools import chain
 
 # models & forms (local imports)
 from .models import Note
@@ -16,14 +20,30 @@ class NoteIndex(generic.ListView):
     template_name = 'notes/index.html'
     context_object_name = "notes"
 
+    def connected_users_notes(self):
+        public_note = Note.objects.filter(privacy="PB")
+        # get all connected users
+        other_notes = Note.objects.notes_user_can_see(self.request.user)
+        return chain(public_note, other_notes)
+
     def get_queryset(self):
-        return self.request.user.note_set.all()
+        notes = chain(self.request.user.note_set.all(), self.connected_users_notes())
+        sanitized_notes = []
+        for note in notes:
+            if note not in sanitized_notes:
+                sanitized_notes.append(note)
+        return sanitized_notes
 
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect(reverse('base_account:account-index'))
         else:
             return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['count'] = self.request.user.note_set.all().count()
+        return context
 
 
 # each note page
@@ -157,3 +177,22 @@ def make_collaborative(request, note_id):
         note.save()
 
     return redirect(reverse("notes:edit-collaborators", args=[str(note.id)]))
+
+
+# make not collaborative
+@login_required
+def undo_collaborative(request, note_id):
+    note = get_object_or_404(Note, id=note_id)
+
+    if note.user != request.user:
+        raise Http404
+    else:
+        collaborators = note.collaborators.all()
+        # remove all collaborators first
+        for collaborator in collaborators:
+            note.collaborators.remove(collaborator)
+        # make collaborative false
+        note.collaborative = False
+        note.save()
+
+    return redirect(reverse("notes:note-page", args=[str(note_id)]))

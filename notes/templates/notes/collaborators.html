@@ -48,6 +48,10 @@
                     <h2>you seem to have no one you can add <small><a href="{% url 'base_account:connected' %}">click here to connect to more people</a></small></h2>
                 {% endif %}
             </div>
+            <div class="text-center col-md-12">
+                <p class="text-danger">by clicking on remove collaborative you remove all the collaborators and their access to the note, but they can still view it!</p>
+                <a href="{% url 'notes:undo-collaborative' note.id %}" class="btn btn-danger">remove collaborative!?</a>
+            </div>
         </div>
     </div>
 {% endblock content %}

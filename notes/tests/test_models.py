@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from django.contrib.auth.models import User
 from notes.models import Note
+from account.models import Connection
 
 
 class NoteTestCase(TestCase):
@@ -35,6 +36,10 @@ class NoteTestCase(TestCase):
     @tag('note-manager')
     def test_note_manager(self):
         print("testing note manager")
+        self.connection_1 = Connection.objects.create(conn_sender=self.user_1, conn_receiver=self.user_2.profile, approved=True)
+        self.connection_1 = Connection.objects.create(conn_sender=self.user_2, conn_receiver=self.user_3.profile, approved=True)
+        self.connection_1 = Connection.objects.create(conn_sender=self.user_1, conn_receiver=self.user_3.profile, approved=True)
+
         self.user_4 = User.objects.create(username="testing4", password="testing4")
         collaborators = Note.objects.collaborations(self.user_1)
         self.assertEqual(len(collaborators), 2)

@@ -9,7 +9,7 @@
 
 {% block content %}
     <div class="container">
-        {% if user.profile in collaborators or user == note.user %}
+        {% if user.profile in collaborators or user == note.user or note.privacy == "PB" %}
             <h2>{{ note.title }}</h2>{% if note.user == user %}<small>your note</small>{% else %}<span class="text-danger">{{ note.user }}'s note</span>{% endif %}
             {% if note.get_last_modified %}<h5>last modified {{ note.get_last_modified }}{% if note.get_last_modifier %} by {{ note.get_last_modifier}}{% endif %}</h3>{% endif %}
             <h5>created {{note.created }}</h3>
@@ -49,7 +49,9 @@
                         </ul>
                         {% else %}
                             <span class="text-info">{{ note.title }} is not collaborative</span><br />
+                            {% if user == note.user %}
                             <a href="{% url 'notes:make-collaborative' note.id %}" class="btn btn-link">change that</a>                    
+                            {% endif %}
                         {% endif %}
                     </div>
                     <hr>
@@ -63,7 +65,7 @@
                                 <p>Only your connected friends can see {{ note.title }}</p>
                             {% else %}
                                 <span class="text-danger">{{ note.get_privacy }}</span>
-                                <p>{{ note.title }} is visible to everyone on notes-world. <a href="#" class="btn btn-link">change this</a></p>
+                                <p>{{ note.title }} is visible to everyone on notes-world.{% if note.user == user %} <a href="{% url 'notes:note-edit' note.id %}#id_privacy" class="btn btn-link">change this</a>{% endif %}</p>
                             {% endif %}
                         {% endif %}
                     </div>
@@ -73,7 +75,9 @@
                             <a class="btn btn-outline-dark" href="{% url 'notes:note-edit' note.id %}">Edit {{ note.title|truncatechars:12 }}</a>
                             <a style="margin-left: 10px;" class="btn btn-outline-danger" href="{% url 'notes:note-delete' note.id %}">delete {{ note.title|truncatechars:12 }}</a>
                         {% else %}
-                            <a class="btn btn-outline-primary" href="{% url 'notes:note-edit' note.id %}">Edit {{ note.title|truncatechars:12 }}</a>
+                            {% if user.profile in collaborators %}
+                                <a class="btn btn-outline-primary" href="{% url 'notes:note-edit' note.id %}">Edit {{ note.title|truncatechars:12 }}</a>
+                            {% endif %}
                         {% endif %}
                     </div>
 

@@ -11,12 +11,13 @@
         <a href="{% url 'notes:collaborate_page' %}" class="btn btn-outline-dark">collaborate</a>
         <hr>
         {% if notes %}
-            <small>you have {{ notes.count }} notes</small>
+            <p>{% if count == 0 %}you have no notes yet{% else %}you have {{ count }} notes{% endif %}</p>
             <!-- each note -->
             <div class="row">
             {% for note in notes %}
                 <div class="each-note col-md-3">
-                    <a href="{{ note.get_absolute_url }}"><h3>{{ note.title }}</h3></a>
+                    <a href="{{ note.get_absolute_url }}"><h3{% if note.user != user %} class="text-danger"{% endif %}>{{ note.title }}</h3></a>
+                    {% if note.user != user %}<p>by {{ note.user }}</p>{% endif %}
                     <hr>
                     {% if note.get_last_modified %}
                     <span class="text-info">last modified {{ note.get_last_modified }}{% if note.get_last_modifier %} by {{ note.get_last_modifier}}{% endif %}</span><br />
@@ -28,7 +29,7 @@
             {% endfor %}
             </div>
         {% else %}
-            <h1>you have no notes yet</h1>
+            <h1>no notes yet to view</h1>
             <a class="btn btn-link" href="{% url 'notes:note-create' %}">start creating now</a>
         {% endif %}
     </div>
