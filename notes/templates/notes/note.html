@@ -16,14 +16,13 @@
             <br />
             <hr>
             <div class="row">
-                <div class="col-sm-8">
-                    <p id="js-note">{{ note.content }}</p>
+                <div id="js-note" class="col-sm-8">
+                {{ note.content }}
                 </div>
                 <script type="text/javascript">
                     let content = document.getElementById("js-note");
                     let markedContent = marked(content.innerText);
                     content.innerHTML = markedContent;
-
                 </script>
                 <div class="col-sm-4">
                     <div class="align-content-center">
