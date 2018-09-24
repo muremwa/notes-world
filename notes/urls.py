@@ -29,12 +29,15 @@ urlpatterns = [
     path("new/collaborator/note<int:note_id>/user<int:user_id>/", views.add_collaborator, name="add-collaborator"),
 
     # notes/new/collaborator/note34/user34/
-    path("delete/collaborator/note<int:note_id>/user<int:user_id>/", views.remove_collaborator, name="remove-collaborator"),
+    path("delete/collaborator/note<int:note_id>/user<int:user_id>/", views.rm_collaborator, name="remove-collaborator"),
 
     # notes/note34/make_collaborative/
     path("notes/note<int:note_id>/make_collaborative/", views.make_collaborative, name="make-collaborative"),
 
     # notes/note34/undo_collaborative/
     path("note/note<int:note_id>/undo_collaborative/", views.undo_collaborative, name="undo-collaborative"),
+
+    # notes/new/note34/comment/
+    path("notes/new/note<int:note_id>/comment/", views.CommentProcessing.as_view(), name="comment"),
 
 ]

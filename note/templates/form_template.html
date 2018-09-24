@@ -1,4 +1,4 @@
-<form action="" method="post" enctype="multipart/form-data">
+<form action="{{action_url}}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in form %}
         <div class="form-group">

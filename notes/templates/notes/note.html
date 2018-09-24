@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}{{ note.title }} - {{ user }}{% endblock title %}
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static "notes/css/note.css" %}"/>{% endblock style %}
 {% block topScript %}
 <script src="https://cdnjs.cloudfare.com/ajax/libs/marked/0.5.0/marked.min.js"></script>
 <script src="http://127.0.0.1/assets/js/marked.min.js"></script>
@@ -16,14 +17,11 @@
             <br />
             <hr>
             <div class="row">
-                <div id="js-note" class="col-sm-8">
-                {{ note.content }}
+                <div class="col-sm-8">
+                <div id="js-note">{{ note.content }}</div>
+                <hr />
+                <div>{% include "notes/comments.html" %}</div>
                 </div>
-                <script type="text/javascript">
-                    let content = document.getElementById("js-note");
-                    let markedContent = marked(content.innerText);
-                    content.innerHTML = markedContent;
-                </script>
                 <div class="col-sm-4">
                     <div class="align-content-center">
                         {% if note.collaborative %}
@@ -87,3 +85,5 @@
         {% endif %}
     </div>
 {% endblock content %}
+
+{% block bottomScript %}<script src="{% static "notes/js/note.js" %}"></script>{% endblock bottomScript %}

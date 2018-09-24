@@ -2,7 +2,7 @@ from django.test import TestCase, tag
 from django.shortcuts import reverse, NoReverseMatch
 
 from django.contrib.auth.models import User
-from notes.models import Note
+from notes.models import Note, Comment
 from account.models import Connection
 
 
@@ -11,7 +11,8 @@ class TestViews(TestCase):
     def setUp(self):
         self.user_1 = User.objects.create(username="testing", password="testing")
         self.user_2 = User.objects.create(username="testing1", password="testing1")
-        self.connection = Connection.objects.create(conn_sender=self.user_2, conn_receiver=self.user_1.profile, approved=True)
+        self.connection = Connection.objects.create(conn_sender=self.user_2, conn_receiver=self.user_1.profile,
+                                                    approved=True)
         self.client.force_login(self.user_1)
         self.note = Note.objects.create(
             user=self.user_1,
@@ -184,3 +185,39 @@ class TestViews(TestCase):
         self.client.force_login(self.user_2)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+
+class CommentsTestCase(TestCase):
+    def setUp(self):
+        self.user_1 = User.objects.create(username="testing", password="testing")
+        self.note = Note.objects.create(
+            user=self.user_1,
+            title="test_note",
+            content="test_content",
+            collaborative=True
+        )
+        self.comment = Comment.objects.create(
+            user=self.user_1,
+            note=self.note,
+            comment_text="this is just a test comment @test1"
+        )
+
+    # testing comment submission
+    @tag("submit-comment")
+    def test_comment_submit(self):
+        print("testing comment submit")
+        self.client.force_login(self.user_1)
+        url = reverse("notes:comment", args=[str(self.note.id)])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post(url, data={"comment_text": "hello world"})
+        self.assertEqual(response.status_code, 302)
+        response = self.client.post(url, data={"comment_text": "hello world 2"}, follow=True)
+        redirects_to = reverse("notes:note-page", args=[str(self.note.id)]) + "#comments"
+        self.assertRedirects(response, redirects_to)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['comment_count'], 3)
+        comment = Comment.objects.filter(comment_text__exact="hello world 2")[0]
+        self.assertEqual(comment.comment_text, "hello world 2")
+        self.assertEqual(comment.user, self.user_1)

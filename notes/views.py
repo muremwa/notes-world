@@ -1,6 +1,6 @@
 # django imports
 from django.shortcuts import redirect, reverse,  get_object_or_404
-from django.views import generic
+from django.views import generic, View
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
@@ -10,8 +10,8 @@ from django.contrib.auth.decorators import login_required
 from itertools import chain
 
 # models & forms (local imports)
-from .models import Note
-from .forms import NoteForm
+from .models import Note, Comment
+from .forms import NoteForm, CommentForm
 from account.models import Connection, Profile
 
 
@@ -54,6 +54,11 @@ class NotePage(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["collaborators"] = context['note'].collaborators.all()
+        context['form'] = CommentForm
+        context['input_name'] = "comment"
+        context['comments'] = context['note'].comment_set.all()
+        context['comment_count'] = context['comments'].count()
+        context['action_url'] = reverse("notes:comment", args=[str(context['note'].id)])
         return context
 
 
@@ -135,6 +140,22 @@ class CollaboratorsEdit(LoginRequiredMixin, generic.TemplateView):
         return context
 
 
+class CommentProcessing(View):
+    # raise 404 error if its a get request
+    def get(self, *args, **kwargs):
+        raise Http404
+
+    # process comment
+    def post(self, *args, **kwargs):
+        form = CommentForm(self.request.POST)
+        if form.is_valid():
+            form.instance.note_id = kwargs['note_id']
+            form.instance.user_id = self.request.user.id
+            form.save()
+        url = reverse("notes:note-page", args=[str(kwargs['note_id'])]) + "#comments"
+        return redirect(url)
+
+
 # add collaborator
 @login_required
 def add_collaborator(request, **kwargs):
@@ -150,7 +171,7 @@ def add_collaborator(request, **kwargs):
 
 # remove collaboration
 @login_required
-def remove_collaborator(request, **kwargs):
+def rm_collaborator(request, **kwargs):
     note = get_object_or_404(Note, id=kwargs['note_id'])
     remove_this = get_object_or_404(Profile, user=kwargs['user_id'])
 

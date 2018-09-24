@@ -1,5 +1,5 @@
 from django import forms
-from .models import Note
+from .models import Note, Comment
 from pagedown.widgets import PagedownWidget
 
 
@@ -9,3 +9,9 @@ class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
         fields = ("title", 'content', 'privacy')
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('comment_text',)

@@ -1,0 +1,30 @@
+<!-- Comments -->
+<div id="comments">
+    <h3>comments <small class="text-warning">{{ note.title }} has {% if comment_count > 0 %}{{comment_count}}{% else %}no{% endif %} comments</small></h3>
+    <div>
+        {% include "form_template.html" %}
+        <hr>
+        <script type="text/javascript">
+            let commentArea = document.getElementById("id_comment_text");
+            commentArea.placeholder = "add comment here";
+        </script>
+    </div>
+    {% if comments %}
+        {% for comment in comments %}
+            <div class="row text-primary comment">
+                <div class="col-sm-1 user-img">                
+                    <img src="{{comment.user.profile.image.url}}" alt="image of {{ comment.user }}">
+                </div>
+                <div class="col-sm-11">
+                    <span class="comment-info"><strong>{{comment.user}}</strong> posted <strong class="dated">{{comment.get_created}}</strong></span>
+                    <p>{{comment.comment_text}}</p>
+                </div>
+            </div>
+            <hr />
+        {% endfor %}
+    {% else %}
+        <div id="no-comments">
+            <h3 class="alert-heading text-center">no comments yet to {{ note.title }}</h3>
+        </div>
+    {% endif %}
+</div>

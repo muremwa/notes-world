@@ -1,0 +1,15 @@
+.comment-info {
+    color: darkslategrey;
+    font-family: roboto, Verdana, sans-serif;
+    font-size: 1.5em;
+}
+
+.user-img img {
+    width: 4em;
+    height: 4em;
+    border-radius: 50%;
+}
+
+#id_comment_text {
+    height: 8em;
+}

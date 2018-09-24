@@ -6,6 +6,35 @@ from django.urls import reverse
 from account.models import Profile, Connection
 
 
+def how_long_ago(time):
+    current_time = str(datetime.now())
+    modified_time = str(time)
+    time_format = "%Y-%m-%d %H:%M:%S.%f"
+    difference = datetime.strptime(current_time, time_format) - \
+                 datetime.strptime(modified_time[:-6], time_format)
+    days = difference.days
+    # remove 180 seconds before hand as the server time is 3 hours behind
+    seconds = difference.seconds - (3 * (60 * 60))
+    minutes = (seconds / 60)
+    hours = (minutes / 60)
+
+    if days < 1:
+        if hours < 1:
+            if minutes < 1:
+                if seconds < 20:
+                    respond_with = "just now"
+                else:
+                    respond_with = "{} seconds ago".format(int(seconds))
+            else:
+                respond_with = "{} minutes ago".format(int(minutes))
+        else:
+            respond_with = "{} hours ago".format(int(hours))
+    else:
+        respond_with = "{} days ago".format(int(days))
+
+    return respond_with
+
+
 # notes manager
 class NoteManager(models.Manager):
     def notes_user_can_see(self, user):
@@ -64,32 +93,10 @@ class Note(models.Model):
 
     # get the last time it was modified
     def get_last_modified(self):
-        respond_with = None
         if self.last_modified:
-            current_time = str(datetime.now())
-            modified_time = str(self.last_modified)
-            time_format = "%Y-%m-%d %H:%M:%S.%f"
-            difference = datetime.strptime(current_time, time_format) - \
-                         datetime.strptime(modified_time[:-6], time_format)
-            days = difference.days
-            # remove 180 seconds before hand as the server time is 3 hours behind
-            seconds = difference.seconds - (3*(60*60))
-            minutes = (seconds / 60)
-            hours = (minutes / 60)
-
-            if days < 1:
-                if hours < 1:
-                    if minutes < 1:
-                        if seconds < 20:
-                            respond_with = "just now"
-                        else:
-                            respond_with = "{} seconds ago".format(int(seconds))
-                    else:
-                        respond_with = "{} minutes ago".format(int(minutes))
-                else:
-                    respond_with = "{} hours ago".format(int(hours))
-            else:
-                respond_with = "{} days ago".format(int(days))
+            respond_with = how_long_ago(self.last_modified)
+        else:
+            respond_with = None
 
         return respond_with
 
@@ -120,8 +127,18 @@ class Comment(models.Model):
     note = models.ForeignKey(Note, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment_text = models.TextField()
-    comment_date = models.DateField(auto_now_add=True)
-    comment_time = models.TimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    objects = models.Manager()
+
+    class Meta:
+        ordering = ['-created']
+
+    def get_created(self):
+        if self.created:
+            response = how_long_ago(self.created)
+        else:
+            response = None
+        return response
 
     def __str__(self):
         return "comment by {} on {}".format(self.user, self.note)
