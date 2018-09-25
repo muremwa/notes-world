@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
+from django.db.models import ObjectDoesNotExist
 
 # other imports
 from itertools import chain
@@ -15,6 +16,7 @@ import re
 from .models import Note, Comment
 from .forms import NoteForm, CommentForm
 from account.models import Connection, Profile
+from django.contrib.auth.models import User
 
 
 # all user notes
@@ -152,12 +154,24 @@ class CommentProcessing(View):
         users = re.findall(r'@\w*', comment_text, re.I | re.M)
         split_comment = comment_text.split(" ")
         connect_url = reverse("base_account:connected")
+        new_users = []
 
         for user in users:
-            user_index = split_comment.index(user)
-            line = '[{}](http://127.0.0.1:8000{})'
-            new_line = line.format(user, connect_url)
-            split_comment[user_index] = new_line
+            try:
+                name = user.split("@")[-1]
+                User.objects.get(username__exact=name)
+                new_users.append(user)
+            except ObjectDoesNotExist:
+                continue
+        
+        for user_ in new_users:
+            try:
+                user_index = split_comment.index(user_)
+                line = '[{}](http://127.0.0.1:8000{})'
+                new_line = line.format(user_, connect_url)
+                split_comment[user_index] = new_line
+            except ValueError:
+                continue
 
         result = " ".join(split_comment)
         return result

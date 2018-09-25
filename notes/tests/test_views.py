@@ -187,9 +187,11 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+@tag("commenting")
 class CommentsTestCase(TestCase):
     def setUp(self):
         self.user_1 = User.objects.create(username="testing", password="testing")
+        self.user_2 = User.objects.create(username="testing1", password="testing")
         self.note = Note.objects.create(
             user=self.user_1,
             title="test_note",
@@ -230,10 +232,10 @@ class CommentsTestCase(TestCase):
         print("testing mentioned")
         url = reverse("notes:comment", args=[str(self.note.id)])
         data_ = {
-            "comment": "this is just a test comment @test1 don't be surprised @muremwa"
+            "comment": "this is just a test comment @testing1 don't be surprised @testing"
         }
-        end_result = "<p>this is just a test comment <a href=\"{}\">@test1</a>" \
-                     " don't be surprised <a href=\"{}\">@muremwa</a></p>\n".format(connect, connect)
+        end_result = "<p>this is just a test comment <a href=\"{}\">@testing1</a>" \
+                     " don't be surprised <a href=\"{}\">@testing</a></p>\n".format(connect, connect)
         response = self.client.post(url, data=data_)
         comments = self.note.comment_set.all()
         comment = comments[0].comment_text
