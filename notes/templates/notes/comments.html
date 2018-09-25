@@ -5,8 +5,8 @@
         {% include "form_template.html" %}
         <hr>
         <script type="text/javascript">
-            let commentArea = document.getElementById("id_comment_text");
-            commentArea.placeholder = "add comment here";
+            let commentArea = document.getElementById("id_comment");
+            commentArea.placeholder = "add comment here (use '@username' to mention someone)";
         </script>
     </div>
     {% if comments %}
@@ -17,7 +17,7 @@
                 </div>
                 <div class="col-sm-11">
                     <span class="comment-info"><strong>{{comment.user}}</strong> posted <strong class="dated">{{comment.get_created}}</strong></span>
-                    <p>{{comment.comment_text}}</p>
+                    <div class="comment-text">{{comment.comment_text|safe }}</div>
                 </div>
             </div>
             <hr />

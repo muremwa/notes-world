@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 
 # other imports
 from itertools import chain
+from markdown_deux import markdown
+import re
 
 # models & forms (local imports)
 from .models import Note, Comment
@@ -146,12 +148,36 @@ class CommentProcessing(View):
         raise Http404
 
     # process comment
+    def process_comment(self, comment_text):
+        users = re.findall(r'@\w*', comment_text, re.I | re.M)
+        split_comment = comment_text.split(" ")
+        connect_url = reverse("base_account:connected")
+
+        for user in users:
+            user_index = split_comment.index(user)
+            line = '[{}](http://127.0.0.1:8000{})'
+            new_line = line.format(user, connect_url)
+            split_comment[user_index] = new_line
+
+        result = " ".join(split_comment)
+        return result
+
+    # make it html
+    def mark(self, comment):
+        processed_comment = self.process_comment(comment)
+        result = markdown(processed_comment)
+        return result
+
+    # process comment
     def post(self, *args, **kwargs):
         form = CommentForm(self.request.POST)
         if form.is_valid():
-            form.instance.note_id = kwargs['note_id']
-            form.instance.user_id = self.request.user.id
-            form.save()
+            text = self.mark(form.cleaned_data['comment'])
+            Comment.objects.create(
+                user_id=self.request.user.id,
+                note_id=kwargs['note_id'],
+                comment_text=text
+            )
         url = reverse("notes:note-page", args=[str(kwargs['note_id'])]) + "#comments"
         return redirect(url)
 

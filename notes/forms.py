@@ -11,7 +11,5 @@ class NoteForm(forms.ModelForm):
         fields = ("title", 'content', 'privacy')
 
 
-class CommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = ('comment_text',)
+class CommentForm(forms.Form):
+    comment = forms.CharField(max_length=140, widget=forms.Textarea)

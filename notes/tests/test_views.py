@@ -199,7 +199,7 @@ class CommentsTestCase(TestCase):
         self.comment = Comment.objects.create(
             user=self.user_1,
             note=self.note,
-            comment_text="this is just a test comment @test1"
+            comment_text="this is just a test comment @test1 don't be surprised @muremwa"
         )
 
     # testing comment submission
@@ -211,13 +211,31 @@ class CommentsTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.post(url, data={"comment_text": "hello world"})
+        response = self.client.post(url, data={"comment": "hello world"})
         self.assertEqual(response.status_code, 302)
-        response = self.client.post(url, data={"comment_text": "hello world 2"}, follow=True)
+        response = self.client.post(url, data={"comment": "hello world 2"}, follow=True)
         redirects_to = reverse("notes:note-page", args=[str(self.note.id)]) + "#comments"
         self.assertRedirects(response, redirects_to)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['comment_count'], 3)
-        comment = Comment.objects.filter(comment_text__exact="hello world 2")[0]
-        self.assertEqual(comment.comment_text, "hello world 2")
+        comment = Comment.objects.filter(comment_text__contains="<p>hello world 2</p>")[0]
+        self.assertEqual(comment.comment_text, "<p>hello world 2</p>\n")
         self.assertEqual(comment.user, self.user_1)
+
+    # tagged users
+    @tag("comment-mentioned")
+    def test_mentioned(self):
+        connect = "http://127.0.0.1:8000"+reverse("base_account:connected")
+        self.client.force_login(self.user_1)
+        print("testing mentioned")
+        url = reverse("notes:comment", args=[str(self.note.id)])
+        data_ = {
+            "comment": "this is just a test comment @test1 don't be surprised @muremwa"
+        }
+        end_result = "<p>this is just a test comment <a href=\"{}\">@test1</a>" \
+                     " don't be surprised <a href=\"{}\">@muremwa</a></p>\n".format(connect, connect)
+        response = self.client.post(url, data=data_)
+        comments = self.note.comment_set.all()
+        comment = comments[0].comment_text
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(comment, end_result)
