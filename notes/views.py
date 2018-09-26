@@ -149,6 +149,20 @@ class CommentProcessing(View):
     def get(self, *args, **kwargs):
         raise Http404
 
+    def user_linking(self, user, split, url, addition, **kwargs):
+        line = '[{}](http://127.0.0.1:8000{})'
+        new_user = user
+        if addition:
+            new_user = user + kwargs['add']
+            line = '[{}](http://127.0.0.1:8000{}){}'
+        user_index = split.index(new_user)
+        if addition:
+            new_line = line.format(user, url, kwargs['add'])
+        else:
+            new_line = line.format(user, url)
+        split[user_index] = new_line
+        return split
+
     # process comment
     def process_comment(self, comment_text):
         users = re.findall(r'@\w*', comment_text, re.I | re.M)
@@ -166,12 +180,18 @@ class CommentProcessing(View):
         
         for user_ in new_users:
             try:
-                user_index = split_comment.index(user_)
-                line = '[{}](http://127.0.0.1:8000{})'
-                new_line = line.format(user_, connect_url)
-                split_comment[user_index] = new_line
+                split_comment = self.user_linking(user_, split_comment, connect_url, False)
             except ValueError:
-                continue
+                try:
+                    split_comment = self.user_linking(user_, split_comment, connect_url, True, add=",")
+                except ValueError:
+                    try:
+                        split_comment = self.user_linking(user_, split_comment, connect_url, True, add=".")
+                    except ValueError:
+                        try:
+                            split_comment = self.user_linking(user_, split_comment, connect_url, True, add="?")
+                        except ValueError:
+                            continue
 
         result = " ".join(split_comment)
         return result
