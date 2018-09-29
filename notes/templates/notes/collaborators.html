@@ -19,7 +19,7 @@
                         <img class="user-img" alt="image of {{ collaborator.username }}" src="{{ collaborator.image.url }}">
                     </div>
                     <div class="col-sm-9 user-info">
-                        <span class="text-info">{{ collaborator.user.get_full_name }}</span>
+                        <span class="text-info">{{ collaborator.user.get_full_name }} <small class="text-danger">@{{ collaborator.user }}</small></span>
                         <br />
                         <a href="{% url 'notes:remove-collaborator' note.id collaborator.id %}" class="btn btn-link">remove</a>
                         <hr />
@@ -37,7 +37,7 @@
                         <img class="user-img" alt="image of {{ suggestion.username }}" src="{{ suggestion.profile.image.url }}">
                     </div>
                     <div class="col-sm-9 user-info">
-                        <span class="text-info">{{ suggestion.get_full_name }}</span>
+                        <span class="text-info">{{ suggestion.get_full_name }} <small class="text-danger">@{{ suggestion }}</small></span>
                         <br />
                         <a href="{% url 'notes:add-collaborator' note.id suggestion.id %}" class="btn btn-link">add</a>
                         <hr />

@@ -114,7 +114,7 @@ class ViewsTest(TestCase):
         response_post_accept = self.client.post(url)
         self.assertEqual(response_post_accept.status_code, 200)
         self.assertEqual(response_post_accept.json()['accepted'], True)
-        connection = Connection.objects.get(pk=self.connection_1.id)
+        connection = Connection.objects.get(note_id=self.connection_1.id)
         self.assertEqual(connection.approved, True)
 
         # id does not exist

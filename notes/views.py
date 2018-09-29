@@ -63,6 +63,11 @@ class NotePage(LoginRequiredMixin, generic.DetailView):
         context['comments'] = context['note'].comment_set.all()
         context['comment_count'] = context['comments'].count()
         context['action_url'] = reverse("notes:comment", args=[str(context['note'].id)])
+        context['connected_note'] = False
+
+        if self.request.user != context['note'].user and context['note'].privacy == "CO":
+            if Connection.objects.exist(self.request.user, context['note'].user):
+                context['connected_note'] = True
         return context
 
 
@@ -206,11 +211,13 @@ class CommentProcessing(View):
     def post(self, *args, **kwargs):
         form = CommentForm(self.request.POST)
         if form.is_valid():
-            text = self.mark(form.cleaned_data['comment'])
+            original_text = form.cleaned_data['comment']
+            browser_text = self.mark(original_text)
             Comment.objects.create(
                 user_id=self.request.user.id,
                 note_id=kwargs['note_id'],
-                comment_text=text
+                comment_text=browser_text,
+                original_comment=original_text,
             )
         url = reverse("notes:note-page", args=[str(kwargs['note_id'])]) + "#comments"
         return redirect(url)

@@ -127,6 +127,7 @@ class Comment(models.Model):
     note = models.ForeignKey(Note, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment_text = models.TextField()
+    original_comment = models.TextField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
     objects = models.Manager()
 

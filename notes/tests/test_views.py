@@ -220,8 +220,9 @@ class CommentsTestCase(TestCase):
         self.assertRedirects(response, redirects_to)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['comment_count'], 3)
-        comment = Comment.objects.filter(comment_text__contains="<p>hello world 2</p>")[0]
+        comment = Comment.objects.filter(comment_text__contains="hello world 2")[0]
         self.assertEqual(comment.comment_text, "<p>hello world 2</p>\n")
+        self.assertEqual(comment.original_comment, "hello world 2")
         self.assertEqual(comment.user, self.user_1)
 
     # tagged users

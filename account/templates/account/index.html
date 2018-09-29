@@ -10,7 +10,7 @@
     <div class="container" id="index">
         <div id="info">
             <h1>notes world</h1>
-            <p class="lead bco">welcome to notes world. enjoy our services for free. <a href="#">create</a> notes and collaborate with other users and connect
+            <p class="lead bco">welcome to notes world. enjoy our services for free. <a href="{% url 'notes:note-create' %}">create</a> notes and collaborate with other users and connect
                 share your notes to your connected friends. change editing permisions and more. <a href="{% url 'base_account:sign-up' %}">sign up</a> for 
                 a free account. if you have an account go ahead and <a href="{% url 'login' %}">sign in</a> if you already have an account and
                  {% if no_of_users > 0 %}connect with the {{ no_of_users }} user of notes world{% else %} grow our community {% endif %}

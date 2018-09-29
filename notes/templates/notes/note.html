@@ -10,7 +10,9 @@
 
 {% block content %}
     <div class="container">
-        {% if user.profile in collaborators or user == note.user or note.privacy == "PB" %}
+        {% if user == note.user or note.privacy == "PB" or connected_note %}
+            {% if connected_note %}<h5>connected friend's note</h5>{% endif %}
+            {% if note.privacy == "PB" %}<h5>public note</h5>{% endif %}
             <h2>{{ note.title }}</h2>{% if note.user == user %}<small>your note</small>{% else %}<span class="text-danger">{{ note.user }}'s note</span>{% endif %}
             {% if note.get_last_modified %}<h5>last modified {{ note.get_last_modified }}{% if note.get_last_modifier %} by {{ note.get_last_modifier}}{% endif %}</h3>{% endif %}
             <h5>created {{note.created }}</h3>
@@ -18,7 +20,7 @@
             <hr>
             <div class="row">
                 <div class="col-sm-8">
-                <div id="js-note">{{ note.content }}</div>
+                <div class="js-note">{{ note.content }}</div>
                 <hr />
                 <div>{% include "notes/comments.html" %}</div>
                 </div>
@@ -30,9 +32,9 @@
                             {% if collaborators %}
                                 {% for c in collaborators %}
                                     {% if c.pen_name %}
-                                        <li class="text-info">{{ c.pen_name }}</li>
+                                        <li class="text-info">{{ c.pen_name }} <small class="text-danger">@{{ c.user }}</small></li>
                                     {% else %}
-                                        <li class="text-info">{{ c.user }}</li>
+                                        <li class="text-info">{{ c.user }} <small class="text-danger">@{{ c.user }}</small></li>
                                     {% endif %}
                                 {% endfor %}
                                 {% if user == note.user %}
