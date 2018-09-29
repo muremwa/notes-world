@@ -5,3 +5,5 @@ account/migrations/*
 notes/migrations/*
 note/static/css/bootstrap.min.css
 .vscode/*
+media/profile_images/*
+mail/*

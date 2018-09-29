@@ -1,6 +1,13 @@
-let content = document.getElementById("js-note");
-let markedContent = marked(content.innerText);
-content.innerHTML = markedContent;
+// conver markdown to html
+$(document).ready( function () {
+    $(".js-note").each( function () {
+        var content = $(this).text();
+        var markedContent = marked(content);
+        console.log(content);
+        console.log(markedContent);
+        $(this).html(markedContent);
+    })
+})
 
 
 function getMentioned () {

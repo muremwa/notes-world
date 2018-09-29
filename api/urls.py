@@ -1,11 +1,24 @@
-from django.urls import path, include
-from rest_framework import routers
+from django.urls import path
+from rest_framework.authtoken.views import obtain_auth_token
 
 from . import views
 
-router = routers.DefaultRouter()
-router.register('notes', views.NoteApi)
+app_name = "api"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # notes/
+    path('notes/', views.NotesApi.as_view(), name="notes"),
+
+    # notes/note34/
+    path('notes/note<int:note_id>/', views.NoteAPi.as_view(), name="note"),
+
+    # create_user/
+    path('create_user/', views.UserCreateApi.as_view(), name="create-user"),
+
+    # login/
+    path('login/', obtain_auth_token, name="api-login"),
+
+    # create_note/
+    path('create_note/', views.NoteCreationApi.as_view(), name="create-note"),
+
 ]
