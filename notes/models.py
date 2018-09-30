@@ -6,33 +6,35 @@ from django.urls import reverse
 from account.models import Profile, Connection
 
 
-def how_long_ago(time):
-    current_time = str(datetime.now())
-    modified_time = str(time)
-    time_format = "%Y-%m-%d %H:%M:%S.%f"
-    difference = datetime.strptime(current_time, time_format) - \
-                 datetime.strptime(modified_time[:-6], time_format)
-    days = difference.days
-    # remove 180 seconds before hand as the server time is 3 hours behind
-    seconds = difference.seconds - (3 * (60 * 60))
-    minutes = (seconds / 60)
-    hours = (minutes / 60)
+class Timing:
+    @staticmethod
+    def how_long_ago(time):
+        current_time = str(datetime.now())
+        modified_time = str(time)
+        time_format = "%Y-%m-%d %H:%M:%S.%f"
+        difference = datetime.strptime(current_time, time_format) - \
+                     datetime.strptime(modified_time[:-6], time_format)
+        days = difference.days
+        # remove 180 seconds before hand as the server time is 3 hours behind
+        seconds = difference.seconds - (3 * (60 * 60))
+        minutes = (seconds / 60)
+        hours = (minutes / 60)
 
-    if days < 1:
-        if hours < 1:
-            if minutes < 1:
-                if seconds < 20:
-                    respond_with = "just now"
+        if days < 1:
+            if hours < 1:
+                if minutes < 1:
+                    if seconds < 20:
+                        respond_with = "just now"
+                    else:
+                        respond_with = "{} seconds ago".format(int(seconds))
                 else:
-                    respond_with = "{} seconds ago".format(int(seconds))
+                    respond_with = "{} minutes ago".format(int(minutes))
             else:
-                respond_with = "{} minutes ago".format(int(minutes))
+                respond_with = "{} hours ago".format(int(hours))
         else:
-            respond_with = "{} hours ago".format(int(hours))
-    else:
-        respond_with = "{} days ago".format(int(days))
+            respond_with = "{} days ago".format(int(days))
 
-    return respond_with
+        return respond_with
 
 
 # notes manager
@@ -71,7 +73,7 @@ class NoteManager(models.Manager):
 
 
 # notes model
-class Note(models.Model):
+class Note(models.Model, Timing):
     privacy_options = (("PB", "public"), ("CO", "connected"), ("PR", "private"),)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     title = models.CharField(max_length=500)
@@ -94,7 +96,7 @@ class Note(models.Model):
     # get the last time it was modified
     def get_last_modified(self):
         if self.last_modified:
-            respond_with = how_long_ago(self.last_modified)
+            respond_with = self.how_long_ago(self.last_modified)
         else:
             respond_with = None
 
@@ -123,7 +125,7 @@ class Note(models.Model):
 
 
 # comments model
-class Comment(models.Model):
+class Comment(models.Model, Timing):
     note = models.ForeignKey(Note, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment_text = models.TextField()
@@ -136,7 +138,7 @@ class Comment(models.Model):
 
     def get_created(self):
         if self.created:
-            response = how_long_ago(self.created)
+            response = self.how_long_ago(self.created)
         else:
             response = None
         return response
