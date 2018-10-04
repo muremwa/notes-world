@@ -25,6 +25,7 @@
     {% else %}
         <div id="no-comments">
             <h3 class="alert-heading text-center">no comments yet to {{ note.title }}</h3>
+            {% if note.privacy == "PR" %}<h4 class="text-warning text-center">try making it public or for connected only and connecting to users</h4>{% endif %}
         </div>
     {% endif %}
 </div>
