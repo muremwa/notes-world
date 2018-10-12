@@ -6,9 +6,18 @@ from pagedown.widgets import PagedownWidget
 # note creation or edit form
 class NoteForm(forms.ModelForm):
     content = forms.CharField(widget=PagedownWidget)
+
     class Meta:
         model = Note
         fields = ("title", 'content', 'privacy')
+
+
+class NoteForeignForm(forms.ModelForm):
+    content = forms.CharField(widget=PagedownWidget)
+
+    class Meta:
+        model = Note
+        fields = ('content',)
 
 
 class CommentForm(forms.Form):

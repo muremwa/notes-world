@@ -8,12 +8,16 @@ from account.models import Profile, Connection
 
 class Timing:
     @staticmethod
-    def how_long_ago(time):
-        current_time = str(datetime.now())
+    def difference(og_time, time):
+        current_time = str(og_time)
         modified_time = str(time)
         time_format = "%Y-%m-%d %H:%M:%S.%f"
         difference = datetime.strptime(current_time, time_format) - \
                      datetime.strptime(modified_time[:-6], time_format)
+        return difference
+
+    def how_long_ago(self, time):
+        difference = self.difference(time=time, og_time=(str(datetime.now())))
         days = difference.days
         # remove 180 seconds before hand as the server time is 3 hours behind
         seconds = difference.seconds - (3 * (60 * 60))
@@ -39,7 +43,8 @@ class Timing:
 
 # notes manager
 class NoteManager(models.Manager):
-    def notes_user_can_see(self, user):
+    @staticmethod
+    def notes_user_can_see(user):
         """
         takes a user and returns all notes from the users connected users
         :param user: user type
@@ -80,7 +85,7 @@ class Note(models.Model, Timing):
     content = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     collaborative = models.BooleanField(default=False)
-    last_modified = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(null=True)
     last_modifier = models.CharField(max_length=5, blank=True, null=True)
     privacy = models.CharField(max_length=2, choices=privacy_options, default="PR")
     collaborators = models.ManyToManyField(Profile, blank=True)
@@ -131,6 +136,7 @@ class Comment(models.Model, Timing):
     comment_text = models.TextField()
     original_comment = models.TextField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
+    modified = models.DateTimeField(null=True)
     objects = models.Manager()
 
     class Meta:
@@ -142,6 +148,15 @@ class Comment(models.Model, Timing):
         else:
             response = None
         return response
+
+    def is_modified(self):
+        if self.modified:
+            if self.modified > self.created:
+                return True
+            else:
+                return False
+        else:
+            return False
 
     def __str__(self):
         return "comment by {} on {}".format(self.user, self.note)

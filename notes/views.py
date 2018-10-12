@@ -4,17 +4,19 @@ from django.views import generic, View
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import ObjectDoesNotExist
 
 # other imports
 from itertools import chain
 from markdown_deux import markdown
+from datetime import datetime
 import re
 
 # models & forms (local imports)
 from .models import Note, Comment
-from .forms import NoteForm, CommentForm
+from .forms import NoteForm, NoteForeignForm, CommentForm
 from account.models import Connection, Profile
 from django.contrib.auth.models import User
 
@@ -92,16 +94,31 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
     model = Note
     form_class = NoteForm
     template_name = 'notes/note_edit.html'
+    note = None
+
+    @classmethod
+    def set_note(cls, note_id):
+        cls.note = Note.objects.get(pk=note_id)
+
+    def get(self, request, *args, **kwargs):
+        self.set_note(kwargs['pk'])
+        return super().get(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        if self.request.user == self.note.user:
+            form_class = NoteForm
+        else:
+            form_class = NoteForeignForm
+        return form_class(**self.get_form_kwargs())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['input_name'] = "edit note"
         context['collaborators'] = context['note'].collaborators.all()
-        print("here")
-        print(context['collaborators'])
         return context
 
     def form_valid(self, form):
+        form.instance.last_modified = datetime.now()
         form.instance.last_modifier = int(self.request.user.id)
         return super().form_valid(form)
 
@@ -154,7 +171,8 @@ class CommentProcessing(View):
     def get(self, *args, **kwargs):
         raise Http404
 
-    def user_linking(self, user, split, url, addition, **kwargs):
+    @staticmethod
+    def user_linking(user, split, url, addition, **kwargs):
         line = '[{}](http://127.0.0.1:8000{})'
         new_user = user
         if addition:
@@ -196,7 +214,10 @@ class CommentProcessing(View):
                         try:
                             split_comment = self.user_linking(user_, split_comment, connect_url, True, add="?")
                         except ValueError:
-                            continue
+                            try:
+                                split_comment = self.user_linking(user_, split_comment, connect_url, True, add="!")
+                            except ValueError:
+                                continue
 
         result = " ".join(split_comment)
         return result
@@ -221,6 +242,22 @@ class CommentProcessing(View):
             )
         url = reverse("notes:note-page", args=[str(kwargs['note_id'])]) + "#comments"
         return redirect(url)
+
+
+class EditComment(CommentProcessing):
+    def get(self, *args, **kwargs):
+        raise Http404
+
+    def post(self, *args, **kwargs):
+        form = CommentForm(self.request.POST)
+        if form.is_valid():
+            comment = Comment.objects.get(pk=kwargs['comment_id'])
+            comment.original_comment = form.cleaned_data['comment']
+            comment.comment_text = self.mark(form.cleaned_data['comment'])
+            comment.modified = datetime.now()
+            comment.save()
+
+        return redirect(reverse("notes:note-page", args=[str(kwargs['note_id'])])+"#comment"+str(kwargs['comment_id']))
 
 
 # add collaborator
@@ -284,3 +321,44 @@ def undo_collaborative(request, note_id):
         note.save()
 
     return redirect(reverse("notes:note-page", args=[str(note_id)]))
+
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    response = {}
+
+    if comment.user == request.user:
+        if request.method == "POST":
+            comment.delete()
+            response['success'] = True
+            response['message'] = "Comment Deleted"
+        else:
+            raise Http404
+    else:
+        response['success'] = False
+        response['message'] = "server couldn't complete your request"
+
+    return JsonResponse(response)
+
+
+@login_required
+def get_comment(request, comment_id):
+    response = {}
+    try:
+        comment = Comment.objects.get(pk=comment_id)
+        if request.user == comment.user:
+            if comment.original_comment:
+                response['text'] = comment.original_comment
+                response['success'] = True
+            else:
+                response['success'] = False
+                response['message'] = "The original comment does not exist"
+        else:
+            response['success'] = False
+            response['text'] = "you do not own this comment"
+    except ObjectDoesNotExist:
+        response['success'] = False
+        response['message'] = "comment id {} does not exist".format(comment_id)
+
+    return JsonResponse(response)
