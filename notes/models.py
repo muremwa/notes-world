@@ -137,6 +137,7 @@ class Comment(models.Model, Timing):
     original_comment = models.TextField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
     modified = models.DateTimeField(null=True)
+    mentioned = models.ManyToManyField(Profile)
     objects = models.Manager()
 
     class Meta:

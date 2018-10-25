@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from notes.models import Note, Comment
 from account.models import Connection
 
+# TODO:: add the tests for edit comment, reply, reply edit, delete reply or comment
+
 
 class TestViews(TestCase):
     # set up
@@ -192,6 +194,7 @@ class CommentsTestCase(TestCase):
     def setUp(self):
         self.user_1 = User.objects.create(username="testing", password="testing")
         self.user_2 = User.objects.create(username="testing1", password="testing")
+        self.user_3 = User.objects.create(username="testing2", password="testing")
         self.note = Note.objects.create(
             user=self.user_1,
             title="test_note",
@@ -201,8 +204,9 @@ class CommentsTestCase(TestCase):
         self.comment = Comment.objects.create(
             user=self.user_1,
             note=self.note,
-            comment_text="this is just a test comment @test1 don't be surprised @muremwa"
+            comment_text="this is just a test comment @test1 don't be surprised @muremwa",
         )
+        self.comment.mentioned.add(self.user_2.profile)
 
     # testing comment submission
     @tag("submit-comment")
@@ -228,7 +232,8 @@ class CommentsTestCase(TestCase):
     # tagged users
     @tag("comment-mentioned")
     def test_mentioned(self):
-        connect = "http://127.0.0.1:8000"+reverse("base_account:connected")
+        connect_1 = "http://127.0.0.1:8000"+reverse("base_account:foreign-user", args=[str(self.user_1.id)])
+        connect_2 = "http://127.0.0.1:8000" + reverse("base_account:foreign-user", args=[str(self.user_2.id)])
         self.client.force_login(self.user_1)
         print("testing mentioned")
         url = reverse("notes:comment", args=[str(self.note.id)])
@@ -236,9 +241,48 @@ class CommentsTestCase(TestCase):
             "comment": "this is just a test comment @testing1 don't be surprised @testing"
         }
         end_result = "<p>this is just a test comment <a href=\"{}\">@testing1</a>" \
-                     " don't be surprised <a href=\"{}\">@testing</a></p>\n".format(connect, connect)
+                     " don't be surprised <a href=\"{}\">@testing</a></p>\n".format(connect_2, connect_1)
         response = self.client.post(url, data=data_)
         comments = self.note.comment_set.all()
         comment = comments[0].comment_text
         self.assertEqual(response.status_code, 302)
         self.assertEqual(comment, end_result)
+        self.assertEqual(comments[0].mentioned.all().count(), 1)
+
+    @tag("comment-edit")
+    def test_comment_edit(self):
+        user_3 = "http://127.0.0.1:8000"+reverse('base_account:foreign-user', args=[str(self.user_3.id)])
+        user_2 = "http://127.0.0.1:8000"+reverse('base_account:foreign-user', args=[str(self.user_2.id)])
+        init_count = self.comment.mentioned.all().count()
+        print("comment edit")
+        data = {
+            'comment': 'this is the new comment @testing2 @testing1'
+        }
+        url = reverse('notes:edit-comment', args=[str(self.comment.id)])
+        expected_comment = "<p>this is the new comment <a href=\"{}\">@testing2</a> <a href=\"{}\"" \
+                           ">@testing1</a></p>".format(user_3, user_2)
+        # get logged in
+        self.client.force_login(self.user_1)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+        self.client.logout()
+
+        # post logged out redirect
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login')+"?next="+url)
+
+        # post logged in wrong user
+        self.client.force_login(self.user_2)
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 404)
+
+        # post logged in right user
+        self.client.force_login(self.user_1)
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+        comment = Comment.objects.get(pk=self.comment.id)
+        self.assertRedirects(response, reverse('notes:note-page', args=[str(comment.id)])+"#comment"+str(comment.id))
+        self.assertEqual(comment.original_comment, data['comment'])
+        self.assertEqual(comment.comment_text, expected_comment+"\n")
+        self.assertEqual(comment.mentioned.count(), init_count+1)

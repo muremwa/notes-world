@@ -157,7 +157,7 @@ class ViewsTest(TestCase):
         response_post_true = self.client.post(url)
         self.assertEqual(response_post_true.status_code, 200)
         self.assertEqual(response_post_true.json()['denied'], False)
-        self.assertEqual(response_post_true.json()['state'], "you cannot deny an approved request")
+        self.assertEqual(response_post_true.json()['state'], "you cannot cancel an approved request")
         self.connection_1.approved = False
         self.connection_1.save()
 
@@ -175,3 +175,5 @@ class ViewsTest(TestCase):
         # if does not exist
         response_post = self.client.post(url)
         self.assertEqual(response_post.status_code, 404)
+
+        # TODO: tests user registration forms

@@ -35,7 +35,7 @@
                     </form>
                     
                     <!-- comment edit -->
-                    <form style="display: none;" action="{% url 'notes:edit-comment' note.id comment.id %}" method="POST" class="form-inline" name="edit-form">
+                    <form style="display: none;" action="{% url 'notes:edit-comment' comment.id %}" method="POST" class="form-inline" name="edit-form">
                         {% csrf_token %}
                         <div class="form-group col-sm-7">
                             {{ form.comment }}

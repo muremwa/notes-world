@@ -20,6 +20,8 @@ from .forms import NoteForm, NoteForeignForm, CommentForm
 from account.models import Connection, Profile
 from django.contrib.auth.models import User
 
+# TODO: add replying and editing reply
+
 
 # all user notes
 class NoteIndex(generic.ListView):
@@ -170,14 +172,15 @@ class CollaboratorsEdit(LoginRequiredMixin, generic.TemplateView):
         return context
 
 
-class CommentProcessing(View):
+class CommentProcessing(LoginRequiredMixin, View):
     # raise 404 error if its a get request
     def get(self, *args, **kwargs):
         raise Http404
 
     @staticmethod
-    def user_linking(user, split, url, addition, **kwargs):
+    def user_linking(user, _user, split, addition, **kwargs):
         line = '[{}](http://127.0.0.1:8000{})'
+        url = reverse("base_account:foreign-user", args=[str(_user.id)])
         new_user = user
         if addition:
             new_user = user + kwargs['add']
@@ -194,42 +197,47 @@ class CommentProcessing(View):
     def process_comment(self, comment_text):
         users = re.findall(r'@\w*', comment_text, re.I | re.M)
         split_comment = comment_text.split(" ")
-        connect_url = reverse("base_account:connected")
         new_users = []
+        new_users_ = []
 
         for user in users:
             try:
                 name = user.split("@")[-1]
-                User.objects.get(username__exact=name)
+                u_ = User.objects.get(username__exact=name)
                 new_users.append(user)
+                new_users_.append(u_)
             except ObjectDoesNotExist:
                 continue
         
-        for user_ in new_users:
+        for k, user_ in enumerate(new_users):
             try:
-                split_comment = self.user_linking(user_, split_comment, connect_url, False)
+                split_comment = self.user_linking(user_, new_users_[k], split_comment, False)
             except ValueError:
                 try:
-                    split_comment = self.user_linking(user_, split_comment, connect_url, True, add=",")
+                    split_comment = self.user_linking(user_, new_users_[k], split_comment, True, add=",")
                 except ValueError:
                     try:
-                        split_comment = self.user_linking(user_, split_comment, connect_url, True, add=".")
+                        split_comment = self.user_linking(user_, new_users_[k], split_comment, True, add=".")
                     except ValueError:
                         try:
-                            split_comment = self.user_linking(user_, split_comment, connect_url, True, add="?")
+                            split_comment = self.user_linking(user_, new_users_[k], split_comment, True, add="?")
                         except ValueError:
                             try:
-                                split_comment = self.user_linking(user_, split_comment, connect_url, True, add="!")
+                                split_comment = self.user_linking(user_, new_users_[k], split_comment, True, add="!")
                             except ValueError:
                                 continue
 
-        result = " ".join(split_comment)
+        result = dict()
+        result['comment'] = " ".join(split_comment)
+        result['mentioned'] = new_users_
         return result
 
     # make it html
     def mark(self, comment):
-        processed_comment = self.process_comment(comment)
-        result = markdown(processed_comment)
+        result = dict()
+        process = self.process_comment(comment)
+        result['mentioned'] = process['mentioned']
+        result['processed_comment'] = markdown(process['comment'])
         return result
 
     # process comment
@@ -237,13 +245,20 @@ class CommentProcessing(View):
         form = CommentForm(self.request.POST)
         if form.is_valid():
             original_text = form.cleaned_data['comment']
-            browser_text = self.mark(original_text)
-            Comment.objects.create(
+            post_process = self.mark(original_text)
+            browser_text = post_process['processed_comment']
+            mentioned = post_process['mentioned']
+            comment = Comment(
                 user_id=self.request.user.id,
                 note_id=kwargs['note_id'],
                 comment_text=browser_text,
                 original_comment=original_text,
             )
+            comment.save()
+            for user_ in mentioned:
+                if user_ != self.request.user:
+                    comment.mentioned.add(user_.profile)
+
         url = reverse("notes:note-page", args=[str(kwargs['note_id'])]) + "#comments"
         return redirect(url)
 
@@ -254,14 +269,21 @@ class EditComment(CommentProcessing):
 
     def post(self, *args, **kwargs):
         form = CommentForm(self.request.POST)
-        if form.is_valid():
-            comment = Comment.objects.get(pk=kwargs['comment_id'])
-            comment.original_comment = form.cleaned_data['comment']
-            comment.comment_text = self.mark(form.cleaned_data['comment'])
-            comment.modified = datetime.now()
-            comment.save()
+        comment = Comment.objects.get(pk=kwargs['comment_id'])
+        if comment.user == self.request.user:
+            if form.is_valid():
+                comment.original_comment = form.cleaned_data['comment']
+                post_process = self.mark(form.cleaned_data['comment'])
+                comment.comment_text = post_process['processed_comment']
+                comment.modified = datetime.now()
+                comment.save()
+                for user_ in post_process['mentioned']:
+                    if user_ != self.request.user:
+                        comment.mentioned.add(user_.profile)
+        else:
+            raise Http404
 
-        return redirect(reverse("notes:note-page", args=[str(kwargs['note_id'])])+"#comment"+str(kwargs['comment_id']))
+        return redirect(reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(kwargs['comment_id']))
 
 
 # add collaborator

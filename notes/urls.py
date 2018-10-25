@@ -47,6 +47,6 @@ urlpatterns = [
     path("comments/comment<int:comment_id>/", views.get_comment, name="get-comment"),
 
     # notes/comments/comment34/edit/
-    path("comments/note<int:note_id>/comment<int:comment_id>/edit/", views.EditComment.as_view(), name="edit-comment"),
+    path("comments/comment<int:comment_id>/edit/", views.EditComment.as_view(), name="edit-comment"),
 
 ]
