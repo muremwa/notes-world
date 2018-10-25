@@ -1,15 +1,19 @@
+# django imports
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from django.views import generic
+from django.shortcuts import reverse
+from django.views import generic, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.db.models import Q
 from django.http import JsonResponse
+
+# normal
 import random
+from itertools import chain
 
 # models & forms
 from .models import Profile, Connection
-from .forms import SignUpForm, ProfileForm
+from .forms import SignUpForm, ProfileForm, UserEditForm
 from django.contrib.auth.models import User
 
 # sign ups
@@ -51,6 +55,24 @@ class ProfilePage(LoginRequiredMixin, generic.TemplateView):
     template_name = 'account/profile.html'
 
 
+class ProfileUserEdit(generic.UpdateView):
+    model = User
+    form_class = UserEditForm
+    template_name = "account/profile_create.html"
+
+
+    def get_success_url(self):
+        return reverse("base_account:profile")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_details'] = True
+        context['input_name'] = "edit details"
+        if self.request.user != context['user']:
+            raise Http404
+        return context
+
+
 # profile edit
 class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     model = Profile
@@ -73,11 +95,11 @@ class ConnectedUser(generic.TemplateView):
         suggestions = []
 
         # checks whether a user has requests to them and they aren't approved
-        qset_1 = (
+        q_set_1 = (
             Q(conn_receiver=self.request.user.profile) &
             Q(approved=False)
         )
-        requests = Connection.objects.filter(qset_1).distinct()
+        requests = Connection.objects.filter(q_set_1).distinct()
         # suggestions
         for i in range(10):
                 suggestion = random.choice(users)
@@ -92,12 +114,66 @@ class ConnectedUser(generic.TemplateView):
         })
 
 
+
+
+class ForeignUser(generic.TemplateView):
+    template_name = 'account/foreign_user.html'
+
+    def connected(self, user):
+        conn_types = ['no_conn', 'req_sent', 'req_received', 'connected']
+        if Connection.objects.exist(self.request.user, user):
+            conn = Connection.objects.get_conn(self.request.user, user)
+            if conn.approved:
+                return conn_types[-1]
+            else:
+                if conn.conn_sender == user:
+                    return conn_types[2]
+                elif conn.conn_receiver.user == user:
+                    return conn_types[1]
+        else:
+            return conn_types[0]
+
+    def user_notes(self, user, conn_type):
+        pub_notes = user.note_set.filter(privacy="PB")
+        if conn_type == "connected":
+            co_notes = user.note_set.filter(privacy="CO")
+            return chain(co_notes, pub_notes)
+        else:
+            return pub_notes
+
+    def mutual_conns(self, user):
+        conns = []
+        my_conns = Connection.objects.get_user_conn(self.request.user)
+        foreign_conns = Connection.objects.get_user_conn(user)
+
+        for user_ in my_conns:
+            if user_ in foreign_conns:
+                conns.append(user_)
+        return conns
+
+    def get(self, request, *args, **kwargs):
+        foreign_user = get_object_or_404(User, pk=kwargs['user_id'])
+        if foreign_user == request.user:
+            return redirect(reverse("base_account:connected"))
+        else:
+            return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['foreign_user'] = get_object_or_404(User, pk=kwargs['user_id'])
+        context['conn'] = Connection.objects.get_conn(self.request.user, context['foreign_user'])
+        context['conn_type'] = self.connected(context['foreign_user'])
+        context['mutual_users'] = self.mutual_conns(context['foreign_user'])
+        context['notes'] = self.user_notes(context['foreign_user'], context['conn_type'])
+        return context
+
+
 # send a connection request
-def connect(request, conn_id):
+def connect(request, user_id):
     if request.method == "POST":
         response = {}
         sender = request.user
-        receiver = get_object_or_404(User, pk=conn_id).profile
+        receiver = get_object_or_404(User, pk=user_id).profile
         exists = Connection.objects.exist(user_1=sender, user_2=receiver.user)
         if not exists:
             Connection.objects.create(
@@ -136,9 +212,9 @@ def accept(request, conn_id):
 
 
 # delete an existing request
-def dis_connect(request, conn_id):
+def dis_connect(request, user_id):
     if request.method == "POST":
-        friend = get_object_or_404(User, pk=conn_id)
+        friend = get_object_or_404(User, pk=user_id)
         response = {}
         status = Connection.objects.exist(request.user, friend)
 

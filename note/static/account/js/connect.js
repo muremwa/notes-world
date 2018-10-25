@@ -4,7 +4,7 @@ $(document).on('click', '.connect-button', function (e) {
     // get the token
     let button = this
     let form = button.parentElement;
-    let url = form.children.url.value;
+    let url = form.children.connect_url.value;
     let token = form.children.csrfmiddlewaretoken.value;
     
     // send 
@@ -35,7 +35,7 @@ $(document).on('click', '.accept-button', function (e) {
     // get the token
     let button = this
     let form = button.parentElement;
-    let url = form.children.url.value;
+    let url = form.children.accept_url.value;
     let token = form.children.csrfmiddlewaretoken.value;
     let denyButton = form.children.deny
    
@@ -67,7 +67,7 @@ $(document).on('click', '.disconnect-button', function (e) {
     // get the token
     let button = this
     let form = button.parentElement;
-    let url = form.children.url.value;
+    let url = form.children.diconnect_url.value;
     let token = form.children.csrfmiddlewaretoken.value;
 
     // send 
@@ -82,7 +82,7 @@ $(document).on('click', '.disconnect-button', function (e) {
                 button.innerText = response['state'];
             } else {
                 button.innerText = response['state'];
-            }
+            }   
         },
         error: function (err) {
             console.log(err)
@@ -111,8 +111,12 @@ $(document).on('click', '.deny-button', function (e) {
         },
         success: function (response) {
             if (response['denied']) {
-                acceptButton.style.display = "none";
                 button.innerText = response['state'];
+                try {
+                    acceptButton.style.display = "none";
+                } catch (err) {
+                    console.log(err)
+                }
             };
         },
         error: function (response) {

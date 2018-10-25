@@ -14,9 +14,6 @@
         </div>
             
         <div id="signup-form" class="container col-sm-7">
-            {% if form.errors %}
-                <span class="text-danger">{{ form.errors}}</span>
-            {% endif %}
             <div>
                 {% include "form_template.html" %}
                 <p>already have an account? <a href="{% url 'login' %}">sign in</a></p>

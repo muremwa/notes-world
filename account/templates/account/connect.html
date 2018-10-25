@@ -23,7 +23,7 @@
                         <br />
                         <form method="post">
                             {% csrf_token %}
-                            <input type="hidden" name="url" value="{% url 'base_account:exit' friend.id %}">
+                            <input type="hidden" name="diconnect_url" value="{% url 'base_account:exit' friend.id %}">
                             <button class="btn btn-outline-danger disconnect-button" type="submit">dis-connect</button>
                         </form>
                     </div>
@@ -43,7 +43,7 @@
                     <br />
                     <form method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="url" value="{% url 'base_account:connect' friend.id %}">
+                        <input type="hidden" name="connect_url" value="{% url 'base_account:connect' friend.id %}">
                         <button type="submit" class="btn btn-outline-info connect-button">connect</button>
                     </form>
                 </div>
@@ -65,7 +65,7 @@
                     <br />
                     <form method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="url" value="{% url 'base_account:accept' friend.id %}">
+                        <input type="hidden" name="accept_url" value="{% url 'base_account:accept' friend.id %}">
                         <input type="hidden" name="deny_url" value="{% url 'base_account:deny' friend.id %}">
                         <button type="submit" name="approve" class="btn btn-outline-dark accept-button">approve</button>
                         <button name="deny" class="btn btn-outline-danger deny-button">deny</button>
@@ -75,6 +75,8 @@
             <hr>
             {% endfor %}
             {% endif %}
+
+            <!-- Sent c-->
         </div>
     </div>
 </div>

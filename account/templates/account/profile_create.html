@@ -14,14 +14,22 @@
     </style>
 
     <div class="container">
-        {% if user.profile.id == profile.id %}
-        <h2 class="text-center">Edit your profile</h2>
-        <div class="col-md-8 container" id="profile-form">
-            {% include "form_template.html" %}
-            <a type="url" href="{% url 'base_account:profile' %}" class="btn-outline col-sm-3">abort</a>
-        </div>
+        {% if  user_details %}
+            <h2 class="text-center">Edit your user details</h2>
+            <div class="col-md-8 container" id="profile-form">
+                {% include "form_template.html" %}
+                <a type="url" href="{% url 'base_account:profile' %}" class="btn-outline col-sm-3">abort</a>
+            </div>
         {% else %}
-            {% include 'action_forbiden.html' %}
+            {% if user.profile.id == profile.id %}
+            <h2 class="text-center">Edit your profile</h2>
+            <div class="col-md-8 container" id="profile-form">
+                {% include "form_template.html" %}
+                <a type="url" href="{% url 'base_account:profile' %}" class="btn-outline col-sm-3">abort</a>
+            </div>
+            {% else %}
+                {% include 'action_forbiden.html' %}
+            {% endif %}
         {% endif %}
     </div>
 

@@ -67,7 +67,7 @@ REST_FRAMEWORK = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates/', 'note/templates', ],
+        'DIRS': ['templates', 'note/templates',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

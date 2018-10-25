@@ -22,7 +22,7 @@
     <div class="container col-sm-3" id="login-form">
         {% comment %}Login errors{% endcomment %}
         {% if form.errors %}
-            <span class="text-danger">Your username and password do not match</span>
+            <span class="alert alert-info text-danger">Your username and password do not match</span><br />
         {% endif %}
 
         {% comment %}Access denied{% endcomment %}
@@ -33,6 +33,7 @@
                 <span class="text-danger">Login to see the page</span>
             {% endif %}
         {% endif %}
+        <br />
 
         {% comment %}login form{% endcomment %}
         <form method="post" action="{% url 'login' %}">

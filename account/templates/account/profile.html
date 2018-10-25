@@ -46,7 +46,8 @@
         </div>
         <br />
         <div>
-            <a href="{% url 'base_account:profile-edit' user.profile.pk%}" class="btn btn-primary">edit profile</a>
+            <a href="{% url 'base_account:profile-edit' user.profile.pk %}" class="btn btn-primary">edit profile</a>
+            <a href="{% url 'base_account:user-edit' user.pk %}" class="btn btn-primary">settings</a>
             <a href="{% url 'base_account:connected' %}" class="btn btn-primary">socialize</a>
         </div>
 

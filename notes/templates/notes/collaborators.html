@@ -21,7 +21,10 @@
                     <div class="col-sm-9 user-info">
                         <span class="text-info">{{ collaborator.user.get_full_name }} <small class="text-danger">@{{ collaborator.user }}</small></span>
                         <br />
-                        <a href="{% url 'notes:remove-collaborator' note.id collaborator.id %}" class="btn btn-link">remove</a>
+                        <form action="{% url 'notes:remove-collaborator' note.id collaborator.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="btn btn-link">remove</button>
+                        </form>
                         <hr />
                     </div>
                 </div>
@@ -39,7 +42,10 @@
                     <div class="col-sm-9 user-info">
                         <span class="text-info">{{ suggestion.get_full_name }} <small class="text-danger">@{{ suggestion }}</small></span>
                         <br />
-                        <a href="{% url 'notes:add-collaborator' note.id suggestion.id %}" class="btn btn-link">add</a>
+                        <form action="{% url 'notes:add-collaborator' note.id suggestion.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="btn btn-link">add</button>
+                        </form>
                         <hr />
                     </div>
                 </div>
@@ -50,7 +56,10 @@
             </div>
             <div class="text-center col-md-12">
                 <p class="text-danger">by clicking on remove collaborative you remove all the collaborators and their access to the note, but they can still view it!</p>
-                <a href="{% url 'notes:undo-collaborative' note.id %}" class="btn btn-danger">remove collaborative!?</a>
+                <form action="{% url 'notes:undo-collaborative' note.id %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-danger">remove collaborative!?</button>
+                </form>
             </div>
         </div>
     </div>

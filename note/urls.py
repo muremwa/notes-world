@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include, reverse
+from django.urls import path, include
 from django.views.generic import RedirectView
 
 # static and media

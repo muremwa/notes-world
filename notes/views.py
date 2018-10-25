@@ -117,6 +117,10 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
         context['collaborators'] = context['note'].collaborators.all()
         return context
 
+    def post(self, request, *args, **kwargs):
+        self.set_note(kwargs['pk'])
+        return super().get(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.instance.last_modified = datetime.now()
         form.instance.last_modifier = int(self.request.user.id)

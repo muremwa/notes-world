@@ -38,7 +38,8 @@ class Profile(models.Model):
 # connection model manager
 class ConnectionManager(models.Manager):
     # check if a connection exists
-    def main_conn(self, user1, user2):
+    @staticmethod
+    def main_conn(user1, user2):
         q_set_1 = (
                 models.Q(conn_sender=user1) &
                 models.Q(conn_receiver=user2.profile)
@@ -84,12 +85,12 @@ class ConnectionManager(models.Manager):
         :param user:
         :return:
         """
-        qset = (
+        q_set = (
                 models.Q(conn_sender=user) |
                 models.Q(conn_receiver=user.profile)
         )
         connected = []
-        connected_obj = Connection.objects.filter(qset)
+        connected_obj = Connection.objects.filter(q_set)
         for obj in connected_obj:
             if obj.approved:
                 if obj.conn_sender == user:

@@ -49,7 +49,10 @@
                         {% else %}
                             <span class="text-info">{{ note.title }} is not collaborative</span><br />
                             {% if user == note.user %}
-                            <a href="{% url 'notes:make-collaborative' note.id %}" class="btn btn-link">change that</a>                    
+                            <form action="{% url 'notes:make-collaborative' note.id %}" method="POST">
+                                {% csrf_token %}
+                                <button class="btn btn-link">change that</button>
+                            </form>
                             {% endif %}
                         {% endif %}
                     </div>

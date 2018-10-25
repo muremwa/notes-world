@@ -1,0 +1,35 @@
+#foreign {
+    margin-top: 1em;
+}
+
+#user-image > img {
+    width: 15em;
+    height: 15em;
+    border-radius: 50%;
+}
+
+#user-image h2 {
+    font-size: 3em;
+}
+
+.note {
+    margin-top: 1em;
+    width: 75%;
+    border: 0.6px solid cadetblue;
+    border-radius: 12px;
+    padding: 1em;
+}
+
+.mutual_user {
+    margin: 2em;
+}
+
+.mutual_user img {
+    width: 5.4em;
+    height: 5.4em;
+    border-radius: 50%;
+}
+
+.user-details {
+    padding: 1em;
+}
