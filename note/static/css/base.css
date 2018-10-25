@@ -24,3 +24,9 @@ h2 {
 #navbar a {
     font-size: 1.4em;
 }
+
+@media screen and (max-width: 450px) {
+    html {
+        font-size: 10px;
+    }
+}

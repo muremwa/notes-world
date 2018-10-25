@@ -1,10 +1,10 @@
 # django imports
 from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import reverse
-from django.views import generic, View
+from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.db.models import Q
 from django.http import JsonResponse
 
 # normal
@@ -55,7 +55,7 @@ class ProfilePage(LoginRequiredMixin, generic.TemplateView):
     template_name = 'account/profile.html'
 
 
-class ProfileUserEdit(generic.UpdateView):
+class ProfileUserEdit(LoginRequiredMixin, generic.UpdateView):
     model = User
     form_class = UserEditForm
     template_name = "account/profile_create.html"
@@ -87,7 +87,7 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
 
 
 # connected page
-class ConnectedUser(generic.TemplateView):
+class ConnectedUser(LoginRequiredMixin, generic.TemplateView):
     template_name = "account/connect.html"
 
     def get(self, request, *args, **kwargs):
@@ -95,11 +95,7 @@ class ConnectedUser(generic.TemplateView):
         suggestions = []
 
         # checks whether a user has requests to them and they aren't approved
-        q_set_1 = (
-            Q(conn_receiver=self.request.user.profile) &
-            Q(approved=False)
-        )
-        requests = Connection.objects.filter(q_set_1).distinct()
+        requests = self.request.user.profile.connection_set.filter(approved=False)
         # suggestions
         for i in range(10):
                 suggestion = random.choice(users)
@@ -107,16 +103,20 @@ class ConnectedUser(generic.TemplateView):
                 if suggestion != self.request.user and suggestion not in suggestions and not status:
                     suggestions.append(suggestion)
 
+        # sent connections
+        sent_connections = self.request.user.connection_set.filter(approved=False)
+
         return render(request, self.template_name, {
             'suggestions': suggestions,
             "connected": Connection.objects.get_user_conn(self.request.user),
             "requests": requests,
+            "sent_connections": sent_connections,
         })
 
 
 
 
-class ForeignUser(generic.TemplateView):
+class ForeignUser(LoginRequiredMixin, generic.TemplateView):
     template_name = 'account/foreign_user.html'
 
     def connected(self, user):
@@ -169,6 +169,7 @@ class ForeignUser(generic.TemplateView):
 
 
 # send a connection request
+@login_required
 def connect(request, user_id):
     if request.method == "POST":
         response = {}
@@ -192,6 +193,7 @@ def connect(request, user_id):
 
 
 # accept a connection request
+@login_required
 def accept(request, conn_id):
     if request.method == "POST":
         response = {}
@@ -212,6 +214,7 @@ def accept(request, conn_id):
 
 
 # delete an existing request
+@login_required
 def dis_connect(request, user_id):
     if request.method == "POST":
         friend = get_object_or_404(User, pk=user_id)
@@ -233,6 +236,7 @@ def dis_connect(request, user_id):
 
 
 # deny a connection request
+@login_required
 def deny(request, conn_id):
     if request.method == "POST":
         conn_request = get_object_or_404(Connection, pk=conn_id)
@@ -240,10 +244,10 @@ def deny(request, conn_id):
         if not conn_request.approved:
             conn_request.delete()
             response['denied'] = True
-            response['state'] = "you have denied the request"
+            response['state'] = "you have cancelled the request"
         elif conn_request.approved:
             response['denied'] = False
-            response['state'] = "you cannot deny an approved request"
+            response['state'] = "you cannot cancel an approved request"
 
         return JsonResponse(response)
     else:

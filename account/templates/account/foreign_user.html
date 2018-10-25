@@ -3,6 +3,7 @@
 
 {% block title %}{{ foreign_user }} {% endblock title %}
 {% block style %}<link rel="stylesheet" type="text/css" href="{% static 'account/css/foreign.css' %}">{% endblock style %}
+{% block account %}active{% endblock account %}
 
 {% block content %}
 <div class="container">
@@ -58,6 +59,7 @@
             <div class="row">
                 {% if notes %}
                     <div id="notes" class="col-md-6">
+                        <h2>notes by {{ foreign_user.first_name }}</h2>
                         {% for note in notes %}
                             <div class="note">
                                 <h5><a href="{{ note.get_absolute_url }}">{{ note.title }}</a></h5>
@@ -67,10 +69,13 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <h2>no notes here</h2>
+                    <h2 class="col-md-6 text-center">no notes here</h2>
                 {% endif %}
+
+
                 {% if mutual_users %}
                     <div id="conns" class="col-md-6">
+                        <h2>mutual connected users</h2>
                         {% for mutual_user in mutual_users %}
                             <div class="row mutual_user">
                                 <div class="col-xs-2">

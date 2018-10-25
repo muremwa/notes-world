@@ -15,13 +15,14 @@
                 <h2>Your connected users</h2>
                 {% for friend in connected %}
                 <div class="row user">
-                    <div class="col-sm-2">
+                    <div class="col-xs-2">
                         <img class="user-img" alt="image of {{ friend.username }}" src="{{ friend.profile.image.url }}">
                     </div>
-                    <div class="col-sm-9 user-info">
-                        <span class="text-info">{{ friend.get_full_name }}</span>
+                    <div class="col-xs-9 user-info">
+                        <span class="text-info">{{ friend.get_full_name }}</span><br />
+                        <a href="{% url 'base_account:foreign-user' friend.id %}">@{{ friend }}</a>
                         <br />
-                        <form method="post">
+                        <form class="user-action-form" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="diconnect_url" value="{% url 'base_account:exit' friend.id %}">
                             <button class="btn btn-outline-danger disconnect-button" type="submit">dis-connect</button>
@@ -35,13 +36,14 @@
             <h2>choose other users to connect with</h2>
             {% for friend in suggestions %}
             <div class="row user">
-                <div class="col-sm-2">
+                <div class="col-xs-2">
                     <img class="user-img" alt="image of {{ friend.username }}" src="{{ friend.profile.image.url }}">
                 </div>
-                <div class="col-sm-9 user-info">
-                    <span class="text-info">{{ friend.first_name }} {{ friend.last_name }}</span>
+                <div class="col-xs-9 user-info">
+                    <span class="text-info">{{ friend.first_name }} {{ friend.last_name }}</span><br />
+                    <a href="{% url 'base_account:foreign-user' friend.id %}">@{{ friend }}</a>
                     <br />
-                    <form method="post">
+                    <form class="user-action-form" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="connect_url" value="{% url 'base_account:connect' friend.id %}">
                         <button type="submit" class="btn btn-outline-info connect-button">connect</button>
@@ -57,13 +59,14 @@
             <h2>Connection requests</h2>
             {% for friend in requests %}
             <div class="row user">
-                <div class="col-sm-2">
+                <div class="col-xs-2">
                     <img class="user-img" alt="image of {{ friend.conn_sender.username }}" src="{{ friend.conn_sender.profile.image.url }}">
                 </div>
-                <div class="col-sm-9 user-info">
-                    <span class="text-info">{{ friend.conn_sender.get_full_name }}</span>
+                <div class="col-xs-9 user-info">
+                    <span class="text-info">{{ friend.conn_sender.get_full_name }}</span><br />
+                    <a href="{% url 'base_account:foreign-user' friend.conn_sender.id %}">@{{ friend.conn_sender }}</a>
                     <br />
-                    <form method="post">
+                    <form class="user-action-form" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="accept_url" value="{% url 'base_account:accept' friend.id %}">
                         <input type="hidden" name="deny_url" value="{% url 'base_account:deny' friend.id %}">
@@ -76,7 +79,26 @@
             {% endfor %}
             {% endif %}
 
-            <!-- Sent c-->
+            {% if sent_connections %}
+                <!-- Sent connection requests-->
+                <h2>Sent requests</h2>
+                {% for connection in sent_connections %}
+                    <div class="row user">
+                        <div class="col-xs-2">
+                            <img class="user-img" alt="image of {{ connection.conn_receiver.user }}" src="{{ connection.conn_receiver.image.url }}">
+                        </div>
+                        <div class="col-xs-9 user-info">
+                            <span class="text-info">{{ connection.conn_receiver.user.get_full_name }}</span><br />
+                            <a href="{% url 'base_account:foreign-user' connection.conn_receiver.user.id %}">@{{ connection.conn_receiver.user }}</a>
+                            <form class="user-action-form" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="deny_url" value="{% url 'base_account:deny' connection.id %}">
+                                <button name="deny" class="btn btn-outline-danger deny-button">cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
 </div>
