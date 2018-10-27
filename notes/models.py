@@ -161,3 +161,24 @@ class Comment(models.Model, Timing):
 
     def __str__(self):
         return "comment by {} on {}".format(self.user, self.note)
+
+
+class Reply(models.Model, Timing):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reply_text = models.TextField()
+    original_reply = models.CharField(max_length=140)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.BooleanField(default=False)
+    mentioned = models.ManyToManyField(Profile)
+    objects = models.Manager()
+
+    class Meta:
+        ordering = ['-created']
+        verbose_name_plural = "Replies"
+
+    def get_created(self):
+        return self.how_long_ago(self.created)
+
+    def __str__(self):
+        return "Reply by {} to {}".format(self.user, self.comment)

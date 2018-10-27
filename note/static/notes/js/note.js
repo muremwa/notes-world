@@ -7,6 +7,8 @@ $(document).ready( function () {
     })
 })
 
+let commentArea = document.getElementById("id_comment");
+commentArea.placeholder = "add comment here (use '@username' to mention someone ',' '.' '?' are supported after the username)(markdown is supported)";
 
 function getMentioned () {
     let text = "this @muremwa is just a test @user_4 and @user6";

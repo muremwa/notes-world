@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}reply to comment {% endblock title %}
+
+{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'notes/css/reply.css' %}">{% endblock style %}
+
+{% block notes %}active{% endblock notes %}
+
+{% block content %}
+<div id="reply" class="container col-md-6">
+    <div id="to">
+        <h2>Reply to {{ comment }}<small><a href="{{ comment.note.get_absolute_url }}"> see</a></small></h2>
+        
+        <!-- Comment to reply to -->
+        <div class="row comment">
+            <!-- user image-->
+            <div class="col-sm-2 user-image">
+                <img alt="image of {{ comment.user }}" src="{{ comment.user.profile.image.url }}">
+            </div>
+            <div class="col-sm-9 comment_text">
+                <div class="comment-body">
+                    <div class="row"><h4><strong>{{ comment.user.get_full_name }} </strong><a href="{% url 'base_account:foreign-user' comment.user.id %}">@{{ comment.user }}</a> posted {{ comment.get_created }}</h4> {% if comment.is_modified %} <span class="edited text-info">edited</span> {% endif %}<br /></div>
+                    <div>{{ comment.comment_text|safe }}</div>
+                </div>
+                <a href="{{ comment.note.get_absolute_url }}#comment{{comment.id}}">see</a>
+            </div>
+        </div>
+
+        <!-- Reply Form-->
+        <hr>
+        <form method="post" action="{% url 'notes:reply-comment' comment.id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.comment }}
+            </div>
+            <hr>
+            <button class="col-sm-3 btn btn-outline">reply</button>
+        </form>
+
+        {% if replies %}
+            <!-- All Replies -->
+            <div id="replies">
+                <hr >
+                <h2>Replies <small>{{ replies.count }} replies</small></h2>
+                {% for reply in replies %}
+                    <hr>
+                    <div class="row reply">
+                        <div class="col-sm-2 user-image text-center">
+                            <img alt="image for {{ reply.user }}" src="{{ reply.user.profile.image.url }}">
+                        </div>
+                        <div class="col-sm-9 reply-body">
+                            <h5><strong>{{ reply.user.get_full_name }} </strong><a href="{% url 'base_account:foreign-user' reply.user.id %}">@{{ reply.user }}</a> posted {{ reply.get_created }}</h5>{% if reply.modified %}<span class="edited text-info"> edited</span>{% endif %}<br/>
+                            <div>{{ reply.reply_text|safe }}</div>
+                            
+                            {% if reply.user == user %}
+                                <!-- Reply actions-->
+                                <form method="POST" data-reply-url="{% url 'notes:get-comment-reply' 'reply' reply.id %}" action="{% url 'notes:reply-actions' reply.id 'delete' %}">
+                                    {% csrf_token %}
+                                    <a href="" id="edit_reply" class="btn btn-link">edit</a>
+                                    <button type="submit" id="delete_reply" class="btn btn-link">delete</button>
+                                </form>
+
+                                <!-- Reply edit form-->
+                                <form id="edit-reply" class="form-inline" name="edit_reply_form" style="display:none" action="{% url 'notes:reply-actions' reply.id 'edit' %}" method="POST">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        {{ form.comment }}
+                                    </div>
+                                    <div class="form-actions">
+                                        <button class="btn" type="submit">edit</button>
+                                        <button class="btn btn-link abort">abort</button>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <h2 class="text-center reply">no replies yet</h2>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block bottomScript %}<script src="{% static 'notes/js/reply.js' %}"></script>{% endblock bottomScript %}

@@ -43,10 +43,15 @@ urlpatterns = [
     # notes/delete/comment23/
     path("delete/comment<int:comment_id>/", views.delete_comment, name="comment-delete"),
 
-    # notes/comments/comment34/
-    path("comments/comment<int:comment_id>/", views.get_comment, name="get-comment"),
+    # notes/get/comment/34/ or notes/get/reply/12/
+    path("get/<what>/<int:what_id>/", views.get_comment_or_reply, name="get-comment-reply"),
 
     # notes/comments/comment34/edit/
     path("comments/comment<int:comment_id>/edit/", views.EditComment.as_view(), name="edit-comment"),
 
+    # notes/comment/34/reply/
+    path("comment/<int:comment_id>/reply/", views.CommentReply.as_view(), name="reply-comment"),
+
+    # notes/reply/12/edit/ or notes/reply/12/delete/
+    path("reply/<int:reply_id>/<option>/", views.ReplyActions.as_view(), name="reply-actions"),
 ]

@@ -1,5 +1,5 @@
 # django imports
-from django.shortcuts import redirect, reverse,  get_object_or_404
+from django.shortcuts import redirect, reverse,  get_object_or_404, render
 from django.views import generic, View
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,7 +15,7 @@ from datetime import datetime
 import re
 
 # models & forms (local imports)
-from .models import Note, Comment
+from .models import Note, Comment, Reply
 from .forms import NoteForm, NoteForeignForm, CommentForm
 from account.models import Connection, Profile
 from django.contrib.auth.models import User
@@ -264,9 +264,6 @@ class CommentProcessing(LoginRequiredMixin, View):
 
 
 class EditComment(CommentProcessing):
-    def get(self, *args, **kwargs):
-        raise Http404
-
     def post(self, *args, **kwargs):
         form = CommentForm(self.request.POST)
         comment = Comment.objects.get(pk=kwargs['comment_id'])
@@ -278,12 +275,80 @@ class EditComment(CommentProcessing):
                 comment.modified = datetime.now()
                 comment.save()
                 for user_ in post_process['mentioned']:
-                    if user_ != self.request.user:
-                        comment.mentioned.add(user_.profile)
+                    if user_.profile not in comment.mentioned.all():
+                        if user_ != self.request.user:
+                            comment.mentioned.add(user_.profile)
         else:
             raise Http404
 
         return redirect(reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(kwargs['comment_id']))
+
+
+class CommentReply(CommentProcessing):
+    def get(self, *args, **kwargs):
+        comment = get_object_or_404(Comment, pk=kwargs['comment_id'])
+        replies = comment.reply_set.all()
+        return render(self.request, 'notes/reply.html', {
+            'comment': comment,
+            'replies': replies,
+            'form': CommentForm,
+        })
+
+    def post(self, *args, **kwargs):
+        comment = get_object_or_404(Comment, pk=kwargs['comment_id'])
+        form = CommentForm(self.request.POST)
+        if form.is_valid():
+            reply_ = form.cleaned_data['comment']
+            post_process = self.mark(reply_)
+            new_reply = Reply(
+                original_reply=reply_,
+                reply_text=post_process['processed_comment'],
+                comment=comment,
+                user=self.request.user
+            )
+            new_reply.save()
+            for user_ in post_process['mentioned']:
+                if user_ != self.request.user:
+                    new_reply.mentioned.add(user_.profile)
+
+        return redirect(reverse("notes:reply-comment", args=[str(comment.id)])+"#replies")
+
+
+class ReplyActions(CommentProcessing):
+    def delete_reply(self, reply):
+        reply.delete()
+
+    def edit_reply(self, reply, new_reply_text, user):
+        post_process = self.mark(new_reply_text)
+        reply.original_reply = new_reply_text
+        reply.reply_text = post_process['processed_comment']
+        reply.save()
+
+        for user_ in post_process['mentioned']:
+            if user_.profile not in reply.mentioned.all():
+                if user_ != user:
+                    reply.mentioned.add(user_.profile)
+
+    def post(self, *args, **kwargs):
+        reply = get_object_or_404(Reply, pk=kwargs['reply_id'])
+
+        # editing reply
+        if kwargs['option'] == "edit":
+            form = CommentForm(self.request.POST)
+            if form.is_valid():
+                self.edit_reply(reply, form.cleaned_data['comment'], self.request.user)
+            return redirect(reverse("notes:reply-comment", args=[str(reply.comment.id)])+"#reply"+str(reply.id))
+
+        # deleting reply
+        elif kwargs['option'] == "delete":
+            if self.request.user == reply.user:
+                self.delete_reply(reply)
+            else:
+                raise Http404
+            return redirect(reverse("notes:reply-comment", args=[str(reply.comment.id)])+"#replies")
+
+        else:
+            raise Http404
 
 
 # add collaborator
@@ -368,23 +433,38 @@ def delete_comment(request, comment_id):
     return JsonResponse(response)
 
 
-@login_required
-def get_comment(request, comment_id):
-    response = {}
+def retrieve(what, what_, what_id, user_, response):
     try:
-        comment = Comment.objects.get(pk=comment_id)
-        if request.user == comment.user:
-            if comment.original_comment:
-                response['text'] = comment.original_comment
-                response['success'] = True
+        obj = what.objects.get(pk=what_id)
+        if obj.user == user_:
+            response['success'] = True
+            if what_ == 'reply':
+                response['text'] = obj.original_reply
             else:
-                response['success'] = False
-                response['message'] = "The original comment does not exist"
+                response['text'] = obj.original_comment
         else:
             response['success'] = False
-            response['text'] = "you do not own this comment"
+            response['message'] = "the {} does not belong to you".format(what_)
+
     except ObjectDoesNotExist:
         response['success'] = False
-        response['message'] = "comment id {} does not exist".format(comment_id)
+        response['message'] = "The {} does not exist".format(what_)
 
-    return JsonResponse(response)
+    return response
+
+
+@login_required
+def get_comment_or_reply(request, **kwargs):
+    response = {}
+    result = None
+
+    if kwargs['what'] == "comment":
+        result = retrieve(Comment, 'comment', kwargs['what_id'], request.user, response)
+
+    elif kwargs['what'] == "reply":
+        result = retrieve(Reply, 'reply', kwargs['what_id'], request.user, response)
+
+    else:
+        raise Http404
+
+    return JsonResponse(result)

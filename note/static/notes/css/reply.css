@@ -1,0 +1,39 @@
+#reply {
+    background-color: #f8f9fa;
+}
+
+.user-image > img {
+    border-radius: 50%;
+}
+
+.comment .user-image > img {
+    width: 8em;
+    height: 8em;
+}
+
+.reply .user-image > img {
+    width: 6em;
+    height: 6em;
+}
+
+.comment, .reply {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding-bottom: 1em;
+}
+
+.edited {
+    margin-left: 3em;
+}
+
+#edit-reply {
+    margin-top: 3em;
+}
+
+#edit-reply button {
+    margin-left: 10px;
+}
+
+.comment-body {
+    padding-left: 1em;
+}
