@@ -7,7 +7,7 @@
         {% if field.errors %}
             <div>
                 {% for error in field.errors %}
-                    <span class="alert alert-danger">{{ error }}</span><br />
+                    <p class="alert alert-danger">{{ error }}</p>
                 {% endfor %}
             </div>
         {% endif %}

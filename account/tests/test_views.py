@@ -82,7 +82,6 @@ class ViewsTest(TestCase):
         self.assertEqual(response_post.url, reverse("base_account:profile"))
 
     # test the ajax user requests
-    print("testing the ajax user requests")
 
     @tag('connect')
     def test_requests_connect(self):

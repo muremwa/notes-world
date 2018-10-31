@@ -1,5 +1,9 @@
 from django import forms
-from .models import Note, Comment
+from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
+
+import re
+from .models import Note
 from pagedown.widgets import PagedownWidget
 
 
@@ -10,6 +14,11 @@ class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
         fields = ("title", 'content', 'privacy')
+
+    def clean_content(self):
+        data = self.cleaned_data['content']
+        if re.search(r'</script>', data, re.I | re.M):
+            raise ValidationError(_("no scripts allowed!"), code="scripts")
 
 
 class NoteForeignForm(forms.ModelForm):
