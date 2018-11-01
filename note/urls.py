@@ -25,6 +25,9 @@ urlpatterns = [
     # api(s)
     path('api/', include('api.urls')),
 
+    # notifications
+    path('notifications/', include("notifications.urls")),
+
     # favicon
     path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL+"favicon.ico")),
 ]

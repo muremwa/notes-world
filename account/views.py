@@ -6,18 +6,21 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.http import JsonResponse
+from django.dispatch import Signal
 
 # normal
 import random
 from itertools import chain
 
-# models & forms
+# models & forms +
 from .models import Profile, Connection
 from .forms import SignUpForm, ProfileForm, UserEditForm
 from django.contrib.auth.models import User
 
 # sign ups
 from django.contrib.auth import authenticate, login
+
+account_signal = Signal(providing_args=['connection', ])
 
 
 # account page
@@ -54,12 +57,24 @@ def sign_up(request):
 class ProfilePage(LoginRequiredMixin, generic.TemplateView):
     template_name = 'account/profile.html'
 
+    def get_notifications(self):
+        notifications = self.request.user.notification_set.all()
+        for notification in notifications:
+            notification.seen = True
+            notification.save()
+        return notifications
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['new'] = self.request.user.notification_set.filter(seen=False).count()
+        context['notifications'] = self.get_notifications()
+        return context
+
 
 class ProfileUserEdit(LoginRequiredMixin, generic.UpdateView):
     model = User
     form_class = UserEditForm
     template_name = "account/profile_create.html"
-
 
     def get_success_url(self):
         return reverse("base_account:profile")
@@ -114,8 +129,6 @@ class ConnectedUser(LoginRequiredMixin, generic.TemplateView):
         })
 
 
-
-
 class ForeignUser(LoginRequiredMixin, generic.TemplateView):
     template_name = 'account/foreign_user.html'
 
@@ -133,7 +146,8 @@ class ForeignUser(LoginRequiredMixin, generic.TemplateView):
         else:
             return conn_types[0]
 
-    def user_notes(self, user, conn_type):
+    @staticmethod
+    def user_notes(user, conn_type):
         pub_notes = user.note_set.filter(privacy="PB")
         if conn_type == "connected":
             co_notes = user.note_set.filter(privacy="CO")
@@ -207,6 +221,7 @@ def accept(request, conn_id):
             _connection.save()
             response['state'] = "you have approved"
             response['accepted'] = True
+            account_signal.send(accept, connection=_connection)
 
         return JsonResponse(response)
     else:

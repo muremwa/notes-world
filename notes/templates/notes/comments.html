@@ -12,7 +12,7 @@
                     <img src="{{comment.user.profile.image.url}}" alt="image of {{ comment.user }}">
                 </div>
                 <div class="col-sm-11">
-                    <span class="comment-info"><strong>{{comment.user.get_full_name }}</strong> <small class="text-danger">@{{ comment.user }}</small> posted <strong class="dated">{{comment.get_created}}</strong> {% if comment.is_modified %}<span class="text-info">edited</span>{% endif %}</span>
+                    <span class="comment-info"><strong>{{comment.user.get_full_name }}</strong> <small class="text-danger">@{{ comment.user }}</small> posted <strong class="dated">{{comment.get_created}}</strong> {% if comment.is_modified %}<span class="text-info">edited</span>{% endif %} </span>{% if comment.reply_set.all %}<span class="text-info">{{ comment.reply_set.all.count }} replies</span>{% endif %}
                     <div class="comment-text">{{comment.comment_text|safe }}</div>
 
                     <!-- comment actions -->

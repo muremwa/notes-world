@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'notes.apps.NotesConfig',
     'api.apps.ApiConfig',
+    'notifications.apps.NotificationsConfig',
     # 3rd party
     'pagedown',
     'rest_framework',
@@ -67,7 +68,7 @@ REST_FRAMEWORK = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates', 'note/templates',],
+        'DIRS': ['templates', 'note/templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

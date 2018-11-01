@@ -51,7 +51,7 @@
                             <img alt="image for {{ reply.user }}" src="{{ reply.user.profile.image.url }}">
                         </div>
                         <div class="col-sm-9 reply-body">
-                            <h5><strong>{{ reply.user.get_full_name }} </strong><a href="{% url 'base_account:foreign-user' reply.user.id %}">@{{ reply.user }}</a> posted {{ reply.get_created }}</h5>{% if reply.modified %}<span class="edited text-info"> edited</span>{% endif %}<br/>
+                            <h5><strong>{{ reply.user.get_full_name }} </strong><a href="{% url 'base_account:foreign-user' reply.user.id %}">@{{ reply.user }}</a> posted {{ reply.get_created }} {% if reply.modified %}<small class="edited text-info"> edited</small>{% endif %}</h5>
                             <div>{{ reply.reply_text|safe }}</div>
                             
                             {% if reply.user == user %}

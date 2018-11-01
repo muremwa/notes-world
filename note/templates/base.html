@@ -35,7 +35,7 @@
                 </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link {% block profile %}{% endblock profile %}" href="{% url 'base_account:profile' %}">profile {{ user.get_full_name }}</a>
+                        <a class="nav-link {% block profile %}{% endblock profile %}" href="{% url 'base_account:profile' %}">profile {{ user.get_full_name }} <small data-url="{% url 'notifications:all' %}" id="new_notifications"></small></a>
                     </li>{% if user.is_staff %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'admin:index' %}" target="_blank">admin page</a>

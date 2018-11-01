@@ -11,10 +11,10 @@
         <p class="lead">your profile details</p>
 
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <img id="user-image" class="" src="{{ user.profile.image.url }}" alt="user iamge"/>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <h2>name</h2>
                 {% if user.first_name %}
                     <p>{{ user.get_full_name }}</p>
@@ -43,6 +43,27 @@
                     <p>{{ user.profile.occupation }}</p>
                 {% endif %}
             </div>
+            <div class="col-md-4">
+                <!-- Notifications -->
+                <h2>Notifications</h2>
+                
+                <!-- All notifications -->
+                {% if notifications %}
+                <div id="notifications">
+                    {% csrf_token %}
+                    <p class="alert alert-info">{% if new %}{{ new }}{% else %}no{% endif %} new notifications</p>
+                    {% for notification in notifications %}
+                        <div data-read-url="{% url 'notifications:open' notification.id %}" data-location="{{ notification.url }}" class="notification {% if not notification.opened %}unread{% endif %}">
+                            <p class="text-info">{{ notification.created }} ({{ notification.get_created }}) {% if not notification.opened %}unread{% endif %}</p>
+                            <hr>
+                            <p>{{ notification.message }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <div class="alert alert-info text-center"><h5>no notifications</h5></div>
+                {% endif %}
+            </div>
         </div>
         <br />
         <div>
@@ -53,3 +74,5 @@
 
     </div>
 {% endblock content %}
+
+{% block bottomScript %}<script src="{% static 'account/js/profile.js' %}"></script>{% endblock bottomScript %}

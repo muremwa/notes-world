@@ -7,6 +7,7 @@ from django.http import Http404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import ObjectDoesNotExist
+from django.dispatch import Signal
 
 # other imports
 from itertools import chain
@@ -20,7 +21,8 @@ from .forms import NoteForm, NoteForeignForm, CommentForm
 from account.models import Connection, Profile
 from django.contrib.auth.models import User
 
-# TODO: add replying and editing reply
+
+notes_signal = Signal(providing_args=['note', 'user', 'comment', 'reply', 'mentioned'])
 
 
 # all user notes
@@ -255,9 +257,13 @@ class CommentProcessing(LoginRequiredMixin, View):
                 original_comment=original_text,
             )
             comment.save()
+            notify = []
             for user_ in mentioned:
                 if user_ != self.request.user:
                     comment.mentioned.add(user_.profile)
+                    notify.append(user_)
+            if len(notify):
+                notes_signal.send(self.__class__, comment=comment, mentioned=notify)
 
         url = reverse("notes:note-page", args=[str(kwargs['note_id'])]) + "#comments"
         return redirect(url)
@@ -274,10 +280,15 @@ class EditComment(CommentProcessing):
                 comment.comment_text = post_process['processed_comment']
                 comment.modified = datetime.now()
                 comment.save()
+                notify = []
                 for user_ in post_process['mentioned']:
                     if user_.profile not in comment.mentioned.all():
                         if user_ != self.request.user:
                             comment.mentioned.add(user_.profile)
+                            notify.append(user_)
+
+                if len(notify):
+                    notes_signal.send(self.__class__, comment=comment, mentioned=notify)
         else:
             raise Http404
 
@@ -307,27 +318,39 @@ class CommentReply(CommentProcessing):
                 user=self.request.user
             )
             new_reply.save()
+            notify = []
             for user_ in post_process['mentioned']:
                 if user_ != self.request.user:
                     new_reply.mentioned.add(user_.profile)
+                    notify.append(user_)
+
+            if len(notify):
+                notes_signal.send(self.__class__, reply=new_reply, mentioned=notify)
 
         return redirect(reverse("notes:reply-comment", args=[str(comment.id)])+"#replies")
 
 
 class ReplyActions(CommentProcessing):
-    def delete_reply(self, reply):
+    @staticmethod
+    def delete_reply(reply):
         reply.delete()
 
     def edit_reply(self, reply, new_reply_text, user):
         post_process = self.mark(new_reply_text)
         reply.original_reply = new_reply_text
         reply.reply_text = post_process['processed_comment']
+        reply.modified = True
         reply.save()
+        notify = []
 
         for user_ in post_process['mentioned']:
             if user_.profile not in reply.mentioned.all():
                 if user_ != user:
                     reply.mentioned.add(user_.profile)
+                    notify.append(user_)
+
+        if len(notify):
+            notes_signal.send(self.__class__, reply=reply, mentioned=notify)
 
     def post(self, *args, **kwargs):
         reply = get_object_or_404(Reply, pk=kwargs['reply_id'])
@@ -361,6 +384,7 @@ def add_collaborator(request, **kwargs):
         raise Http404
     else:
         note.collaborators.add(add_this)
+        notes_signal.send(add_collaborator, note=note, user=add_this.user)
     return redirect(reverse("notes:edit-collaborators", args=[str(kwargs['note_id'])]))
 
 
@@ -419,7 +443,7 @@ def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     response = {}
 
-    if comment.user == request.user:
+    if comment.user == request.user or comment.note.user == request.user:
         if request.method == "POST":
             comment.delete()
             response['success'] = True
@@ -456,7 +480,6 @@ def retrieve(what, what_, what_id, user_, response):
 @login_required
 def get_comment_or_reply(request, **kwargs):
     response = {}
-    result = None
 
     if kwargs['what'] == "comment":
         result = retrieve(Comment, 'comment', kwargs['what_id'], request.user, response)
