@@ -20,6 +20,8 @@ class NoteForm(forms.ModelForm):
         if re.search(r'</script>', data, re.I | re.M):
             raise ValidationError(_("no scripts allowed!"), code="scripts")
 
+        return data
+
 
 class NoteForeignForm(forms.ModelForm):
     content = forms.CharField(widget=PagedownWidget)

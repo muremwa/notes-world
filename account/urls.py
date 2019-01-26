@@ -20,6 +20,9 @@ urlpatterns = [
     # account/user4/edit/
     path('user<int:pk>/edit/', views.ProfileUserEdit.as_view(), name='user-edit'),
 
+    # account/user4/change-password/
+    path('user<int:pk>/change-password/', views.UserPasswordChange.as_view(), name='change-password'),
+
     # account/connect/
     path('connect/', views.ConnectedUser.as_view(), name="connected"),
 

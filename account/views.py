@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.http import JsonResponse
 from django.dispatch import Signal
+from django.contrib.auth import update_session_auth_hash
 
 # normal
 import random
@@ -16,6 +17,7 @@ from itertools import chain
 from .models import Profile, Connection
 from .forms import SignUpForm, ProfileForm, UserEditForm
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordChangeForm
 
 # sign ups
 from django.contrib.auth import authenticate, login
@@ -60,8 +62,9 @@ class ProfilePage(LoginRequiredMixin, generic.TemplateView):
     def get_notifications(self):
         notifications = self.request.user.notification_set.all()
         for notification in notifications:
-            notification.seen = True
-            notification.save()
+            if not notification.seen:
+                notification.seen = True
+                notification.save()
         return notifications
 
     def get_context_data(self, **kwargs):
@@ -86,6 +89,33 @@ class ProfileUserEdit(LoginRequiredMixin, generic.UpdateView):
         if self.request.user != context['user']:
             raise Http404
         return context
+
+
+# change user password
+class UserPasswordChange(generic.TemplateView):
+    template_name = 'account/password_change.html'
+    form_class = PasswordChangeForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class(user=self.request.user)
+        context['input_name'] = 'change password'
+        return context
+
+    def post(self, *args, **kwargs):
+        form = self.form_class(user=self.request.user, data=self.request.POST)
+
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(self.request, form.user)
+            
+        else:
+            return render(self.request, self.template_name, {
+                'form': form,
+                'input_name': 'change password'
+            })
+
+        return redirect(reverse('base_account:profile'))
 
 
 # profile edit

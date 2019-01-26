@@ -13,6 +13,12 @@
         <div class="row">
             <div class="col-md-3">
                 <img id="user-image" class="" src="{{ user.profile.image.url }}" alt="user iamge"/>
+
+                <div>
+                    <a href="{% url 'base_account:profile-edit' user.profile.pk %}" class="btn btn-primary">edit profile</a>
+                    <a href="{% url 'base_account:user-edit' user.pk %}" class="btn btn-primary">settings</a>
+                    <a href="{% url 'base_account:connected' %}" class="btn btn-primary">socialize</a>
+                </div>
             </div>
             <div class="col-md-5">
                 <h2>name</h2>
@@ -66,11 +72,6 @@
             </div>
         </div>
         <br />
-        <div>
-            <a href="{% url 'base_account:profile-edit' user.profile.pk %}" class="btn btn-primary">edit profile</a>
-            <a href="{% url 'base_account:user-edit' user.pk %}" class="btn btn-primary">settings</a>
-            <a href="{% url 'base_account:connected' %}" class="btn btn-primary">socialize</a>
-        </div>
 
     </div>
 {% endblock content %}

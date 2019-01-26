@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="http://127.0.0.1/assets/css/bootstrap.min.css" />
     <!-- Bootstrap cdn -->
     <!-- Latest compiled and minified CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <!--<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">-->
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/base.css' %}" />
     {% block style %}{% endblock style %}
     {% block topScript %}{% endblock topScript %}
@@ -69,13 +69,13 @@
     </footer>
 
     <!-- I serve my own files locally -->
-    <script src="http://localhost/assets/js/jquery.js"></script>
-    <script src="http://localhost/assets/js/bootstrap.min.js"></script>
+    <script src="http://127.0.0.1/assets/js/jquery.js"></script>
+    <script src="http://127.0.0.1/assets/js/bootstrap.min.js"></script>
 
 
     <!-- CDNs -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>-->
     <script src="{% static 'js/base.js' %}"></script>    
     {% block bottomScript %}{% endblock bottomScript %}
 </body>

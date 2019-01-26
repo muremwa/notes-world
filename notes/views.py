@@ -123,12 +123,16 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
 
     def post(self, request, *args, **kwargs):
         self.set_note(kwargs['pk'])
-        return super().get(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.last_modified = datetime.now()
         form.instance.last_modifier = int(self.request.user.id)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(form.cleaned_data)
+        return super().form_invalid(form)
 
 
 # note delete
