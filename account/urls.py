@@ -9,7 +9,7 @@ urlpatterns = [
     path('', views.AccountIndex.as_view(), name="account-index"),
 
     # account/signup/
-    path('signup/', views.sign_up, name="sign-up"),
+    path('signup/', views.SignUp.as_view(), name="sign-up"),
 
     # account/profile/
     path('profile/', views.ProfilePage.as_view(), name="profile"),

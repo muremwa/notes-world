@@ -35,24 +35,31 @@ class AccountIndex(generic.TemplateView):
 
 
 # sign up
-def sign_up(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
+class SignUp(generic.TemplateView):
+    template_name = 'account/signup.html'
+    form_class = SignUpForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['form'] = self.form_class
+        context['input_name'] = "sign up"
+        return context
+
+    def post(self, *args, **kwargs):
+        form = self.form_class(self.request.POST)
         if form.is_valid():
             form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            user = authenticate(username=username, password=password)
+            login(self.request, user)
             return redirect(reverse('base_account:profile'))
 
-    else:
-        form = SignUpForm()
-
-    return render(request, 'account/signup.html', {
-        'form': form,
-        'input_name': "sign up"
-    })
+        else:
+            return render(self.request, self.template_name, {
+                'form': form,
+                'input_name': "sign up"
+            })
 
 
 # profile
@@ -108,7 +115,6 @@ class UserPasswordChange(generic.TemplateView):
         if form.is_valid():
             form.save()
             update_session_auth_hash(self.request, form.user)
-            
         else:
             return render(self.request, self.template_name, {
                 'form': form,
