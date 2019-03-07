@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'covz8c$cu*@rz51f_533ggd9cs$+kc
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = bool(os.environ.get('DJANGO_DEBUG', True))
+DEBUG = bool(os.environ.get('DJANGO_DEBUG', False))
 
 
 ALLOWED_HOSTS = ["*"]
@@ -94,9 +94,9 @@ DATABASES = {
     }
 }
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "note/static"),
-)
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, "note/static"),
+# )
 
 
 # Password validation
@@ -138,8 +138,6 @@ LOGIN_REDIRECT_URL = '/'
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# django_heroku.settings(locals())
+STATIC_ROOT = os.path.join(BASE_DIR, 'note/static')
