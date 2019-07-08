@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
 from django.contrib.auth.models import User
-from notes.models import Note
+from notes.models import Note, Comment
 
 
 class NotesSerializer(serializers.ModelSerializer):
@@ -38,3 +38,9 @@ class NoteCreationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
         fields = ("title", "content", "privacy")
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('id', 'note', 'user', 'original_comment', 'created')

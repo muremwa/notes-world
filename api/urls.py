@@ -21,4 +21,7 @@ urlpatterns = [
     # create_note/
     path('create_note/', views.NoteCreationApi.as_view(), name="create-note"),
 
+    # comments/
+    path('comments/<int:pk>/', views.AllComments.as_view(), name='comments'),
+
 ]

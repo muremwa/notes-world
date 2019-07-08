@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 
-from .serializers import NotesSerializer, NoteSerializer, UserSerializer, NoteCreationSerializer
-from notes.models import Note
+from .serializers import NotesSerializer, NoteSerializer, UserSerializer, NoteCreationSerializer, CommentSerializer
+from notes.models import Note, Comment
+from django.contrib.auth.models import User
 
 from itertools import chain
 
@@ -60,3 +61,26 @@ class NoteCreationApi(views.APIView):
             "privacy": privacy,
             "user": user.username
         })
+
+
+# comments
+class AllComments(views.APIView):
+    def shape(self, comment):
+        return {
+            'username': comment.user.username,
+            'full_name': comment.user.get_full_name(),
+            'profile': comment.user.profile.image.url,
+            'time': comment.get_created(),
+            'text': comment.original_comment,
+            'edited': comment.is_modified(),
+            'replies': comment.reply_set.all().count(),
+        }
+        
+
+    def get(self, *args, **kwargs):
+        comments = Comment.objects.filter(note=kwargs['pk'])
+        data = []
+        for comment in comments:
+            data.append(self.shape(comment))
+
+        return Response(data)
