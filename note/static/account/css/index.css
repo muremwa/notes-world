@@ -1,5 +1,5 @@
 body {
-    background-image: url("http://127.0.0.1:8000/static/account/images/notes.jpeg");
+    background-image: url("/static/account/images/notes.jpeg");
     /* background-repeat: no-repeat; */
     background-attachment: fixed;
     background-position: center;

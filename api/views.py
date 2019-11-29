@@ -65,6 +65,9 @@ class NoteCreationApi(views.APIView):
 
 # comments
 class AllComments(views.APIView):
+    authentication_classes = ()
+    permission_classes = ()
+    
     def shape(self, comment):
         return {
             'username': comment.user.username,
