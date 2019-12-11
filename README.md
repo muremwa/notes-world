@@ -9,10 +9,10 @@ made in [**Django 2.0**](https://djangoproject.com  "Django website")
 the frontend requires [**Bootstrap framework**](http://getbootstrap.com "Bootstrap website") 4.x and [JQuery](http://jquery.com "JQuery website")
  - - -
 ## Features
-1. User can ***sign* up** and ***sign in***.
+1. User can ***sign* up** or ***sign in***.
 2. users can <span style="color: yellow;">send</span>, <span style="color: yellow;">accept</span> or <span style="color: yellow;">deny</span> connection requests from other users just like **<span style="color: blue;">facebook</span> friend requests.**
 3. User can create notes in **Markdown**
-4. Added notifications for users.
+4. Users receive notifications for comments or replies they're mentioned in, when they get requests and when thier requests are accepted.
 
 - - -
 ## getting started
