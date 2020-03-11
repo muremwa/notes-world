@@ -12,8 +12,7 @@ class Timing:
         current_time = str(og_time)
         modified_time = str(time)
         time_format = "%Y-%m-%d %H:%M:%S.%f"
-        difference = datetime.strptime(current_time, time_format) - \
-                     datetime.strptime(modified_time[:-6], time_format)
+        difference = datetime.strptime(current_time, time_format) - datetime.strptime(modified_time[:-6], time_format)
         return difference
 
     def how_long_ago(self, time):
@@ -126,7 +125,7 @@ class Note(models.Model, Timing):
 
     # url
     def get_absolute_url(self):
-        return reverse("notes:note-page", args=[str(self.id)])
+        return reverse("notes:note-page", args=[str(self.pk)])
 
 
 # comments model
