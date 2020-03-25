@@ -65,11 +65,7 @@ class NoteManager(models.Manager):
         """notes that the user is a collaborator on"""
         collaborations = []
         notes = self.notes_user_can_see(user)
-
-        for note in notes:
-            if user.profile in note.collaborators.all():
-                collaborations.append(note)
-        return collaborations
+        return [note for note in notes if user.profile in note.collaborators.all()]
 
 
 # notes model
