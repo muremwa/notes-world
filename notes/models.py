@@ -34,8 +34,17 @@ class Timing:
                     respond_with = "{} minutes ago".format(int(minutes))
             else:
                 respond_with = "{} hours ago".format(int(hours))
-        else:
+        elif days < 50:
             respond_with = "{} days ago".format(int(days))
+
+        elif days < 365:
+            respond_with = "{} months ago".format(int(int(days)/28))
+
+        elif days < (365*2):
+            respond_with = "1 year ago"
+
+        else:
+            respond_with = "{} years ago".format(int(int(days)/365))
 
         return respond_with
 
