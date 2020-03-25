@@ -11,7 +11,6 @@
             border: 0.4px solid rgb(230, 179, 170);
             border-radius: 5px;
             padding: 2em;
-            /* height: 18em; */
         }
     </style>
 
@@ -48,6 +47,11 @@
             </div>
             <input type="submit" class="btn-outline col-sm-3" value="sign in">
             <p>don't have an account? <a class="text-danger" href="{% url 'base_account:sign-up' %}">sign up</a></p>
+
+            <script>
+                // add form-control
+                Array.from(document.getElementsByTagName("input")).map(item => item.classList.add('form-control'));
+            </script>
         </form>
     </div>
 
