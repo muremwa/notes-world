@@ -169,6 +169,7 @@ class ForeignUser(LoginRequiredMixin, generic.TemplateView):
     template_name = 'account/foreign_user.html'
 
     def connected(self, user):
+        """What type stage in connection are the user and foreign user in?"""
         conn_types = ['no_conn', 'req_sent', 'req_received', 'connected']
         if Connection.objects.exist(self.request.user, user):
             conn = Connection.objects.get_conn(self.request.user, user)
@@ -184,22 +185,20 @@ class ForeignUser(LoginRequiredMixin, generic.TemplateView):
 
     @staticmethod
     def user_notes(user, conn_type):
+        """Get all Foreign users's notes"""
         pub_notes = user.note_set.filter(privacy="PB")
         if conn_type == "connected":
             co_notes = user.note_set.filter(privacy="CO")
-            return chain(co_notes, pub_notes)
+            return list(chain(co_notes, pub_notes))
         else:
-            return pub_notes
+            return list(pub_notes)
 
     def mutual_conns(self, user):
+        """Return all users that both the foreign user and request.user are connected to"""
         conns = []
         my_conns = Connection.objects.get_user_conn(self.request.user)
         foreign_conns = Connection.objects.get_user_conn(user)
-
-        for user_ in my_conns:
-            if user_ in foreign_conns:
-                conns.append(user_)
-        return conns
+        return [user_ for user_ in my_conns if foreign_conns.count(user_) > 0]
 
     def get(self, request, *args, **kwargs):
         foreign_user = get_object_or_404(User, pk=kwargs['user_id'])

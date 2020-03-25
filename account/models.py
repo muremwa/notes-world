@@ -37,9 +37,9 @@ class Profile(models.Model):
 
 # connection model manager
 class ConnectionManager(models.Manager):
-    # check if a connection exists
     @staticmethod
     def main_conn(user1, user2):
+        """Fetches the Connection between user1 and user2 """
         q_set_1 = (
                 models.Q(conn_sender=user1) &
                 models.Q(conn_receiver=user2.profile)
@@ -48,14 +48,9 @@ class ConnectionManager(models.Manager):
                 models.Q(conn_sender=user2) &
                 models.Q(conn_receiver=user1.profile)
         )
-        x = []
-        connection_1 = Connection.objects.filter(q_set_1)
-        connection_2 = Connection.objects.filter(q_set_2)
-        connections = chain(connection_1, connection_2)
-        for connection in connections:
-            x.append(connection)
-
-        return x
+        return list(
+            chain(Connection.objects.filter(q_set_1), Connection.objects.filter(q_set_2))
+        )
 
     def exist(self, user_1, user_2):
         """
@@ -67,24 +62,18 @@ class ConnectionManager(models.Manager):
             result = True
         return result
 
-    # return a connection
     def get_conn(self, user_1, user_2):
-        """
-        return a connection from the parameters
-        """
+        """return a connection from the parameters between user_1 and user_2"""
         result = None
         connections = self.main_conn(user1=user_1, user2=user_2)
-        if len(connections) > 0:
+        if connections:
             result = connections[0]
 
         return result
 
-    def get_user_conn(self, user):
-        """
-        looking for connection that exist for the user
-        :param user:
-        :return:
-        """
+    @staticmethod
+    def get_user_conn(user):
+        """looking for connection that exist for the user"""
         q_set = (
                 models.Q(conn_sender=user) |
                 models.Q(conn_receiver=user.profile)

@@ -24,33 +24,31 @@
                     <span class="lead">you are not connected to {{ foreign_user.first_name }}.</span><br />
                     <input type="hidden" name="connect_url" value="{% url 'base_account:connect' foreign_user.id %}">
                     <button type="submit" class="btn btn-outline-info connect-button">connect</button>
-                {% else %}
-                    {% if conn_type == "req_received" %}
-                        {% comment %} they sent a request {% endcomment %}
-                        <span class="lead">{{ foreign_user.first_name }} has sent you a connection request.</span><br />
-                        <input type="hidden" name="accept_url" value="{% url 'base_account:accept' conn.id %}">
-                        <input type="hidden" name="deny_url" value="{% url 'base_account:deny' conn.id %}">
-                        <button type="submit" name="approve" class="btn btn-outline-dark accept-button">approve</button>
-                        <button name="deny" class="btn btn-outline-danger deny-button">deny</button>        
-                    {% else %}
-                        {% if conn_type == "req_sent" %}
-                            {% comment %} you sent a request {% endcomment %}
-                            <span class="lead">You have sent {{ foreign_user.first_name }} a connection request.</span><br />
-                            <input type="hidden" name="deny_url" value="{% url 'base_account:deny' conn.id %}">
-                            <button name="deny" class="btn btn-outline-danger deny-button">cancel</button>        
-                        {% else %}
-                            {% if conn_type == "connected" %}
-                                {% comment %} you are connected {% endcomment %}
-                                <span class="lead">{{ foreign_user.first_name }} and you are connected</span><br />
-                                <input type="hidden" name="diconnect_url" value="{% url 'base_account:exit' foreign_user.id %}">
-                                <button class="btn btn-outline-danger disconnect-button" type="submit">dis-connect</button>            
-                            {% endif %}
-                        {% endif %}
-                    {% endif %}
                 {% endif %}
-                
-                
-                
+
+                {% if conn_type == "req_received" %}
+                    {% comment %} they sent a request {% endcomment %}
+                    <span class="lead">{{ foreign_user.first_name }} has sent you a connection request.</span><br />
+                    <input type="hidden" name="accept_url" value="{% url 'base_account:accept' conn.id %}">
+                    <input type="hidden" name="deny_url" value="{% url 'base_account:deny' conn.id %}">
+                    <button type="submit" name="approve" class="btn btn-outline-dark accept-button">approve</button>
+                    <button name="deny" class="btn btn-outline-danger deny-button">deny</button>        
+                {% endif %}
+
+                {% if conn_type == "req_sent" %}
+                    {% comment %} you sent a request {% endcomment %}
+                    <span class="lead">You have sent {{ foreign_user.first_name }} a connection request.</span><br />
+                    <input type="hidden" name="deny_url" value="{% url 'base_account:deny' conn.id %}">
+                    <button name="deny" class="btn btn-outline-danger deny-button">cancel</button>        
+                {% endif %}
+
+                {% if conn_type == "connected" %}
+                    {% comment %} you are connected {% endcomment %}
+                    <span class="lead">{{ foreign_user.first_name }} and you are connected</span><br />
+                    <input type="hidden" name="diconnect_url" value="{% url 'base_account:exit' foreign_user.id %}">
+                    <button class="btn btn-outline-danger disconnect-button" type="submit">dis-connect</button>            
+                {% endif %}
+                                    
             </form>
         </div>
         </div>
