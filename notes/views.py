@@ -263,10 +263,10 @@ class CommentProcessing(LoginRequiredMixin, View):
             comment.save()
             notify = []
             for user_ in mentioned:
-                if user_ != self.request.user:
+                if user_ != self.request.user and user_ != get_object_or_404(Note, pk=kwargs['note_id']).user:
                     comment.mentioned.add(user_.profile)
                     notify.append(user_)
-            if len(notify):
+            if notify:
                 notes_signal.send(self.__class__, comment=comment, mentioned=notify)
 
         url = reverse("notes:note-page", args=[str(kwargs['note_id'])]) + "#comments"

@@ -59,7 +59,7 @@ class NoteManager(models.Manager):
         connected_users = Connection.objects.get_user_conn(user)
         q_sets = [list(Note.objects.filter(user=connected_user)) for connected_user in connected_users]
         notes = reduce(lambda set_1, set_2: set_1 + set_2, q_sets)
-        return [note for note in notes if note.collaborative]
+        return [note for note in notes if note.privacy != "PR"]
 
     def collaborations(self, user):
         """notes that the user is a collaborator on"""
