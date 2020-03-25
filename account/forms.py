@@ -1,12 +1,12 @@
+import re
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-
-
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
-import re
+
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={"class": "form-control"}))
@@ -17,8 +17,6 @@ class SignUpForm(UserCreationForm):
         fields = ('username', 'first_name', 'last_name', 'password1', 'password2',)
         widgets = {
             'username': forms.TextInput(attrs={"class": "form-control"}),
-            'password1': forms.PasswordInput(attrs={"class": "form-control"}),
-            'password2': forms.PasswordInput(attrs={"class": "form-control"}),
         }
 
     def clean_username(self):

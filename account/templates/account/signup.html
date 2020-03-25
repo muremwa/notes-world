@@ -17,6 +17,9 @@
             <div>
                 {% include "form_template.html" %}
                 <p>already have an account? <a href="{% url 'login' %}">sign in</a></p>
+                <script>
+                    Array.from(document.getElementsByTagName("input")).map(item => item.classList.add('form-control'));
+                </script>
             </div>
         </div>
     </div>
