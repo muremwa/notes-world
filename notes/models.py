@@ -1,3 +1,5 @@
+from functools import reduce
+
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
@@ -53,29 +55,14 @@ class Timing:
 class NoteManager(models.Manager):
     @staticmethod
     def notes_user_can_see(user):
-        """
-        takes a user and returns all notes from the users connected users
-        :param user: user type
-        :return: array of notes(queryset)
-        """
-        user = User.objects.get(id=user.id)
+        """takes a user and returns all notes from the users connected users"""
         connected_users = Connection.objects.get_user_conn(user)
-        qsets = []
-        notes = []
-        for connected_user in connected_users:
-            user_notes = Note.objects.filter(user=connected_user)
-            qsets.append(user_notes)
-        for qset in qsets:
-            for n in qset:
-                if n.collaborative:
-                    notes.append(n)
-        return notes
+        q_sets = [list(Note.objects.filter(user=connected_user)) for connected_user in connected_users]
+        notes = reduce(lambda set_1, set_2: set_1 + set_2, q_sets)
+        return [note for note in notes if note.collaborative]
 
     def collaborations(self, user):
-        """
-        :param user: the user to get all the notes they can collaborate on
-        :return: an array of notes
-        """
+        """notes that the user is a collaborator on"""
         collaborations = []
         notes = self.notes_user_can_see(user)
 
@@ -93,7 +80,7 @@ class Note(models.Model, Timing):
     content = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     collaborative = models.BooleanField(default=False)
-    last_modified = models.DateTimeField(null=True)
+    last_modified = models.DateTimeField(null=True, blank=True)
     last_modifier = models.CharField(max_length=5, blank=True, null=True)
     privacy = models.CharField(max_length=2, choices=privacy_options, default="PR")
     collaborators = models.ManyToManyField(Profile, blank=True)
