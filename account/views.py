@@ -209,11 +209,15 @@ class ForeignUser(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['foreign_user'] = get_object_or_404(User, pk=kwargs['user_id'])
-        context['conn'] = Connection.objects.get_conn(self.request.user, context['foreign_user'])
-        context['conn_type'] = self.connected(context['foreign_user'])
-        context['mutual_users'] = self.mutual_conns(context['foreign_user'])
-        context['notes'] = self.user_notes(context['foreign_user'], context['conn_type'])
+        foreign_user = get_object_or_404(User, pk=kwargs['user_id'])
+        conn_type = self.connected(foreign_user)
+        context.update({
+            'foreign_user': foreign_user,
+            'conn': Connection.objects.get_conn(self.request.user, foreign_user),
+            'conn_type': conn_type,
+            'mutual_users': self.mutual_conns(foreign_user),
+            'notes': self.user_notes(foreign_user, conn_type)
+        })
         return context
 
 
