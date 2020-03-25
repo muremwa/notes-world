@@ -9,11 +9,15 @@ from pagedown.widgets import PagedownWidget
 
 # note creation or edit form
 class NoteForm(forms.ModelForm):
-    content = forms.CharField(widget=PagedownWidget)
+    content = forms.CharField(widget=PagedownWidget(attrs={"class": "form-control"}))
 
     class Meta:
         model = Note
         fields = ("title", 'content', 'privacy')
+        widgets = {
+            'title': forms.TextInput(attrs={"class": "form-control"}),
+            'privacy': forms.Select(attrs={"class": "form-control"})
+        }
 
     def clean_content(self):
         data = self.cleaned_data['content']
@@ -24,7 +28,7 @@ class NoteForm(forms.ModelForm):
 
 
 class NoteForeignForm(forms.ModelForm):
-    content = forms.CharField(widget=PagedownWidget)
+    content = forms.CharField(widget=PagedownWidget(attrs={"class": "form-control"}))
 
     class Meta:
         model = Note
@@ -32,4 +36,4 @@ class NoteForeignForm(forms.ModelForm):
 
 
 class CommentForm(forms.Form):
-    comment = forms.CharField(max_length=140, widget=forms.Textarea)
+    comment = forms.CharField(max_length=140, widget=forms.Textarea(attrs={"class": "form-control"}))
