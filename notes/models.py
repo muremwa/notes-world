@@ -1,8 +1,8 @@
 from functools import reduce
+from datetime import datetime
 
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import datetime
 from django.urls import reverse
 
 from account.models import Profile, Connection
@@ -18,10 +18,9 @@ class Timing:
         return difference
 
     def how_long_ago(self, time):
-        difference = self.difference(time=time, og_time=(str(datetime.now())))
+        difference = self.difference(time=time, og_time=(str(datetime.utcnow())))
         days = difference.days
-        # remove 180 seconds before hand as the server time is 3 hours behind
-        seconds = difference.seconds - (3 * (60 * 60))
+        seconds = difference.seconds
         minutes = (seconds / 60)
         hours = (minutes / 60)
 
@@ -63,7 +62,6 @@ class NoteManager(models.Manager):
 
     def collaborations(self, user):
         """notes that the user is a collaborator on"""
-        collaborations = []
         notes = self.notes_user_can_see(user)
         return [note for note in notes if user.profile in note.collaborators.all()]
 
