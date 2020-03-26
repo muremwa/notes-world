@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 from notes.models import Note, Comment
 from account.models import Connection
 
-# TODO:: add the tests for edit comment, reply, reply edit, delete reply or comment
-
 
 class TestViews(TestCase):
     # set up
@@ -66,6 +64,8 @@ class TestViews(TestCase):
     @tag('collaborate_page')
     def test_collaborate(self):
         print('testing collaborate page')
+        self.note.privacy = "CO"
+        self.note.save()
         self.note.collaborators.add(self.user_2.profile)
         self.client.force_login(user=self.user_2)
         url = reverse('notes:collaborate_page')

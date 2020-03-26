@@ -57,6 +57,8 @@ class NoteManager(models.Manager):
         """takes a user and returns all notes from the users connected users"""
         connected_users = Connection.objects.get_user_conn(user)
         q_sets = [list(Note.objects.filter(user=connected_user)) for connected_user in connected_users]
+        if not q_sets:
+            return []
         notes = reduce(lambda set_1, set_2: set_1 + set_2, q_sets)
         return [note for note in notes if note.privacy != "PR"]
 
