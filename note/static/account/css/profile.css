@@ -4,6 +4,11 @@
     margin-bottom: 5em;
 }
 
+#notifications-div {
+    max-height: 100vh;
+    overflow: auto;
+}
+
 .notification {
     padding: 0.5em;
     border: 0.5px solid cornsilk;
@@ -20,6 +25,10 @@
 
 .unread {
     background-color: #d6d8da;
+}
+
+.unread > .text-info {
+    color: rgb(63, 25, 25) !important;
 }
 
 .unread:hover {
