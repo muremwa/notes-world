@@ -9,4 +9,7 @@ urlpatterns = [
 
     # notifications/open/45/
     path('open/<int:notification_id>/', views.make_opened, name="open"),
+
+    # notification/delete/45/
+    path('delete/<int:notification_id>/', views.delete_notification, name="delete"),
 ]

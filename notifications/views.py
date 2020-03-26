@@ -24,3 +24,12 @@ def make_opened(request, notification_id):
     else:
         result['success'] = False
     return JsonResponse(result)
+
+
+# delete notification
+def delete_notification(request, notification_id):
+    if request.method == "POST":
+        notification = get_object_or_404(Notification, pk=notification_id)
+
+        if request.user == notification.to_user:
+            return JsonResponse({'success': True, "message": "Notification deleted"})
