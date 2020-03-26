@@ -1,3 +1,8 @@
+# other imports
+from itertools import chain
+from datetime import datetime
+import re
+
 # django imports
 from django.shortcuts import redirect, reverse,  get_object_or_404, render
 from django.views import generic, View
@@ -9,11 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import ObjectDoesNotExist
 from django.dispatch import Signal
 
-# other imports
-from itertools import chain
 from markdown_deux import markdown
-from datetime import datetime
-import re
 
 # models & forms (local imports)
 from .models import Note, Comment, Reply
@@ -184,59 +185,47 @@ class CommentProcessing(LoginRequiredMixin, View):
         raise Http404
 
     @staticmethod
-    def user_linking(user, _user, split, addition, **kwargs):
-        line = '[{}](http://127.0.0.1:8000{})'
-        url = reverse("base_account:foreign-user", args=[str(_user.id)])
-        new_user = user
-        if addition:
-            new_user = user + kwargs['add']
-            line = '[{}](http://127.0.0.1:8000{}){}'
-        user_index = split.index(new_user)
-        if addition:
-            new_line = line.format(user, url, kwargs['add'])
-        else:
-            new_line = line.format(user, url)
-        split[user_index] = new_line
-        return split
+    def user_linking(user, add_punctuation):
+        """Actual transforming users links to markdown"""
+        url = reverse("base_account:foreign-user", args=[str(user.pk)])
+        line = '[@{user_name}](http://127.0.0.1:8000{user_url}){punct}'.format(
+            user_name=user.username,
+            user_url=url,
+            punct=add_punctuation
+        )
+        return line
 
     # process comment
     def process_comment(self, comment_text):
-        users = re.findall(r'@\w*', comment_text, re.I | re.M)
+        """Takes a comment or reply and returns a markdown version with links to all tagged users"""
+        mentioned = []
         split_comment = comment_text.split(" ")
-        new_users = []
-        new_users_ = []
+        new_comment = comment_text
 
-        for user in users:
-            try:
-                name = user.split("@")[-1]
-                u_ = User.objects.get(username__exact=name)
-                new_users.append(user)
-                new_users_.append(u_)
-            except ObjectDoesNotExist:
-                continue
-        
-        for k, user_ in enumerate(new_users):
-            try:
-                split_comment = self.user_linking(user_, new_users_[k], split_comment, False)
-            except ValueError:
+        for k, text in enumerate(split_comment):
+            if re.search(r'@\w+', text):
+                name = text.split('@')[-1]
+
+                # check if punctuation is present and if it's illegal
+                ex_name = [string for string in re.split(r'(\W*$)', name) if string]
+                punctuation = ''
+                if len(ex_name) == 2:
+                    name = ex_name[0]
+                    punctuation = ex_name[1]
+                    if punctuation in ['@', '#']:
+                        continue
+
                 try:
-                    split_comment = self.user_linking(user_, new_users_[k], split_comment, True, add=",")
-                except ValueError:
-                    try:
-                        split_comment = self.user_linking(user_, new_users_[k], split_comment, True, add=".")
-                    except ValueError:
-                        try:
-                            split_comment = self.user_linking(user_, new_users_[k], split_comment, True, add="?")
-                        except ValueError:
-                            try:
-                                split_comment = self.user_linking(user_, new_users_[k], split_comment, True, add="!")
-                            except ValueError:
-                                continue
+                    user = User.objects.get(username__exact=name)
+                    mentioned.append(user)
+                except ObjectDoesNotExist:
+                    continue
+                split_comment[k] = self.user_linking(user, punctuation)
 
-        result = dict()
-        result['comment'] = " ".join(split_comment)
-        result['mentioned'] = new_users_
-        return result
+        return {
+            'comment': " ".join(split_comment),
+            'mentioned': mentioned
+        }
 
     # make it html
     def mark(self, comment):
