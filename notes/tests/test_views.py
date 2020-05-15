@@ -223,7 +223,11 @@ class CommentsTestCase(TestCase):
         redirects_to = reverse("notes:note-page", args=[str(self.note.id)]) + "#comments"
         self.assertRedirects(response, redirects_to)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['comment_count'], 3)
+
+        # if comment section is not by react
+        if response.context['normal_comment_section']:
+            self.assertEqual(response.context['comment_count'], 3)
+
         comment = Comment.objects.filter(comment_text__contains="hello world 2")[0]
         self.assertEqual(comment.comment_text, "<p>hello world 2</p>\n")
         self.assertEqual(comment.original_comment, "hello world 2")
