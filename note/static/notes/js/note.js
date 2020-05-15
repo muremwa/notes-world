@@ -8,23 +8,8 @@ $(document).ready( function () {
 })
 
 let commentArea = document.getElementById("id_comment");
-commentArea.placeholder = "add comment here (use '@username' to mention someone '@' '#' are not supported after the username)(markdown is supported)";
+commentArea.placeholder = "add comment here (use '@username' to mention someone)";
 
-function getMentioned () {
-    let text = "this @muremwa is just a test @user_4 and @user6";
-    // let pattern = "\@\[a-zA-Z0-9_]*"
-    let pattern = /@\w*/g;
-    let res = text.match(pattern);
-    let newRes = [];
-    for (r of res) {
-        let y = r.split("@")[1]
-        let url = "www.facebook.com/" + y;
-        let x = '['+y+']('+url+')'
-        newRes.push(x)
-    }
-    console.log(res);
-    console.log(newRes);
-}
 
 $(document).on("click", '.delete-comment', function (e) {
     e.preventDefault();

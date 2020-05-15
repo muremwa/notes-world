@@ -1,12 +1,13 @@
-from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.urls import reverse
 
-from .models import Notification
-from notes.models import Comment, Reply
 from notes.views import add_collaborator, notes_signal, CommentProcessing, EditComment, CommentReply, ReplyActions
-from account.models import Connection
+from api.views import AllComments, comment_actions
 from account.views import accept, account_signal
+from notes.models import Comment, Reply
+from account.models import Connection
+from .models import Notification
 
 
 # notify a note's owner that a comment on it has been made
@@ -43,58 +44,78 @@ def notify_mention_now(user, message, url):
     )
 
 
-def notify_mention_middle(type, users, obj, url, **kwargs):
+def notify_mention_middle(type_, users, obj, url, **kwargs):
     for user in users:
         to = user
-        message = "{} mentioned you in their {} on {}".format(obj.user.get_full_name(), type, kwargs['to_what'])
+        message = "{} mentioned you in their {} on {}".format(obj.user.get_full_name(), type_, kwargs['to_what'])
         notify_mention_now(to, message, url)
 
 
-def notify_mention_top(type, mentioned, location_url, **kwargs):
-    if type == CommentProcessing or type == EditComment:
+def notify_mention_top(type_, mentioned, location_url, **kwargs):
+    if type_ in [CommentProcessing, EditComment, AllComments, comment_actions]:
         notify_mention_middle('comment', mentioned, kwargs['comment'], location_url, to_what=kwargs['comment'].note)
-    elif type == CommentReply or type == ReplyActions:
+    elif type_ == CommentReply or type_ == ReplyActions:
         notify_mention_middle('reply', mentioned, kwargs['reply'], location_url, to_what=kwargs['reply'].comment)
+
+
+# notify a user they have been mentioned using create through the API app
+@receiver(notes_signal, sender=AllComments)
+def notify_mentioning_comment_creation_api(sender, **kwargs):
+    type_ = sender
+    comment = kwargs.get('comment', None)
+    mentioned = kwargs.get('mentioned')
+    url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
+    notify_mention_top(type_, mentioned, url, comment=comment)
+
+
+# notify a user they have been mentioned using edit through the API app
+@receiver(notes_signal, sender=comment_actions)
+def notify_mentioning_comment_api(sender, **kwargs):
+    type_ = sender
+    comment = kwargs.get('comment', None)
+    mentioned = kwargs.get('mentioned')
+    url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
+    notify_mention_top(type_, mentioned, url, comment=comment)
 
 
 # notify a user they have been mentioned in a comment
 @receiver(notes_signal, sender=CommentProcessing)
 def notify_mentioning_comment(sender, **kwargs):
-    type = sender
+    type_ = sender
     comment = kwargs['comment']
     mentioned = kwargs['mentioned']
     url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
-    notify_mention_top(type, mentioned, url, comment=comment)
+    notify_mention_top(type_, mentioned, url, comment=comment)
 
 
 # notify a user they have been mentioned in an edited comment
 @receiver(notes_signal, sender=EditComment)
 def notify_mentioning_comment_edit(sender, **kwargs):
-    type = sender
+    type_ = sender
     comment = kwargs['comment']
     mentioned = kwargs['mentioned']
     url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
-    notify_mention_top(type, mentioned, url, comment=comment)
+    notify_mention_top(type_, mentioned, url, comment=comment)
 
 
 # notify a user they have been mentioned in a reply
 @receiver(notes_signal, sender=CommentReply)
 def notify_mentioning_reply(sender, **kwargs):
-    type = sender
+    type_ = sender
     reply = kwargs['reply']
     mentioned = kwargs['mentioned']
     url = reverse("notes:reply-comment", args=[str(reply.comment.id)])+"#reply"+str(reply.id)
-    notify_mention_top(type, mentioned, url, reply=reply)
+    notify_mention_top(type_, mentioned, url, reply=reply)
 
 
 # notify a user they have been mentioned in an edited reply
 @receiver(notes_signal, sender=ReplyActions)
 def notify_mentioning_reply(sender, **kwargs):
-    type = sender
+    type_ = sender
     reply = kwargs['reply']
     mentioned = kwargs['mentioned']
     url = reverse("notes:reply-comment", args=[str(reply.comment.id)])+"#reply"+str(reply.id)
-    notify_mention_top(type, mentioned, url, reply=reply)
+    notify_mention_top(type_, mentioned, url, reply=reply)
 
 
 # notify a user of the new requests they have
@@ -130,7 +151,7 @@ def notify_accepted_request(sender, **kwargs):
 def notify_collaboration(sender, **kwargs):
     to = kwargs['user']
     message = "You were added as a collaborator on {}".format(kwargs['note'])
-    url= kwargs['note'].get_absolute_url()
+    url = kwargs['note'].get_absolute_url()
 
     Notification.objects.create(
         to_user=to,

@@ -1,55 +1,66 @@
 <!-- Comments -->
 <div id="comments">
-    <h3>comments <small class="text-warning">{{ note.title }} has {% if comment_count > 0 %}{{comment_count}}{% else %}no{% endif %} comments</small></h3>
-    <div>
-        {% include "form_template.html" %}
-        <hr>
-    </div>
-    {% if comments %}
-        {% for comment in comments %}
-            <div id="comment{{comment.id}}" class="row text-primary comment">
-                <div class="col-sm-1 user-img">                
-                    <img src="{{comment.user.profile.image.url}}" alt="image of {{ comment.user }}">
-                </div>
-                <div class="col-sm-11">
-                    <span class="comment-info"><strong>{{comment.user.get_full_name }}</strong> <small class="text-danger">@{{ comment.user }}</small> posted <strong class="dated">{{comment.get_created}}</strong> {% if comment.is_modified %}<span class="text-info">edited</span>{% endif %} </span>{% if comment.reply_set.all %}<span class="text-info">{{ comment.reply_set.all.count }} replies</span>{% endif %}
-                    <div class="comment-text">{{comment.comment_text|safe }}</div>
-
-                    <!-- comment actions -->
-                    <form data-get-comment="{% url 'notes:get-comment-reply' 'comment' comment.id %}" class="form-inline" method="POST">
-                        {% csrf_token %}
-                        <a href="{% url 'notes:reply-comment' comment.id %}" class="btn btn-link text-danger">reply</a>
-                        {% if comment.user == user %}
-                            <input type="submit" class="btn btn-link text-dark edit-comment" value="edit comment">
-                            <input type="submit" data-url="{% url 'notes:comment-delete' comment.id %}" class="btn btn-link text-dark delete-comment" value="delete comment">
-                        {% else %}
-                            {% if note.user == user %}
-                                <input type="submit" data-url="{% url 'notes:comment-delete' comment.id %}" class="btn btn-link text-dark delete-comment" value="delete comment">
-                            {% endif %}
-                            <input type="submit" class="btn btn-link text-dark" value="flag">
-                        {% endif %}
-                    </form>
-                    
-                    <!-- comment edit -->
-                    <form style="display: none;" action="{% url 'notes:edit-comment' comment.id %}" method="POST" class="form-inline" name="edit-form">
-                        {% csrf_token %}
-                        <div class="form-group col-sm-7">
-                            {{ form.comment }}
-                        </div>
-                        <div style="width: 30%;" class="form-group">
-                            <input type="submit" class="btn-outline" value="edit">
-                        </div>
-                        <span class="btn text-danger close-edit">abort</span>
-                    </form>
-                    
-                </div>
-            </div>
-            <hr />
-        {% endfor %}
+    {% if not normal_comment_section %}
+        {% csrf_token %}
+        <div id="comment-zone" data-comments-url="{% url 'api:comments' note.pk %}" data-search-user-url="{% url 'api:get-user' %}"></div>
+        <div class="text-center">
+            <p>Your are using the <strong>new comment section</strong>. To opt out <a href="?normal_comment_section=1">click here</a>. You can opt in any time.</p>
+        </div>
     {% else %}
-        <div id="no-comments">
-            <h3 class="alert-heading text-center">no comments yet to {{ note.title }}</h3>
-            {% if note.privacy == "PR" %}<h4 class="text-warning text-center">try making it public or for connected only and connecting to users</h4>{% endif %}
+        <h3>comments <small class="text-warning">{{ note.title }} has {% if comment_count > 0 %}{{comment_count}}{% else %}no{% endif %} comments</small></h3>
+        <div>
+            {% include "form_template.html" %}
+            <hr>
+        </div>
+        {% if comments %}
+            {% for comment in comments %}
+                <div id="comment{{comment.id}}" class="row text-primary comment">
+                    <div class="col-sm-1 user-img">
+                        <img src="{{comment.user.profile.image.url}}" alt="image of {{ comment.user }}">
+                    </div>
+                    <div class="col-sm-11">
+                        <span class="comment-info"><strong>{{comment.user.get_full_name }}</strong> <small class="text-danger">@{{ comment.user }}</small> posted <strong class="dated">{{comment.get_created}}</strong> {% if comment.is_modified %}<span class="text-info">edited</span>{% endif %} </span>{% if comment.reply_set.all %}<span class="text-info">{{ comment.reply_set.all.count }} replies</span>{% endif %}
+                        <div class="comment-text">{{comment.comment_text|safe }}</div>
+
+                        <!-- comment actions -->
+                        <form data-get-comment="{% url 'notes:get-comment-reply' 'comment' comment.id %}" class="form-inline" method="POST">
+                            {% csrf_token %}
+                            <a href="{% url 'notes:reply-comment' comment.id %}" class="btn btn-link text-danger">reply</a>
+                            {% if comment.user == user %}
+                                <input type="submit" class="btn btn-link text-dark edit-comment" value="edit comment">
+                                <input type="submit" data-url="{% url 'notes:comment-delete' comment.id %}" class="btn btn-link text-dark delete-comment" value="delete comment">
+                            {% else %}
+                                {% if note.user == user %}
+                                    <input type="submit" data-url="{% url 'notes:comment-delete' comment.id %}" class="btn btn-link text-dark delete-comment" value="delete comment">
+                                {% endif %}
+                                <input type="submit" class="btn btn-link text-dark" value="flag">
+                            {% endif %}
+                        </form>
+
+                        <!-- comment edit -->
+                        <form style="display: none;" action="{% url 'notes:edit-comment' comment.id %}" method="POST" class="form-inline" name="edit-form">
+                            {% csrf_token %}
+                            <div class="form-group col-sm-7">
+                                {{ form.comment }}
+                            </div>
+                            <div style="width: 30%;" class="form-group">
+                                <input type="submit" class="btn-outline" value="edit">
+                            </div>
+                            <span class="btn text-danger close-edit">abort</span>
+                        </form>
+
+                    </div>
+                </div>
+                <hr />
+            {% endfor %}
+        {% else %}
+            <div id="no-comments">
+                <h3 class="alert-heading text-center">no comments yet to {{ note.title }}</h3>
+                {% if note.privacy == "PR" %}<h4 class="text-warning text-center">try making it public or for connected only and connecting to users</h4>{% endif %}
+            </div>
+        {% endif %}
+        <div class="text-center">
+            <p>Your are using the <strong>old comment section</strong>. To opt out <a href="?normal_comment_section=0">click here</a>. You can opt in any time.</p>
         </div>
     {% endif %}
 </div>

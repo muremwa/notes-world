@@ -1,13 +1,21 @@
-from rest_framework import views, generics
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-
-from .serializers import NotesSerializer, NoteSerializer, UserSerializer, NoteCreationSerializer, CommentSerializer
-from notes.models import Note, Comment
-from django.contrib.auth.models import User
-
+from datetime import datetime
 from itertools import chain
+
+from django.shortcuts import get_object_or_404, redirect, reverse
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from django.contrib.auth.models import User
+from rest_framework import views, generics
+from django.http import Http404, JsonResponse
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
+
+from .serializers import NotesSerializer, NoteSerializer, UserSerializer
+from notes.views import CommentProcessor, notes_signal
+from notes.models import Note, Comment
 
 
 class NotesApi(views.APIView):
@@ -63,27 +71,131 @@ class NoteCreationApi(views.APIView):
         })
 
 
-# comments
-class AllComments(views.APIView):
-    authentication_classes = ()
-    permission_classes = ()
-    
-    def shape(self, comment):
+class AllComments(views.APIView, CommentProcessor):
+    @staticmethod
+    def shape(comment, user_id, host):
+        if comment.modified:
+            stamp = comment.modified.timestamp()
+        else:
+            stamp = comment.created.timestamp()
+
         return {
+            'key': stamp + comment.pk,
             'username': comment.user.username,
             'full_name': comment.user.get_full_name(),
             'profile': comment.user.profile.image.url,
+            'comment_id': comment.pk,
             'time': comment.get_created(),
             'text': comment.original_comment,
             'edited': comment.is_modified(),
-            'replies': comment.reply_set.all().count(),
+            'editable': comment.user.pk == user_id,
+            'replies': comment.reply_set.count(),
+            'reply_url': "http://" + host + reverse('notes:reply-comment', kwargs={'comment_id': str(comment.pk)}),
+            'action_url': "http://" + host + reverse('api:comment-actions', kwargs={'pk': str(comment.pk)}),
         }
-        
 
     def get(self, *args, **kwargs):
-        comments = Comment.objects.filter(note=kwargs['pk'])
-        data = []
-        for comment in comments:
-            data.append(self.shape(comment))
+        host = self.request.META.get('HTTP_HOST', '')
+        comments = Comment.objects.filter(note=kwargs.get('pk'))
+        note = get_object_or_404(Note, pk=kwargs.get('pk'))
 
-        return Response(data)
+        user = self.request.user
+
+        return Response({
+            'note': str(note),
+            'owner_id': note.user.pk,
+            'user': {
+                'id': user.pk,
+                'username': user.username,
+                'full_name': user.get_full_name(),
+                'profile': user.profile.image.url,
+            },
+            'comments': [self.shape(comment, user.pk, host) for comment in comments]
+        })
+
+    def post(self, *args, **kwargs):
+        host = self.request.META.get('HTTP_HOST', '')
+        note = get_object_or_404(Note, pk=kwargs.get('pk', None))
+        user_comment = self.request.data.get('comment', '')
+        processed_data = self.mark(user_comment)
+        user = self.request.user
+
+        comment = Comment(
+            note=note,
+            user=user,
+            comment_text=processed_data.get('processed_comment', ''),
+            original_comment=user_comment,
+        )
+        comment.save()
+
+        for mentioned_user in processed_data.get('mentioned'):
+            comment.mentioned.add(mentioned_user.profile)
+
+        notes_signal.send(self.__class__, comment=comment, mentioned=processed_data.get('mentioned'))
+
+        return Response({
+            'comment': self.shape(comment, user.pk, host)
+        })
+
+
+@api_view(['POST'])
+def comment_actions(request, pk):
+    comment = comment = get_object_or_404(Comment, pk=pk)
+    response = Response(status=status.HTTP_403_FORBIDDEN)
+
+    if 'HTTP_X_HTTP_METHOD_OVERRIDE' in request.META:
+        http_method = request.META['HTTP_X_HTTP_METHOD_OVERRIDE']
+
+        # handle a delete request
+        if http_method == "DELETE":
+            if request.user == comment.user or request.user == comment.note.user:
+                comment.delete()
+                response = Response({'success': True}, status=status.HTTP_200_OK)
+            else:
+                response = Response(status=status.HTTP_403_FORBIDDEN)
+
+        # handle a patch request
+        elif http_method == 'PATCH':
+            if comment.user == request.user:
+                processor = CommentProcessor()
+                comment_text = request.data.get('original_comment', '')
+                processed_comment = processor.mark(comment_text)
+                comment.comment_text = processed_comment.get('processed_comment')
+                comment.original_comment = comment_text
+                comment.modified = datetime.now()
+                comment.save()
+                notify = []
+
+                # add mentioned users
+                for mentioned in processed_comment.get('mentioned'):
+                    if mentioned.profile not in comment.mentioned.all():
+                        comment.mentioned.add(mentioned.profile)
+                        notify.append(mentioned)
+
+                # notify new mentioned users
+                if notify:
+                    notes_signal.send(comment_actions, comment=comment, mentioned=notify)
+
+                response = Response({
+                    'new_key': comment.modified.timestamp() + comment.pk,
+                    'success': True,
+                    'changed': True,
+                    'comment_id': comment.pk,
+                    'comment': comment_text,
+                    'replies': comment.reply_set.count(),
+                    'error_message': None,
+                })
+            else:
+                response = Response(status=status.HTTP_403_FORBIDDEN)
+
+    return response
+
+
+def get_user(request):
+    username_query = request.GET.get('username', None)
+    ava_users = User.objects.filter(username__iexact=username_query)
+
+    if ava_users.count() < 1:
+        return redirect(reverse('base_account:connected'))
+
+    return redirect(reverse('base_account:foreign-user', kwargs={'user_id': str(ava_users[0].pk)}))

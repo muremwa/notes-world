@@ -5,7 +5,7 @@ $(document).ready( function() {
     replyArea.placeholder = "reply to the comment above";
 })
 
-// editing replies supprt
+// editing replies support
 $(document).on('click', '#edit_reply', function (e) {
     e.preventDefault();
     let url = this.parentElement.attributes['data-reply-url'].value;

@@ -17,3 +17,7 @@
 .comment-text p a {
     color: brown;
 }
+
+#comments textarea {
+	width: 100%;
+}

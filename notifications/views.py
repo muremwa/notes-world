@@ -32,4 +32,5 @@ def delete_notification(request, notification_id):
         notification = get_object_or_404(Notification, pk=notification_id)
 
         if request.user == notification.to_user:
+            notification.delete()
             return JsonResponse({'success': True, "message": "Notification deleted"})

@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import ObjectDoesNotExist
 from django.dispatch import Signal
+from django.contrib.auth.models import User
 
 from markdown_deux import markdown
 
@@ -20,7 +21,6 @@ from markdown_deux import markdown
 from .models import Note, Comment, Reply
 from .forms import NoteForm, NoteForeignForm, CommentForm
 from account.models import Connection, Profile
-from django.contrib.auth.models import User
 
 
 notes_signal = Signal(providing_args=['note', 'user', 'comment', 'reply', 'mentioned'])
@@ -63,14 +63,30 @@ class NotePage(LoginRequiredMixin, generic.DetailView):
     model = Note
 
     def get_context_data(self, **kwargs):
+        # does the user want the old comment section?
+        comment_section = self.request.GET.get('normal_comment_section', None)
+        prev_comment_section = self.request.session.setdefault('normal_comment_section', False)
+
+        if comment_section is not None and int(comment_section) != int(prev_comment_section):
+            self.request.session['normal_comment_section'] = bool(int(comment_section))
+
         context = super().get_context_data(**kwargs)
-        context["collaborators"] = context['note'].collaborators.all()
-        context['form'] = CommentForm
-        context['input_name'] = "comment"
-        context['comments'] = context['note'].comment_set.all()
-        context['comment_count'] = context['comments'].count()
-        context['action_url'] = reverse("notes:comment", args=[str(context['note'].id)])
-        context['connected_note'] = False
+        additional_context = {
+            'collaborators': context.get('note').collaborators.all(),
+            'connected_note': False,
+            'normal_comment_section': self.request.session.get('normal_comment_section', False)
+        }
+
+        # add comment section context if the user wants the old comment section
+        if self.request.session.get('normal_comment_section', False):
+            additional_context.update({
+                'comments': context.get('note').comment_set.all(),
+                'comment_count': context.get('note').comment_set.count(),
+                'form': CommentForm,
+                'input_name': 'comment',
+                'action_url': reverse("notes:comment", args=[str(context.get('note').pk)])
+            })
+        context.update(additional_context)
 
         if self.request.user != context['note'].user and context['note'].privacy == "CO":
             if Connection.objects.exist(self.request.user, context['note'].user):
@@ -131,10 +147,6 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
         form.instance.last_modifier = int(self.request.user.id)
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        print(form.cleaned_data)
-        return super().form_invalid(form)
-
 
 # note delete
 class NoteDelete(LoginRequiredMixin, generic.DeleteView):
@@ -179,11 +191,11 @@ class CollaboratorsEdit(LoginRequiredMixin, generic.TemplateView):
         return context
 
 
-class CommentProcessing(LoginRequiredMixin, View):
-    # raise 404 error if its a get request
-    def get(self, *args, **kwargs):
-        raise Http404
-
+class CommentProcessor:
+    """
+    This class can be inherited to enable a view process a comment
+    user the 'mark' method (short for markdown) to process a comment
+    """
     @staticmethod
     def user_linking(user, add_punctuation):
         """Actual transforming users links to markdown"""
@@ -229,13 +241,27 @@ class CommentProcessing(LoginRequiredMixin, View):
 
     # make it html
     def mark(self, comment):
-        result = dict()
+        """
+        Main method to use processor
+        :param comment: a original comment
+        :type comment: string
+        :return: a dict with mentioned users (a list: mentioned)
+        and the processed comment(html version of the comment as a string: processed_comment)
+        :rtype: dict
+        """
         process = self.process_comment(comment)
-        result['mentioned'] = process['mentioned']
-        result['processed_comment'] = markdown(process['comment'])
-        return result
+        return {
+            'mentioned': process.get('mentioned', []),
+            'processed_comment': markdown(process.get('comment', ''))
+        }
 
-    # process comment
+
+class CommentProcessing(LoginRequiredMixin, CommentProcessor, View):
+    # raise 404 error if its a get request
+    def get(self, *args, **kwargs):
+        raise Http404
+
+    # process
     def post(self, *args, **kwargs):
         form = CommentForm(self.request.POST)
         if form.is_valid():
