@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load staticfiles %}
 {% block title %}User not found{% endblock %}
 
 {% block content %}
@@ -8,12 +9,16 @@
         margin: auto;
     }
 
+    #not-found-image {
+        width: 100%;
+    }
+
     .links > a {
         margin: 1em;
     }
 </style>
 <div id="not-found" class="text-center">
-    <h1>User not found</h1>
+    <img id="not-found-image" src="{% static 'svg/empty.svg' %}">
     <h2>'{{ failed_user }}' does not exist in notes-world</h2>
     <h5>Choose an action</h5>
     <div class="links">
