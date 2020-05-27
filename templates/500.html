@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}500 Internal server error{% endblock title %}
+
+{% block content %}
+<style>
+    #img-500 {
+        width: 100%;
+        height: 60vh;
+    }
+
+    .links > a {
+        margin: 1em;
+    }
+</style>
+<div class="text-center">
+    <img id="img-500" src="{% static 'svg/server_down.svg' %}" alt="server error graphic"/>
+    <h2>Sorry, our servers encountered a critical error.</h2>
+    <h5>Choose an action</h5>
+    <div class="links">
+        <a href="{% url 'base_account:connected' %}">connect users</a>
+        <a href="{% url 'notes:collaborate_page' %}">collaborate</a>
+        <a href="{% url 'notes:index' %}">see notes</a>
+    </div>
+</div>
+{% endblock content %}
