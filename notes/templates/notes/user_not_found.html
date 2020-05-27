@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}User not found{% endblock %}
+
+{% block content %}
+<style>
+    #not-found {
+        width: 40%;
+        margin: auto;
+    }
+
+    .links > a {
+        margin: 1em;
+    }
+</style>
+<div id="not-found" class="text-center">
+    <h1>User not found</h1>
+    <h2>'{{ failed_user }}' does not exist in notes-world</h2>
+    <h5>Choose an action</h5>
+    <div class="links">
+        <a href="{% url 'base_account:connected' %}">connect users</a>
+        <a href="{% url 'notes:collaborate_page' %}">collaborate</a>
+        <a href="{% url 'notes:index' %}">see notes</a>
+    </div>
+</div>
+{% endblock content %}

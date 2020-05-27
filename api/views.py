@@ -1,16 +1,13 @@
 from datetime import datetime
 from itertools import chain
 
-from django.shortcuts import get_object_or_404, redirect, reverse
-from rest_framework import status
-from rest_framework.response import Response
+from django.shortcuts import get_object_or_404, redirect, reverse, render
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework import views, generics
-from django.http import Http404, JsonResponse
-from django.views import View
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status
+from django.http import Http404
 
 
 from .serializers import NotesSerializer, NoteSerializer, UserSerializer
@@ -196,6 +193,6 @@ def get_user(request):
     ava_users = User.objects.filter(username__iexact=username_query)
 
     if ava_users.count() < 1:
-        return redirect(reverse('base_account:connected'))
+        return render(request, 'notes/user_not_found.html', {'failed_user': username_query})
 
     return redirect(reverse('base_account:foreign-user', kwargs={'user_id': str(ava_users[0].pk)}))
