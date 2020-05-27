@@ -8,3 +8,4 @@ note/static/css/bootstrap.min.css
 .vscode/*
 media/profile_images/*
 mail/*
+note/secret_key.txt
