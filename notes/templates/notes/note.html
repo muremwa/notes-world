@@ -1,9 +1,16 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}{{ note.title }} - {{ user }}{% endblock title %}
+
+{% block title %}
+    {% if user == note.user or note.privacy == "PB" or connected_note %}
+        {{ note.title }} - {{ note.user }}
+    {% else %}
+        Action Forbidden
+    {% endif %}
+{% endblock title %}
+
 {% block style %}<link rel="stylesheet" type="text/css" href="{% static 'notes/css/note.css' %}"/>{% endblock style %}
 {% block topScript %}
-<!-- <script src="https://cdnjs.cloudfare.com/ajax/libs/marked/0.5.0/marked.min.js"></script> -->
 <script src="{% static 'notes/js/marked.min.js' %}"></script>
 {% endblock topScript %}
 {% block notes %}active{% endblock notes %}

@@ -5,22 +5,23 @@ import re
 
 # django imports
 from django.shortcuts import redirect, reverse,  get_object_or_404, render
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+from django.db.models import ObjectDoesNotExist
+from django.contrib.auth.models import User
 from django.views import generic, View
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.db.models import ObjectDoesNotExist
 from django.dispatch import Signal
-from django.contrib.auth.models import User
+from django.http import Http404
 
 from markdown_deux import markdown
 
 # models & forms (local imports)
-from .models import Note, Comment, Reply
 from .forms import NoteForm, NoteForeignForm, CommentForm
 from account.models import Connection, Profile
+from .models import Note, Comment, Reply
 
 
 notes_signal = Signal(providing_args=['note', 'user', 'comment', 'reply', 'mentioned'])
@@ -167,6 +168,7 @@ class Collaborations(LoginRequiredMixin, generic.TemplateView):
 # collaboration form
 class CollaboratorsEdit(LoginRequiredMixin, generic.TemplateView):
     template_name = "notes/collaborators.html"
+    permission_denied_message = "You cannot edit collaborators for a note you do not own"
 
     def get_note(self):
         return Note.objects.get(id=self.kwargs['pk'])
@@ -188,6 +190,12 @@ class CollaboratorsEdit(LoginRequiredMixin, generic.TemplateView):
         context['collaborators'] = self.collaborators()
         context['note'] = self.get_note()
         context['suggestions'] = self.collaboration_suggestions()
+
+        if context['note'].user.pk != self.request.user.pk:
+            raise PermissionDenied("Only the owner of '{note}' can see this page".format(
+                note=context['note'].title
+            ))
+
         return context
 
 
@@ -400,7 +408,7 @@ def add_collaborator(request, **kwargs):
     add_this = get_object_or_404(Profile, user=kwargs['user_id'])
 
     if request.user != note.user:
-        raise Http404
+        raise PermissionDenied("You are not authorised to add a collaborator")
     else:
         note.collaborators.add(add_this)
         notes_signal.send(add_collaborator, note=note, user=add_this.user)
