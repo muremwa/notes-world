@@ -1,5 +1,6 @@
 # notes world 
-This is a website for users to create notes, work on them, collaborate with friends(other users)
+This is a website for users to create notes, work on them, collaborate with friends(other users).  
+The site is served [here](https://notesworld.pythonanywhere.com).
 
 made in [**Django 2.0**](https://djangoproject.com  "Django website")
 
