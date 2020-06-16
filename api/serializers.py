@@ -1,5 +1,9 @@
+import re
+
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from django.contrib.auth.models import User
 from notes.models import Note, Comment
@@ -23,10 +27,22 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
+    def validate(self, data):
+        if re.search(r'@', data.get('username', '')):
+            raise ValidationError(_('no @ signs on username'), code="at_sign")
+        
+        if data.get('email', None) is None:
+            raise ValidationError(_('Email field is missing'), code='email-mia')
+
+        if not re.search(r'\w+@\w+\.\w+', data.get('email', '')):
+            raise ValidationError(_('Enter a valid email address'), code='email-wrong')
+
+        return data
+
     def create(self, validated_data):
         user = User(
-            username=validated_data['username'],
-            email=validated_data['email']
+            username=validated_data.get('username', None),
+            email=validated_data.get('email', None)
         )
         user.set_password(validated_data['password'])
         user.save()
