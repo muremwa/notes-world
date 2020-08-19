@@ -18,7 +18,11 @@ class Timing:
         return difference
 
     def how_long_ago(self, time):
-        difference = self.difference(time=time, og_time=(str(datetime.utcnow())))
+        try:
+            difference = self.difference(time=time, og_time=(str(datetime.utcnow())))
+        except ValueError:
+            return ''
+
         days = difference.days
         seconds = difference.seconds
         minutes = (seconds / 60)

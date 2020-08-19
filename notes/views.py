@@ -135,8 +135,10 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['input_name'] = "edit note"
-        context['collaborators'] = context['note'].collaborators.all()
+        context.update({
+            'input_name': 'edit note',
+            'can_edit': self.request.user.profile in context.get('note').collaborators.all()
+        })
         return context
 
     def post(self, request, *args, **kwargs):
