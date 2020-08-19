@@ -116,18 +116,10 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
     model = Note
     form_class = NoteForm
     template_name = 'notes/note_edit.html'
-    note = None
-
-    @classmethod
-    def set_note(cls, note_id):
-        cls.note = Note.objects.get(pk=note_id)
-
-    def get(self, request, *args, **kwargs):
-        self.set_note(kwargs['pk'])
-        return super().get(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
-        if self.request.user == self.note.user:
+        note = get_object_or_404(Note, pk=self.kwargs.get('pk'))
+        if self.request.user == note.user:
             form_class = NoteForm
         else:
             form_class = NoteForeignForm
@@ -140,10 +132,6 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
             'can_edit': self.request.user.profile in context.get('note').collaborators.all()
         })
         return context
-
-    def post(self, request, *args, **kwargs):
-        self.set_note(kwargs['pk'])
-        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.last_modified = datetime.now()
