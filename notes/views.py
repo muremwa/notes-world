@@ -207,7 +207,8 @@ class CommentProcessor:
     @staticmethod
     def user_linking(user, add_punctuation):
         """Actual transforming users links to markdown"""
-        url = reverse("base_account:foreign-user", args=[str(user.pk)])
+        url = reverse("base_account:foreign-user", kwargs={"user_id": str(user.pk)})
+        # TODO:: Ensure this line can get relative domains instead of fixed ones
         line = '[@{user_name}](http://127.0.0.1:8000{user_url}){punct}'.format(
             user_name=user.username,
             user_url=url,
