@@ -236,8 +236,8 @@ class CommentsTestCase(TestCase):
     # tagged users
     @tag("comment-mentioned")
     def test_mentioned(self):
-        connect_1 = "http://127.0.0.1:8000"+reverse("base_account:foreign-user", args=[str(self.user_1.id)])
-        connect_2 = "http://127.0.0.1:8000" + reverse("base_account:foreign-user", args=[str(self.user_2.id)])
+        connect_1 = reverse("base_account:foreign-user", args=[str(self.user_1.id)])
+        connect_2 = reverse("base_account:foreign-user", args=[str(self.user_2.id)])
         self.client.force_login(self.user_1)
         print("testing mentioned")
         url = reverse("notes:comment", args=[str(self.note.id)])
@@ -255,8 +255,8 @@ class CommentsTestCase(TestCase):
 
     @tag("comment-edit")
     def test_comment_edit(self):
-        user_3 = "http://127.0.0.1:8000"+reverse('base_account:foreign-user', args=[str(self.user_3.id)])
-        user_2 = "http://127.0.0.1:8000"+reverse('base_account:foreign-user', args=[str(self.user_2.id)])
+        user_3 = reverse('base_account:foreign-user', args=[str(self.user_3.id)])
+        user_2 = reverse('base_account:foreign-user', args=[str(self.user_2.id)])
         init_count = self.comment.mentioned.all().count()
         print("comment edit")
         data = {
