@@ -63,21 +63,23 @@
                             {% endif %}
                         {% endif %}
                     </div>
-                    <hr>
-                    <div class="align-content-center">
-                        {% if note.privacy == "PR" %}
-                            <span class="text-info">{{ note.get_privacy }}</span>
-                            <p>Only you can see {{ note.title }}</p>
-                        {% else %}
-                            {% if note.privacy == "CO" %}
-                                <span class="text-warning">{{ note.get_privacy }}</span>
-                                <p>Only your connected friends can see {{ note.title }}</p>
+                    {% if note.user == user %}
+                        <hr>
+                        <div class="align-content-center">
+                            {% if note.privacy == "PR" %}
+                                <span class="text-info">{{ note.get_privacy }}</span>
+                                <p>Only you can see {{ note.title }}</p>
                             {% else %}
-                                <span class="text-danger">{{ note.get_privacy }}</span>
-                                <p>{{ note.title }} is visible to everyone on notes-world.{% if note.user == user %} <a href="{% url 'notes:note-edit' note.id %}#id_privacy" class="btn btn-link">change this</a>{% endif %}</p>
+                                {% if note.privacy == "CO" %}
+                                    <span class="text-warning">{{ note.get_privacy }}</span>
+                                    <p>Only your connected friends can see {{ note.title }}</p>
+                                {% else %}
+                                    <span class="text-danger">{{ note.get_privacy }}</span>
+                                    <p>{{ note.title }} is visible to everyone on notes-world.{% if note.user == user %} <a href="{% url 'notes:note-edit' note.id %}#id_privacy" class="btn btn-link">change this</a>{% endif %}</p>
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                     <hr>
                     <div class="align-content-center">
                         {% if note.user.id == user.id %}
