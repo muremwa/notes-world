@@ -70,6 +70,10 @@ REST_FRAMEWORK = {
     )
 }
 
+MARKDOWN_DEUX_STYLES = {'default': {
+    'safe_mode': False
+}}
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
