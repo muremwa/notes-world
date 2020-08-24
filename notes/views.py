@@ -195,11 +195,10 @@ class CommentProcessor:
     user the 'mark' method (short for markdown) to process a comment
     """
     @staticmethod
-    def user_linking(user, add_punctuation):
+    def _user_linking(user, add_punctuation):
         """Actual transforming users links to markdown"""
         url = reverse("base_account:foreign-user", kwargs={"user_id": str(user.pk)})
-        # TODO:: Ensure this line can get relative domains instead of fixed ones
-        line = '[@{user_name}](http://127.0.0.1:8000{user_url}){punct}'.format(
+        line = '[@{user_name}]({user_url}){punct}'.format(
             user_name=user.username,
             user_url=url,
             punct=add_punctuation
@@ -207,7 +206,7 @@ class CommentProcessor:
         return line
 
     # process comment
-    def process_comment(self, comment_text):
+    def _process_comment(self, comment_text):
         """Takes a comment or reply and returns a markdown version with links to all tagged users"""
         mentioned = []
         split_comment = comment_text.split(" ")
@@ -231,7 +230,7 @@ class CommentProcessor:
                     mentioned.append(user)
                 except ObjectDoesNotExist:
                     continue
-                split_comment[k] = self.user_linking(user, punctuation)
+                split_comment[k] = self._user_linking(user, punctuation)
 
         return {
             'comment': " ".join(split_comment),
@@ -248,7 +247,7 @@ class CommentProcessor:
         and the processed comment(html version of the comment as a string: processed_comment)
         :rtype: dict
         """
-        process = self.process_comment(comment)
+        process = self._process_comment(comment)
         return {
             'mentioned': process.get('mentioned', []),
             'processed_comment': markdown(process.get('comment', ''))
