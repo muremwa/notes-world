@@ -29,7 +29,7 @@
                 <div class="col-sm-8">
                     <div class="js-note">{{ note.content }}</div>
                     <hr />
-                    <div>
+                    <div id="note-tags">
                         {% if note.tags.all %}
                             <div class="row">
                                 {% for tag in note.tags.all %}                            
@@ -37,7 +37,7 @@
                                 {% endfor %}
                             </div>
                         {% endif %}
-                        <a href="{% url 'notes:add-tag' note.pk %}" class="btn btn-link">add tag</a>
+                        <a href="{% url 'notes:add-tag' note.pk %}" class="btn btn-link">Edit tag</a>
                     </div>
                     <hr />
                     <div>{% include "notes/comments.html" %}</div>

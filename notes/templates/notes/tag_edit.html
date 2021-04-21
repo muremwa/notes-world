@@ -28,7 +28,7 @@
 </style>
 
 <div class="container">
-    <h1 class="">Edit tags for "{{ note.title }}"</h1>
+    <h1 class="">Edit tags for "<a href="{% url 'notes:note-page' note.pk %}">{{ note.title }}</a>"</h1>
 
     <div class="row">
         <form action="" method="post" class="col-md-5">

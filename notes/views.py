@@ -113,12 +113,25 @@ class NoteCreate(LoginRequiredMixin, generic.CreateView):
 
 def add_tags_to_note(request, pk):
     note = get_object_or_404(Note, pk=pk)
-    form = TagForm(instance=note)
 
-    return render(request, 'notes/tag_edit.html', {
-        'note': note,
-        'form': form
-    })
+    if request.method == 'GET':
+        form = TagForm(instance=note)
+
+        return render(request, 'notes/tag_edit.html', {
+            'note': note,
+            'form': form
+        })
+
+    elif request.method == 'POST':
+        form = TagForm(instance=note, data=request.POST)
+
+        if form.is_valid() and form.changed_data:
+            form.save()
+
+        return redirect(f'{reverse("notes:note-page", kwargs={"pk": str(note.pk)})}#note-tags')
+
+    else:
+        raise Http404
 
 
 # note editing
