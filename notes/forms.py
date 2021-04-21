@@ -50,7 +50,7 @@ class TagsField(forms.ModelMultipleChoiceField):
 
 
 class TagForm(forms.ModelForm):
-    tags = TagsField(queryset=Tag.objects.all())
+    tags = TagsField(queryset=Tag.objects.all(), required=False)
 
     class Meta:
         model = Note
