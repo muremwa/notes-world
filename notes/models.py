@@ -84,12 +84,13 @@ class Note(models.Model, Timing):
     last_modifier = models.CharField(max_length=5, blank=True, null=True)
     privacy = models.CharField(max_length=2, choices=privacy_options, default="PR")
     collaborators = models.ManyToManyField(Profile, blank=True)
+    tags = models.ManyToManyField('Tag')
     objects = NoteManager()
 
     class Meta:
         ordering = ["-created"]
 
-        # get a readable name
+    # get a readable name
     def __str__(self):
         return "{} by {}".format(self.title, self.user)
 
@@ -177,3 +178,12 @@ class Reply(models.Model, Timing):
 
     def __str__(self):
         return "Reply by {} to {}".format(self.user, self.comment)
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=20)
+    description = models.TextField(blank=True, null=True)
+    objects = models.Manager()
+
+    def __str__(self):
+        return f"{self.name} (Tag)"

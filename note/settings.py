@@ -13,8 +13,8 @@ with open('note/secret_key.txt', 'r') as f:
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = bool(os.environ.get('DJANGO_DEBUG', False))
+DEBUG = True
+# DEBUG = bool(os.environ.get('DJANGO_DEBUG', False))
 
 
 ALLOWED_HOSTS = ["*"]
@@ -103,9 +103,9 @@ DATABASES = {
     }
 }
 
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, "note/static"),
-# )
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "note/static"),
+)
 
 
 # Password validation
@@ -150,4 +150,4 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 # comment out when debug is True
-STATIC_ROOT = os.path.join(BASE_DIR, 'note/static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'note/static')
