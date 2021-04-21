@@ -19,7 +19,7 @@ from django.http import Http404
 from markdown_deux import markdown
 
 # models & forms (local imports)
-from .forms import NoteForm, NoteForeignForm, CommentForm
+from .forms import NoteForm, NoteForeignForm, CommentForm, TagForm
 from account.models import Connection, Profile
 from .models import Note, Comment, Reply
 
@@ -109,6 +109,16 @@ class NoteCreate(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+
+def add_tags_to_note(request, pk):
+    note = get_object_or_404(Note, pk=pk)
+    form = TagForm(instance=note)
+
+    return render(request, 'notes/tag_edit.html', {
+        'note': note,
+        'form': form
+    })
 
 
 # note editing

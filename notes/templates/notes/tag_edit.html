@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Edit tags{% endblock title %}
+
+{% block notes %}active{% endblock notes %}
+
+{% block content %}
+<style type="text/css">
+    #tags-select {
+        min-height: 20em;
+    }
+
+    #tags-select option {
+        margin-top: 1em;
+    }
+
+    .highlight {
+        border: 1px solid #ced4da !important;
+    }
+
+    #tags-view {
+        transition-duration: 0.5s;
+        border: 1px solid #ffffff;
+        border-radius: 3px;
+    }
+</style>
+
+<div class="container">
+    <h1 class="">Edit tags for "{{ note.title }}"</h1>
+
+    <div class="row">
+        <form action="" method="post" class="col-md-5">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="">Add Tags <small>Hold CTRL or CMD to select multiple</small></label>
+                {{ form.tags }}
+            </div>
+
+            <div class="row form-group">
+                <input type="reset" value="reset form" class="form-control btn-outline col-md-3">
+                <span class="col-md-1"></span>
+                <button class="form-control btn-outline col-md-3" id="preview-tags">preview tags</button>
+                <span class="col-md-1"></span>
+                <input type="submit" value="save tags" class="form-control btn-outline col-md-3">
+            </div>
+        </form>
+
+        <span class="col-md-2"></span>
+
+        <div id="tags-view" class="col-md-5">
+            <h2>Selected Tags</h2>
+
+            <ol id="tags-list">
+                {% for tag in note.tags.all %}
+                    <li class="tags-list-tag">{{ tag.name }}</li>
+                {% empty %}
+                    <span>Not tags selected</span>
+                {% endfor %}
+            </ol>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
+
+{% block bottomScript %}
+    <script src="{% static 'notes/js/tagEdit.js' %}"></script>
+{% endblock bottomScript %}
