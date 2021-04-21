@@ -33,7 +33,7 @@
                         {% if note.tags.all %}
                             <div class="row">
                                 {% for tag in note.tags.all %}                            
-                                    <a href="" class="pill tag">{{ tag.name }}</a>
+                                    <a href="{% url 'notes:index' %}?tag={{ tag.name }}" class="pill tag">{{ tag.name }}</a>
                                 {% endfor %}
                             </div>
                         {% endif %}
