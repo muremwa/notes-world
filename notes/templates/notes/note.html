@@ -37,7 +37,9 @@
                                 {% endfor %}
                             </div>
                         {% endif %}
-                        <a href="{% url 'notes:add-tag' note.pk %}" class="btn btn-link">Edit tag</a>
+                        {% if user == note.user %}
+                            <a href="{% url 'notes:add-tag' note.pk %}" class="btn btn-link">Edit tag</a>
+                        {% endif %}
                     </div>
                     <hr />
                     <div>{% include "notes/comments.html" %}</div>

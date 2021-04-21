@@ -14,7 +14,7 @@ from django.views import generic, View
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.dispatch import Signal
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 
 from markdown_deux import markdown
 
@@ -113,6 +113,9 @@ class NoteCreate(LoginRequiredMixin, generic.CreateView):
 
 def add_tags_to_note(request, pk):
     note = get_object_or_404(Note, pk=pk)
+
+    if note.user != request.user:
+        return HttpResponseForbidden()
 
     if request.method == 'GET':
         form = TagForm(instance=note)
