@@ -29,6 +29,17 @@
                 <div class="col-sm-8">
                     <div class="js-note">{{ note.content }}</div>
                     <hr />
+                    <div>
+                        {% if note.tags.all %}
+                            <div class="row">
+                                {% for tag in note.tags.all %}                            
+                                    <a href="" class="pill tag">{{ tag.name }}</a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <a href="{% url 'notes:add-tag' note.pk %}" class="btn btn-link">add tag</a>
+                    </div>
+                    <hr />
                     <div>{% include "notes/comments.html" %}</div>
                 </div>
                 <div class="col-sm-4">

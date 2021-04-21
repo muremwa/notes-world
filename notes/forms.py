@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 
 import re
-from .models import Note
+from .models import Note, Tag
 from pagedown.widgets import PagedownWidget
 
 
@@ -37,3 +37,21 @@ class NoteForeignForm(forms.ModelForm):
 
 class CommentForm(forms.Form):
     comment = forms.CharField(max_length=140, widget=forms.Textarea(attrs={"class": "form-control"}))
+
+
+class TagsField(forms.ModelMultipleChoiceField):
+    widget = forms.SelectMultiple(attrs={
+        "class": "form-control",
+        "id": "tags-select"
+    })
+
+    def label_from_instance(self, obj):
+        return f'{obj.name}'
+
+
+class TagForm(forms.ModelForm):
+    tags = TagsField(queryset=Tag.objects.all())
+
+    class Meta:
+        model = Note
+        fields = ('tags',)
