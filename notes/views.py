@@ -110,7 +110,7 @@ class NoteCreate(LoginRequiredMixin, generic.CreateView):
         return context
 
     def get_success_url(self):
-        if self.request.GET.get('editTags', False) == '1':
+        if self.request.GET.get('editTags', '0') == '1':
             return reverse("notes:add-tag", kwargs={"pk": str(self.object.pk)})
         return super().get_success_url()
 
@@ -164,9 +164,22 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
         context = super().get_context_data(**kwargs)
         context.update({
             'input_name': 'edit note',
-            'can_edit': self.request.user.profile in context.get('note').collaborators.all()
+            'can_edit': self.request.user.profile in context.get('note').collaborators.all(),
         })
+
+        if self.object.user == self.request.user:
+            context.update({
+                'second_btn': {
+                    'name': 'edit tags too',
+                    'url': f'{self.request.path}?editTags=1'
+                }
+            })
         return context
+
+    def get_success_url(self):
+        if self.request.GET.get('editTags', '0') == '1' and self.request.user == self.object.user:
+            return reverse("notes:add-tag", kwargs={"pk": str(self.object.pk)})
+        return super().get_success_url()
 
     def form_valid(self, form):
         form.instance.last_modified = datetime.now()
