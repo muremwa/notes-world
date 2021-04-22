@@ -1,4 +1,6 @@
-<form action="{{action_url}}" method="post" enctype="multipart/form-data">
+{% load static %}
+
+<form action="{{action_url}}" method="post" enctype="multipart/form-data" name="gen-form">
     {% if form.errors %}
         <div class="alert alert-info">correct the errors below</div>
     {% endif %}
@@ -18,5 +20,15 @@
         </div>
     {% endfor %}
     <hr>
-    <input type="submit" class="col-sm-3 btn-outline form-control" value="{{ input_name }}">
+    <div class="row">
+        <input type="submit" class="col-sm-3 btn-outline form-control" value="{{ input_name }}">
+        {% if second_btn %}
+            <span class="col-sm-5"></span>
+            <button id="second-btn" class="col-sm-3 btn-outline form-control" data-second-url="{{ second_btn.url }}">{{ second_btn.name }}</button>
+        {% endif %}
+    </div>
 </form>
+
+{% if second_btn %}
+    <script src="{% static 'js/formTemplate.js' %}"></script>
+{% endif %}

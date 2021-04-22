@@ -103,7 +103,16 @@ class NoteCreate(LoginRequiredMixin, generic.CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['input_name'] = "new note"
+        context['second_btn'] = {
+            'name': 'Save and edit tags',
+            'url': f'{self.request.path}?editTags=1'
+        }
         return context
+
+    def get_success_url(self):
+        if self.request.GET.get('editTags', False) == '1':
+            return reverse("notes:add-tag", kwargs={"pk": str(self.object.pk)})
+        return super().get_success_url()
 
     # user
     def form_valid(self, form):
