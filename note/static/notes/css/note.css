@@ -1,3 +1,31 @@
+#note-sections-nav {
+    border: 1px solid #babec2;
+    margin-left: -5em;
+    margin-bottom: 2em;
+}
+
+#note-sections-nav .dropdown-menu {
+    background-color: rgb(194, 191, 197);
+    width: 60%;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+#note-sections-nav .dropdown-menu a {
+    transition-duration: 0.3s;
+}
+
+#note-sections-nav .dropdown-menu a:hover {
+    background-color: rgb(229, 227, 231);
+}
+
+#note-top h1::before, #note-top h2::before, #note-top h3::before, #note-top h4::before, #note-top h5::before, #note-top h6::before {
+    content: "";
+    display: block;
+    height: 60px;
+    margin: -60px 0 0 0;
+}
+
 .comment-info {
     color: darkslategrey;
     font-family: roboto, Verdana, sans-serif;

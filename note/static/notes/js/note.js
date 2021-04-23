@@ -1,9 +1,12 @@
 // conver markdown to html
 $(document).ready( function () {
     $(".js-note").each( function () {
+        const eve = new Event('paint');
+        this.addEventListener('paint', () => loadNoteNav(this));
         var content = $(this).text();
         var markedContent = marked(content);
         $(this).html(markedContent);
+        this.dispatchEvent(eve);
     })
 })
 
