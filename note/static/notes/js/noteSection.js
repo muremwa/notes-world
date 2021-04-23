@@ -4,7 +4,7 @@ function navPainter (items = []) {
     const distances = new Map (Array.from(Array(6), (x, i) => [`H${1+i}`, i*15]));
 
     const htmlText = items.map((item, i) => {
-        let navText = `<a class="dropdown-item" href="${item.link}" style="padding-left: ${distances.get(item.tag)}px;">${item.name}</a>`;
+        let navText = `<a class="dropdown-item" href="${item.link}" style="padding-left: ${distances.get(item.tag)+3}px;">${item.name}</a>`;
 
         if (i > 0) {
             navText = '<div class="dropdown-divider"></div>' + navText;
