@@ -12,7 +12,7 @@ class Profile(models.Model):
     gender_options = (("M", "MALE"), ("F", "FEMALE"), ("NON", "PREFER NOT TO SAY"),)
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    image = models.ImageField(default="profile.jpg", blank=True, null=True, upload_to="profile_images/")
+    image = models.ImageField(default="profile.jpg", upload_to="profile_images/")
     occupation = models.CharField(max_length=100, blank=True, null=True)
     gender = models.CharField(max_length=3, choices=gender_options, blank=True, null=True)
     pen_name = models.CharField(max_length=200)

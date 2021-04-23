@@ -36,7 +36,7 @@ class ProfileForm(forms.ModelForm):
             'pen_name': forms.TextInput(attrs={"class": "form-control"}),
             'occupation': forms.TextInput(attrs={"class": "form-control"}),
             'gender': forms.Select(attrs={"class": "form-control"}),
-            'image': forms.ClearableFileInput(attrs={"class": "form-control"})
+            'image': forms.FileInput(attrs={"class": "form-control"})
         }
 
 
