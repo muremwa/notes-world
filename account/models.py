@@ -30,9 +30,8 @@ class Profile(models.Model):
     def __str__(self):
         return "profile for {}".format(self.user)
 
-    @staticmethod
-    def get_absolute_url():
-        return reverse("base_account:profile")
+    def get_absolute_url(self):
+        return reverse("base_account:foreign-user", kwargs={"user_id": str(self.user.pk)})
 
 
 # connection model manager

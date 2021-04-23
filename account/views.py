@@ -203,7 +203,7 @@ class ForeignUser(LoginRequiredMixin, generic.TemplateView):
     def get(self, request, *args, **kwargs):
         foreign_user = get_object_or_404(User, pk=kwargs['user_id'])
         if foreign_user == request.user:
-            return redirect(reverse("base_account:connected"))
+            return redirect(reverse("base_account:profile"))
         else:
             return super().get(request, *args, **kwargs)
 

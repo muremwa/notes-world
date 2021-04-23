@@ -51,11 +51,7 @@
                         <ul>
                             {% if collaborators %}
                                 {% for c in collaborators %}
-                                    {% if c.pen_name %}
-                                        <li class="text-info">{{ c.pen_name }} <small class="text-danger">@{{ c.user }}</small></li>
-                                    {% else %}
-                                        <li class="text-info">{{ c.user }} <small class="text-danger">@{{ c.user }}</small></li>
-                                    {% endif %}
+                                        <li class="text-info">{% if c.pen_name %}{{ c.pen_name }}{% else %}{{ c.user }}{% endif %} <small><a class="text-danger" href="{{ c.get_absolute_url }}">@{{ c.user }}</a></small></li> 
                                 {% endfor %}
                                 {% if user == note.user %}
                                     <a href="{% url 'notes:edit-collaborators' note.id %}" class="btn btn-link">edit Collabrators</a>                    
