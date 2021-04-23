@@ -54,6 +54,8 @@
             </div>
             {% if user.is_authenticated %}
               <a href="{% url 'notes:note-create' %}"><button class="btn btn-outline-dark">Add Note</button></a>
+              <span style="width: 10px;"></span>
+              <a href="{% url 'notes:collaborate_page' %}"><button class="btn btn-outline-dark">collaborate</button></a>
             {% endif %}
         </nav>
 
