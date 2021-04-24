@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load tags_filter %}
 {% block title %}notes{% endblock title %}
 {% block style %}
     <link rel="stylesheet" type="text/css" href="{% static 'notes/css/index.css' %}"/>
@@ -11,11 +12,17 @@
     <div class="container">
         <h2>notes for you{% if q_tag %} tagged {{ q_tag }}{% endif %}</h2>
         <div class="row">
-                <a href="{% url 'notes:index' %}{% if q_tag != 'me' %}?tag=me{% endif %}" class="pill tag{% if q_tag == 'me' %} local{% endif %}">just you?</a>
+            <a href="{% url 'notes:index' %}{% if not 'me' in q_tags %}?tag=me{% endif %}" class="pill tag{% if 'me' in q_tags %} local{% endif %}">just you?</a>
+
             {% for tag in tags %}
-                <a href="{% url 'notes:index' %}{% if q_tag != tag.name %}?tag={{ tag.name }}{% endif %}" class="pill tag{% if q_tag == tag.name %} local{% endif %}">{{ tag.name }}</a>
+                <a href="{% url 'notes:index' %}{% if tag.name in q_tags %}{% if q_tags|length > 1 %}?tag={{ q_tags|clean_tags:tag.name }}{% endif %}{% else %}?tag={{ q_tag|new_tag_f:tag.name }}{% endif %}" class="pill tag{% if tag.name in q_tags %} local{% endif %}">{{ tag.name }}</a>
             {% endfor %}
-                <a href="{% url 'notes:index' %}{% if q_tag != 'others' %}?tag=others{% endif %}" class="pill tag{% if q_tag == 'others' %} local{% endif %}">other authors?</a>
+
+            <a href="{% url 'notes:index' %}{% if not 'others' in q_tags %}?tag=others{% endif %}" class="pill tag{% if 'others' in q_tags %} local{% endif %}">other authors?</a>
+
+            {% if q_tag %}
+                <a href="{% url 'notes:index' %}" style="margin-top: 13px;"><button class="btn btn-outline-dark">clear tags</button></a>
+            {% endif %}
         </div>
         <hr>
         {% if notes %}

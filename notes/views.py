@@ -46,21 +46,22 @@ class NoteIndex(generic.ListView):
             if note not in sanitized_notes:
                 sanitized_notes.append(note)
 
-        tag = self.request.GET.get('tag', None)
+        _tags = self.request.GET.get('tag', '').split(',')
 
-        if tag:
-            if tag == 'me':
-                sanitized_notes = filter(lambda note_: note_.user == self.request.user, sanitized_notes)
+        for _tag in _tags:
+            if _tag:
+                if _tag == 'me':
+                    sanitized_notes = filter(lambda note_: note_.user == self.request.user, sanitized_notes)
 
-            elif tag == 'others':
-                sanitized_notes = filter(lambda note_: note_.user != self.request.user, sanitized_notes)
+                elif _tag == 'others':
+                    sanitized_notes = filter(lambda note_: note_.user != self.request.user, sanitized_notes)
 
-            else:
-                try:
-                    tag_obj = Tag.objects.get(name=tag)
-                    sanitized_notes = filter(lambda note_: tag_obj in note_.tags.all(), sanitized_notes)
-                except ObjectDoesNotExist:
-                    pass
+                else:
+                    try:
+                        tag_obj = Tag.objects.get(name=_tag)
+                        sanitized_notes = filter(lambda note_: tag_obj in note_.tags.all(), sanitized_notes)
+                    except ObjectDoesNotExist:
+                        pass
 
         return sorted(sanitized_notes, key=lambda note_: note_.pk, reverse=True)
 
@@ -73,10 +74,12 @@ class NoteIndex(generic.ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         tags = list(Tag.objects.all())
+        _qt = self.request.GET.get('tag', '')
         context.update({
             'count': self.request.user.note_set.all().count(),
             'tags': set(choices(tags, k=5)),
-            'q_tag': self.request.GET.get('tag', None)
+            'q_tag': _qt,
+            'q_tags': _qt.split(',')
         })
         return context
 
