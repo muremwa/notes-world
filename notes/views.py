@@ -74,10 +74,20 @@ class NoteIndex(generic.ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         tags = list(Tag.objects.all())
+        tags_count = len(tags)
+
+        if tags_count == 0:
+            tc = 0
+        elif tags_count < 6:
+            tc = tags_count
+        else:
+            tc = 5
+
         _qt = self.request.GET.get('tag', '')
+
         context.update({
             'count': self.request.user.note_set.all().count(),
-            'tags': set(choices(tags, k=5)),
+            'tags': set(choices(tags, k=tc)),
             'q_tag': _qt,
             'q_tags': _qt.split(',')
         })
