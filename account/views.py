@@ -53,7 +53,7 @@ class SignUp(generic.TemplateView):
             password = form.cleaned_data['password1']
             user = authenticate(username=username, password=password)
             login(self.request, user)
-            return redirect(reverse('base_account:profile'))
+            return redirect(f"{reverse('base_account:profile')}?new=1")
 
         else:
             return render(self.request, self.template_name, {
@@ -76,8 +76,11 @@ class ProfilePage(LoginRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['new'] = self.request.user.notification_set.filter(seen=False).count()
-        context['notifications'] = self.get_notifications()
+        context.update({
+            'new': self.request.user.notification_set.filter(seen=False).count(),
+            'notifications': self.get_notifications(),
+            'new_user': bool(self.request.GET.get('new', 0))
+        })
         return context
 
 
