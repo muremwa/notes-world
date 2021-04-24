@@ -2,13 +2,17 @@ from django.test import TestCase, tag
 from django.shortcuts import reverse, NoReverseMatch
 
 from django.contrib.auth.models import User
-from notes.models import Note, Comment
+from notes.models import Note, Comment, Tag
 from account.models import Connection
 
 
 class TestViews(TestCase):
     # set up
     def setUp(self):
+        self.tags = list(map(
+            lambda tag: Tag.objects.create(name='tag', description=''),
+            ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7']
+        ))
         self.user_1 = User.objects.create(username="testing", password="testing")
         self.user_2 = User.objects.create(username="testing1", password="testing1")
         self.connection = Connection.objects.create(conn_sender=self.user_2, conn_receiver=self.user_1.profile,
@@ -20,6 +24,7 @@ class TestViews(TestCase):
             content="test_content",
             collaborative=True
         )
+        self.note.tags.add(self.tags[0])
 
     @tag('notes200')
     def test_views_200(self):
