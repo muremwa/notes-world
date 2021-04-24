@@ -1,17 +1,25 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}notes{% endblock title %}
-{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'notes/css/index.css' %}"/>{% endblock style %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'notes/css/index.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'notes/css/pill.css' %}"/>
+{% endblock style %}
 {% block notes %}active{% endblock notes %}
 
 {% block content %}
     <div class="container">
-        <h2>your notes</h2>
-        <a href="{% url 'notes:note-create' %}" class="btn btn-outline-dark">add note</a>
-        <a href="{% url 'notes:collaborate_page' %}" class="btn btn-outline-dark">collaborate</a>
+        <h2>notes for you{% if q_tag %} tagged {{ q_tag }}{% endif %}</h2>
+        <div class="row">
+                <a href="{% url 'notes:index' %}{% if q_tag != 'me' %}?tag=me{% endif %}" class="pill tag{% if q_tag == 'me' %} local{% endif %}">just you?</a>
+            {% for tag in tags %}
+                <a href="{% url 'notes:index' %}{% if q_tag != tag.name %}?tag={{ tag.name }}{% endif %}" class="pill tag{% if q_tag == tag.name %} local{% endif %}">{{ tag.name }}</a>
+            {% endfor %}
+                <a href="{% url 'notes:index' %}{% if q_tag != 'others' %}?tag=others{% endif %}" class="pill tag{% if q_tag == 'others' %} local{% endif %}">other authors?</a>
+        </div>
         <hr>
         {% if notes %}
-            <p>{% if count == 0 %}you have no notes yet{% else %}you have {{ count }} notes{% endif %}</p>
+            {% if q_tag == 'me' %}<p>{% if count == 0 %}you have no notes yet{% else %}you have {{ count }} notes{% endif %}</p>{% endif %}
             <!-- each note -->
             <div class="row">
             {% for note in notes %}
@@ -29,7 +37,7 @@
             {% endfor %}
             </div>
         {% else %}
-            <h1>no notes yet to view</h1>
+            <h1>no notes yet to view{% if q_tag %} tagged {{ q_tag }}{% endif %}</h1>
             <a class="btn btn-link" href="{% url 'notes:note-create' %}">start creating now</a>
         {% endif %}
     </div>

@@ -49,21 +49,3 @@
 #comments textarea {
 	width: 100%;
 }
-
-.pill {
-    border: 1px solid#ced4da;
-    border-radius: 5px;
-    margin: 1em;
-    padding: 0.5em;
-    width: 8em;
-    overflow: hidden;
-    text-align: center;
-    color: black;
-    transition-duration: 0.2s;
-}
-
-.tag:hover {
-    text-decoration: none;
-    color: black;
-    background-color: #ced4da;
-}

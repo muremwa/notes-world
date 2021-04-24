@@ -9,7 +9,10 @@
     {% endif %}
 {% endblock title %}
 
-{% block style %}<link rel="stylesheet" type="text/css" href="{% static 'notes/css/note.css' %}"/>{% endblock style %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'notes/css/note.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'notes/css/pill.css' %}"/>
+{% endblock style %}
 {% block topScript %}
 <script src="{% static 'notes/js/marked.min.js' %}"></script>
 {% endblock topScript %}

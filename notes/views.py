@@ -1,6 +1,7 @@
 # other imports
 from itertools import chain
 from datetime import datetime
+from random import choices
 import re
 
 # django imports
@@ -21,7 +22,7 @@ from markdown_deux import markdown
 # models & forms (local imports)
 from .forms import NoteForm, NoteForeignForm, CommentForm, TagForm
 from account.models import Connection, Profile
-from .models import Note, Comment, Reply
+from .models import Note, Comment, Reply, Tag
 
 
 notes_signal = Signal(providing_args=['note', 'user', 'comment', 'reply', 'mentioned'])
@@ -44,7 +45,24 @@ class NoteIndex(generic.ListView):
         for note in notes:
             if note not in sanitized_notes:
                 sanitized_notes.append(note)
-        return sanitized_notes
+
+        tag = self.request.GET.get('tag', None)
+
+        if tag:
+            if tag == 'me':
+                sanitized_notes = filter(lambda note_: note_.user == self.request.user, sanitized_notes)
+
+            elif tag == 'others':
+                sanitized_notes = filter(lambda note_: note_.user != self.request.user, sanitized_notes)
+
+            else:
+                try:
+                    tag_obj = Tag.objects.get(name=tag)
+                    sanitized_notes = filter(lambda note_: tag_obj in note_.tags.all(), sanitized_notes)
+                except ObjectDoesNotExist:
+                    pass
+
+        return sorted(sanitized_notes, key=lambda note_: note_.pk, reverse=True)
 
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
@@ -54,7 +72,12 @@ class NoteIndex(generic.ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['count'] = self.request.user.note_set.all().count()
+        tags = list(Tag.objects.all())
+        context.update({
+            'count': self.request.user.note_set.all().count(),
+            'tags': set(choices(tags, k=5)),
+            'q_tag': self.request.GET.get('tag', None)
+        })
         return context
 
 
