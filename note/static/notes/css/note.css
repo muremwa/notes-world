@@ -49,3 +49,12 @@
 #comments textarea {
 	width: 100%;
 }
+
+blockquote {
+    border-left: 1px solid darkslategrey;
+}
+
+blockquote > p {
+    padding-left: 1em;
+    font-weight: bold;
+}
