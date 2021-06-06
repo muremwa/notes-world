@@ -12,6 +12,10 @@
             border-radius: 5px;
             padding: 2em;
         }
+
+        .form-group {
+            margin-top: 1em;
+        }
     </style>
 
     <div class="container col-sm-3">
@@ -45,7 +49,9 @@
                 <label>{{ form.password.label_tag }}</label>
                 {{ form.password }}
             </div>
-            <input type="submit" class="btn-outline col-sm-3" value="sign in">
+            <div class="col-sm-3 form-group">
+                <input type="submit" class="btn-outline" value="sign in">
+            </div>
             <p>don't have an account? <a class="text-danger" href="{% url 'base_account:sign-up' %}">sign up</a></p>
 
             <script>

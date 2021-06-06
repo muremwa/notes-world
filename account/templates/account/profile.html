@@ -73,7 +73,7 @@
                     {% for notification in notifications %}
                         <div class="super-notification {% if not notification.opened %}unread{% endif %}">
                             <div data-read-url="{% url 'notifications:open' notification.id %}" data-location="{{ notification.url }}" class="notification">
-                                <p class="text-info">{{ notification.created }} ({{ notification.get_created }}) {% if not notification.opened %}unread{% endif %}</p>
+                                <p class="text-primary">{{ notification.created }} ({{ notification.get_created }}) {% if not notification.opened %}unread{% endif %}</p>
                                 <hr>
                                 <p>{{ notification.message }}</p>                            
                             </div>                           
