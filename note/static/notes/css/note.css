@@ -58,3 +58,11 @@ blockquote > p {
     padding-left: 1em;
     font-weight: bold;
 }
+
+#note-top {
+    overflow: hidden;
+}
+
+#note-top img {
+    max-width: 100%;
+}
