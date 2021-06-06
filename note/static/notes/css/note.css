@@ -6,17 +6,26 @@
 
 #note-sections-nav .dropdown-menu {
     background-color: rgb(194, 191, 197);
-    width: 60%;
+    width: 300%;
     max-height: 80vh;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-#note-sections-nav .dropdown-menu a {
+#note-sections-nav .dropdown-menu > .dropdown-item {
     transition-duration: 0.3s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
-#note-sections-nav .dropdown-menu a:hover {
+#note-sections-nav .dropdown-menu > .dropdown-item:hover {
     background-color: rgb(229, 227, 231);
+}
+
+.stupid-divider {
+    margin: 0;
 }
 
 #note-top h1::before, #note-top h2::before, #note-top h3::before, #note-top h4::before, #note-top h5::before, #note-top h6::before {
@@ -24,6 +33,10 @@
     display: block;
     height: 60px;
     margin: -60px 0 0 0;
+}
+
+#comments-section form button {
+    width: 40%;
 }
 
 .comment-info {
@@ -48,6 +61,14 @@
 
 #comments textarea {
 	width: 100%;
+}
+
+.comment .action-buttons > button {
+    text-decoration: none;
+}
+
+.action-sq > a, .action-sq > input {
+    text-decoration: none;
 }
 
 blockquote {

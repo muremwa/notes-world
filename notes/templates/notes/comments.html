@@ -23,7 +23,7 @@
                         <div class="comment-text">{{comment.comment_text|safe }}</div>
 
                         <!-- comment actions -->
-                        <form data-get-comment="{% url 'notes:get-comment-reply' 'comment' comment.id %}" class="form-inline" method="POST">
+                        <form data-get-comment="{% url 'notes:get-comment-reply' 'comment' comment.id %}" class="form-inline action-sq" method="POST">
                             {% csrf_token %}
                             <a href="{% url 'notes:reply-comment' comment.id %}" class="btn btn-link text-danger">reply</a>
                             {% if comment.user == user %}

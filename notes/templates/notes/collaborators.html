@@ -19,7 +19,7 @@
                         <img class="user-img" alt="image of {{ collaborator.username }}" src="{{ collaborator.image.url }}">
                     </div>
                     <div class="col-sm-9 user-info">
-                        <span class="text-info">{{ collaborator.user.get_full_name }} <small class="text-danger">@{{ collaborator.user }}</small></span>
+                        <span>{{ collaborator.user.get_full_name }} <small><a class="text-danger" href="{{ collaborator.get_absolute_url }}">@{{ collaborator.user }}</a></small></span>
                         <br />
                         <form action="{% url 'notes:remove-collaborator' note.id collaborator.id %}" method="POST">
                             {% csrf_token %}
@@ -40,7 +40,7 @@
                         <img class="user-img" alt="image of {{ suggestion.username }}" src="{{ suggestion.profile.image.url }}">
                     </div>
                     <div class="col-sm-9 user-info">
-                        <span class="text-info">{{ suggestion.get_full_name }} <small class="text-danger">@{{ suggestion }}</small></span>
+                        <span>{{ suggestion.get_full_name }} <small><a class="text-danger" href="{{ suggestion.profile.get_absolute_url }}">@{{ suggestion }}</a></small></span>
                         <br />
                         <form action="{% url 'notes:add-collaborator' note.id suggestion.id %}" method="POST">
                             {% csrf_token %}

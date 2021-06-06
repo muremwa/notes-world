@@ -36,7 +36,9 @@
                 {{ form.comment }}
             </div>
             <hr>
-            <button class="col-sm-3 btn btn-outline">reply</button>
+            <div class="col-sm-3">
+                <button class="form-control">reply</button>
+            </div>
         </form>
 
         {% if replies %}
@@ -58,8 +60,8 @@
                                 <!-- Reply actions-->
                                 <form method="POST" data-reply-url="{% url 'notes:get-comment-reply' 'reply' reply.id %}" action="{% url 'notes:reply-actions' reply.id 'delete' %}">
                                     {% csrf_token %}
-                                    <a href="" id="edit_reply" class="btn btn-link">edit</a>
-                                    <button type="submit" id="delete_reply" class="btn btn-link">delete</button>
+                                    <a href="" id="edit_reply" class="btn">edit</a>
+                                    <button type="submit" id="delete_reply" class="btn">delete</button>
                                 </form>
 
                                 <!-- Reply edit form-->
@@ -70,7 +72,7 @@
                                     </div>
                                     <div class="form-actions">
                                         <button class="btn" type="submit">edit</button>
-                                        <button class="btn btn-link abort">abort</button>
+                                        <button class="btn abort">abort</button>
                                     </div>
                                 </form>
                             {% endif %}

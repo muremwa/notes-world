@@ -64,11 +64,11 @@
                 <div class="col-sm-4">
                     <div class="align-content-center">
                         {% if note.collaborative %}
-                        <span class="text-info">Collabrators</span>
+                        <span>Collabrators</span>
                         <ul>
                             {% if collaborators %}
                                 {% for c in collaborators %}
-                                        <li class="text-info">{% if c.pen_name %}{{ c.pen_name }}{% else %}{{ c.user }}{% endif %} <small><a class="text-danger" href="{{ c.get_absolute_url }}">@{{ c.user }}</a></small></li> 
+                                        <li>{% if c.pen_name %}{{ c.pen_name }}{% else %}{{ c.user }}{% endif %} <small><a class="text-danger" href="{{ c.get_absolute_url }}">@{{ c.user }}</a></small></li> 
                                 {% endfor %}
                                 {% if user == note.user %}
                                     <a href="{% url 'notes:edit-collaborators' note.id %}" class="btn btn-link">edit Collabrators</a>                    
