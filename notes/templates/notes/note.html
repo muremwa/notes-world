@@ -31,12 +31,18 @@
             <div class="row">
                 <div class="col-sm-8">
                     <div class="note-g">
-                        <!-- Note navigation section -->
-                        <nav class="navbar sticky-top navbar-light bg-light" id="note-sections-nav">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><strong>{{ note.title }} sections</strong></a>
-                            <div id="note-nav-drop-down" class="dropdown-menu scrollable-menu" aria-labelledby="navbarDropdown">Loading...</div>
-                            <a href="#note-top"><button type="button" class="btn btn-outline-dark">Back to top</button></a>
+                        <nav class="navbar 
+                         navbar-light bg-light" id="note-sections-nav">
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <strong>{{ note.title }} sections</strong>
+                                </a>
+                        
+                                <ul id="note-nav-drop-down" class="dropdown-menu" aria-labelledby="dropdownMenuLink">Loading...</ul>
+                            </div>
+                            <a style="margin-right: 1em;" href="#note-top"><button type="button" class="btn btn-outline-dark">Back to top</button></a>
                         </nav>
+                        
                         <div id="note-top" class="js-note">{{ note.content }}</div>
                     </div>
                     <hr />

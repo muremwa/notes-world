@@ -7,7 +7,7 @@ function navPainter (items = []) {
         let navText = `<a class="dropdown-item" href="${item.link}" style="padding-left: ${distances.get(item.tag)+3}px;">${item.name}</a>`;
 
         if (i > 0) {
-            navText = '<div class="dropdown-divider"></div>' + navText;
+            navText = '<div class="dropdown-divider stupid-divider"></div>' + navText;
         };
 
         return navText;
@@ -43,6 +43,7 @@ function loadNoteNav (noteDiv) {
     if (headers.length > 0) {
         navPainter(headers);
     } else {
-        document.getElementById('navbarDropdown').disabled = true;
+        document.getElementById('dropdownMenuLink').disabled = true;
+        document.getElementById('note-sections-nav').classList.remove('sticky-top')
     };
 }
