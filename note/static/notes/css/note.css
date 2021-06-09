@@ -63,6 +63,44 @@
 	width: 100%;
 }
 
+#loading-dock {
+	height: 4em;
+	border-radius: 5px;
+	background-color: #f1f1f1;
+}
+
+#loading-dock button {
+	width: 50%;
+}
+
+#image-h {
+	text-align: right;
+}
+
+#load-gif {
+	height: 100%;
+};
+
+.edit-comment-form > div {
+    margin: auto;
+}
+
+.stupid-line {
+    width: 70%;
+}
+
+.action-buttons {
+    margin-bottom: 1em;
+}
+
+.comment-text {
+    padding-top: 7px;
+    min-height: 50px;
+    font-size: 1em;
+    width: 70%;
+    text-align: justify;
+}
+
 .comment .action-buttons > button {
     text-decoration: none;
 }

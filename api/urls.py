@@ -24,6 +24,7 @@ urlpatterns = [
     # comments/
     path('<int:pk>/comments/', views.AllComments.as_view(), name='comments'),
 
+    # comments/4/actions/
     path('comment/<int:pk>/actions/', views.comment_actions, name='comment-actions'),
 
     # user/get/

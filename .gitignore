@@ -8,3 +8,4 @@ notes/migrations/*
 media/profile_images/*
 mail/*
 note/secret_key.txt
+tns.txt
