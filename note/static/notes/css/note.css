@@ -85,6 +85,11 @@
     margin: auto;
 }
 
+.edit-comment-form-old > div {
+    margin: auto;
+    padding-top: 1em;
+}
+
 .stupid-line {
     width: 70%;
 }
@@ -105,7 +110,7 @@
     text-decoration: none;
 }
 
-.action-sq > a, .action-sq > input {
+.action-sq > a, .action-sq > button {
     text-decoration: none;
 }
 
