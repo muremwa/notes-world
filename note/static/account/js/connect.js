@@ -1,3 +1,7 @@
+/* 
+    Send, cancel, accept, deny and delete user connection requests
+*/
+
 // get document cookie
 const cookie = new Map([document.cookie.split('=')]);
 const token_ = cookie.has('csrftoken')? cookie.get('csrftoken'): '';
