@@ -6,14 +6,9 @@
 {% block profile %}active{% endblock profile %}
 
 {% block content %}
-<script>
-  $(".alert").alert();
-</script>
     {% if new_user %}
         <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             <strong>Hello {{ user }},</strong> Welcome to note-world.<br /> Edit your details below.<br />Change <a href="{% url 'base_account:user-edit' user.pk %}">account details</a> or your <a href="{% url 'base_account:profile-edit' user.profile.pk %}">Profile details</a><br />Quickly learn how to use the site by following this <a href="{% url 'notes:index' %}?tag=newbie">link</a>
         </div>
     {% endif %}
