@@ -9,7 +9,6 @@ from rest_framework import views, generics
 from rest_framework import status
 from django.http import Http404
 
-
 from .serializers import NotesSerializer, NoteSerializer, UserSerializer
 from notes.views import CommentProcessor, notes_signal
 from notes.models import Note, Comment

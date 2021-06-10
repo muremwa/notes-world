@@ -9,11 +9,14 @@
 {% block content %}
 <style type="text/css">
     #tags-select {
-        min-height: 20em;
+        min-height: 30em;
+        overflow-y: hidden;
     }
 
     #tags-select option {
-        margin-top: 1em;
+        height: 3em;
+        border: 1px solid #ffffff;
+        text-align: center;
     }
 
     .highlight {
@@ -38,12 +41,24 @@
                 {{ form.tags }}
             </div>
 
+            <br />
+
             <div class="row form-group">
-                <input type="reset" value="reset form" class="form-control btn-outline col-md-3">
+                <div class="col-md-3">
+                    <input type="reset" value="reset form" class="form-control btn-outline">
+                </div>
+
                 <span class="col-md-1"></span>
-                <button class="form-control btn-outline col-md-3" id="preview-tags">preview tags</button>
+
+                <div class="col-md-3">
+                    <button class="form-control btn-outline" id="preview-tags">preview tags</button>
+                </div>
+
                 <span class="col-md-1"></span>
-                <input type="submit" value="save tags" class="form-control btn-outline col-md-3">
+
+                <div class="col-md-3">
+                    <input type="submit" value="save tags" class="form-control btn-outline">
+                </div>
             </div>
         </form>
 

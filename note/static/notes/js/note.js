@@ -1,79 +1,69 @@
-// conver markdown to html
-$(document).ready( function () {
-    $(".js-note").each( function () {
-        const eve = new Event('paint');
-        this.addEventListener('paint', () => loadNoteNav(this));
-        var content = $(this).text();
-        var markedContent = marked(content);
-        $(this).html(markedContent);
-        this.dispatchEvent(eve);
+// convert markdown to html
+document.addEventListener('readystatechange', () => {
+    if (document.readyState === 'complete') {
+        const noteDiv = document.getElementById('note-top');
+
+        if (noteDiv) {
+            const paintEvent = new Event('paint');
+            noteDiv.addEventListener('paint', (e) => loadNoteNav(e.target));
+            noteDiv.innerHTML = marked(noteDiv.innerHTML);
+            noteDiv.dispatchEvent(paintEvent);
+        };
+    };
+});
+
+// get document cookie
+const noteCookie = new Map([document.cookie.split('=')]);
+const noteToken_ = noteCookie.has('csrftoken')? noteCookie.get('csrftoken'): '';
+
+// deleting comments async
+[...document.getElementsByClassName('delete-comment')].forEach((element) => {
+    element.addEventListener('click', (event_) => {
+        event_.target.innerText = 'deleting comment...'
+        const { deleteUrl, commentDivId } = event_.target.dataset;
+        const commentDiv = document.getElementById(commentDivId);
+        const errorDeleting = () => event_.target.innerText = 'could not delete comment';
+
+        const options = {
+            url: deleteUrl,
+            responseType: 'json',
+            headers: [{
+                name: 'X-CSRFToken',
+                value: noteToken_
+            }],
+            error: errorDeleting,
+            success: (response_) => response_.response['success']? commentDiv.remove(): errorDeleting
+        };
+
+        ajax.post(options);
+    });
+});
+
+
+function toggleForm (divId, open) {
+    const form = document.getElementById(divId);
+    const txt = document.getElementById(`${divId}-textarea`);
+
+    if (form) {
+        form.style.display = open? 'none': '';
+        txt && !open? txt.focus(): form.reset();
+    };
+};
+
+
+// open comment edit form
+[...document.getElementsByClassName('edit-comment')].forEach((element) => {
+    element.addEventListener('click', (event_) => {
+        const { editFormId } = event_.target.dataset;
+        editFormId? toggleForm(editFormId, false): void 0;
+    });
+});
+
+
+// close comment edit form
+[...document.getElementsByClassName('close-edit')].forEach((element) => {
+    element.addEventListener('click', (event_) => {
+        const { closeId } = event_.target.dataset;
+        closeId? toggleForm(closeId, true): void 0;
     })
 })
-
-let commentArea = document.getElementById("id_comment");
-commentArea.placeholder = "add comment here (use '@username' to mention someone)";
-
-
-$(document).on("click", '.delete-comment', function (e) {
-    e.preventDefault();
-    let inpuT = this;
-    let deleteUrl = inpuT.attributes["data-url"].value;
-    let token = inpuT.parentElement.children.csrfmiddlewaretoken.value;
-
-    $.ajax ( {
-        type: "POST",
-        url: deleteUrl,
-        data: {
-            csrfmiddlewaretoken: token
-        },
-        success: function (response) { 
-            if (response['success']) {
-                let displayMessage = "<h2 class='text-primary text-center' style='margin-left: 20%'>"+response['message']+"</h2>";
-                inpuT.offsetParent.parentElement.innerHTML = displayMessage;
-            } else {
-                console.log(response['message']);
-            }
-        },
-        error: function (e) {
-            console.log("failed to delete comment");
-            console.log(e);
-        }
-    });
-})
-
-
-// editing comments
-$(document).on("click", ".edit-comment", function (e) {
-    e.preventDefault();
-    let text = this.offsetParent.children[1].innerText;
-    let commentUrl = this.parentElement.attributes['data-get-comment'].value
-    let textAreaDiv = this.offsetParent.children['edit-form'].children[1].children[0];
-    textAreaDiv.classList.add("comment-edit");
-    textAreaDiv.style.width = "100%";
-    
-    $.ajax ( {
-        type: "GET",
-        url: commentUrl,
-        success: function (response) {
-            if (response['success']) {
-                editFiller(response['text'], textAreaDiv);
-            } else {
-                editFiller(text, textAreaDiv);
-            }
-        },
-        error: function (e) {
-            console.log(e);
-        }
-    });
-});
-
-
-function editFiller (originalValue, whereTo) {
-    whereTo.innerText = originalValue;
-    whereTo.parentElement.parentElement.style.display = "";
-}
-
-$(document).on("click", ".close-edit", function (e) {
-    e.preventDefault();
-    this.parentElement.style.display = "none";
-});

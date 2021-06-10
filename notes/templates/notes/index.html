@@ -35,11 +35,11 @@
                     {% if note.user != user %}<p>by {{ note.user }}</p>{% endif %}
                     <hr>
                     {% if note.get_last_modified %}
-                    <span class="text-info">last modified {{ note.get_last_modified }}{% if note.get_last_modifier %} by {{ note.get_last_modifier}}{% endif %}</span><br />
+                    <span class="text-primary">last modified {{ note.get_last_modified }}{% if note.get_last_modifier %} by {{ note.get_last_modifier}}{% endif %}</span><br />
                     {% endif %}
-                    <p><span class="text-danger">{{ note.get_privacy }}</span> | <span class="text-info">{% if note.collaborative %}collaborative{% else %}not collaborative{% endif %}</span></p>
+                    <p><span class="text-danger">{{ note.get_privacy }}</span> | <span class="text-dark">{% if note.collaborative %}collaborative{% else %}not collaborative{% endif %}</span></p>
                     <hr>
-                    <span class="text-info">created {{ note.created }}</span>
+                    <span class="text-primary">created {{ note.created }}</span>
                 </div>
             {% endfor %}
             </div>

@@ -126,7 +126,7 @@ class NotePage(LoginRequiredMixin, generic.DetailView):
         context.update(additional_context)
 
         if self.request.user != context['note'].user and context['note'].privacy == "CO":
-            if Connection.objects.exist(self.request.user, context['note'].user):
+            if Connection.objects.exist(self.request.user, context['note'].user, status=True):
                 context['connected_note'] = True
         return context
 

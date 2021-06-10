@@ -240,7 +240,12 @@ def connect(request, user_id):
             response['sent'] = True
         else:
             response['sent'] = False
-            response['state'] = "request is sent already"
+            connection = Connection.objects.get(conn_sender=sender, conn_receiver=receiver);
+
+            if connection.approved:
+                response['state'] = "connection already approved";
+            else:
+                response['state'] = "request is sent already"
 
         return JsonResponse(response)
 

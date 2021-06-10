@@ -31,12 +31,17 @@
             <div class="row">
                 <div class="col-sm-8">
                     <div class="note-g">
-                        <!-- Note navigation section -->
                         <nav class="navbar sticky-top navbar-light bg-light" id="note-sections-nav">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><strong>{{ note.title }} sections</strong></a>
-                            <div id="note-nav-drop-down" class="dropdown-menu scrollable-menu" aria-labelledby="navbarDropdown">Loading...</div>
-                            <a href="#note-top"><button type="button" class="btn btn-outline-dark">Back to top</button></a>
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <strong>{{ note.title }} sections</strong>
+                                </a>
+                        
+                                <ul id="note-nav-drop-down" class="dropdown-menu" aria-labelledby="dropdownMenuLink">Loading...</ul>
+                            </div>
+                            <a style="margin-right: 1em;" href="#note-top"><button type="button" class="btn btn-outline-dark">Back to top</button></a>
                         </nav>
+                        
                         <div id="note-top" class="js-note">{{ note.content }}</div>
                     </div>
                     <hr />
@@ -58,11 +63,11 @@
                 <div class="col-sm-4">
                     <div class="align-content-center">
                         {% if note.collaborative %}
-                        <span class="text-info">Collabrators</span>
+                        <span>Collabrators</span>
                         <ul>
                             {% if collaborators %}
                                 {% for c in collaborators %}
-                                        <li class="text-info">{% if c.pen_name %}{{ c.pen_name }}{% else %}{{ c.user }}{% endif %} <small><a class="text-danger" href="{{ c.get_absolute_url }}">@{{ c.user }}</a></small></li> 
+                                        <li>{% if c.pen_name %}{{ c.pen_name }}{% else %}{{ c.user }}{% endif %} <small><a class="text-danger" href="{{ c.get_absolute_url }}">@{{ c.user }}</a></small></li> 
                                 {% endfor %}
                                 {% if user == note.user %}
                                     <a href="{% url 'notes:edit-collaborators' note.id %}" class="btn btn-link">edit Collabrators</a>                    
@@ -123,8 +128,8 @@
 {% block bottomScript %}
 {% if not normal_comment_section %}
     <script>!function(l){function e(e){for(var r,t,n=e[0],o=e[1],u=e[2],f=0,i=[];f<n.length;f++)t=n[f],p[t]&&i.push(p[t][0]),p[t]=0;for(r in o)Object.prototype.hasOwnProperty.call(o,r)&&(l[r]=o[r]);for(s&&s(e);i.length;)i.shift()();return c.push.apply(c,u||[]),a()}function a(){for(var e,r=0;r<c.length;r++){for(var t=c[r],n=!0,o=1;o<t.length;o++){var u=t[o];0!==p[u]&&(n=!1)}n&&(c.splice(r--,1),e=f(f.s=t[0]))}return e}var t={},p={2:0},c=[];function f(e){if(t[e])return t[e].exports;var r=t[e]={i:e,l:!1,exports:{}};return l[e].call(r.exports,r,r.exports,f),r.l=!0,r.exports}f.m=l,f.c=t,f.d=function(e,r,t){f.o(e,r)||Object.defineProperty(e,r,{enumerable:!0,get:t})},f.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},f.t=function(r,e){if(1&e&&(r=f(r)),8&e)return r;if(4&e&&"object"==typeof r&&r&&r.__esModule)return r;var t=Object.create(null);if(f.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:r}),2&e&&"string"!=typeof r)for(var n in r)f.d(t,n,function(e){return r[e]}.bind(null,n));return t},f.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return f.d(r,"a",r),r},f.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},f.p="./";var r=window.webpackJsonp=window.webpackJsonp||[],n=r.push.bind(r);r.push=e,r=r.slice();for(var o=0;o<r.length;o++)e(r[o]);var s=n;a()}([])</script>
-    <script src="{% static 'notes/js/comment-section/1.fccffeaa.chunk.js' %}"></script>
-    <script src="{% static 'notes/js/comment-section/main.99d48eee.chunk.js' %}"></script>
+    <script src="{% static 'notes/js/comment-section/1.e01e3c76.chunk.js' %}"></script>
+    <script src="{% static 'notes/js/comment-section/main.c6f4d957.chunk.js' %}"></script>
 {% endif %}
 <script src="{% static 'notes/js/note.js' %}"></script>
 <script src="{% static 'notes/js/noteSection.js' %}"></script>

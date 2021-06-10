@@ -1,26 +1,30 @@
 // notifications
-var notificationsDiv = document.getElementById("new_notifications");
-var notificationUrl = notificationsDiv.attributes['data-url'].value;
+let notifications = 0;
 
-function newNotifications () { 
-    $.ajax({
-        type: "GET",
-        url: notificationUrl,
-        dataType: "json",
-        success: function (response) {
-            if (response['new']) {
-                notificationsDiv.innerText = "("+response['new']+")";
+function newNotifications () {
+    const notificationsDiv = document.getElementById('new_notifications');
+    const notificationsUrl = notificationsDiv? notificationsDiv.dataset.url: null;
+    
+    if (notificationsDiv && notificationsUrl) {
+        const options = {
+            url: notificationsUrl,
+            responseType: 'json',
+            error: () => {},
+            success: (response) => {
+                const newNotif = response.response['new'];
+
+                if (newNotif !== notifications && newNotif > 0) {
+                    notifications = newNotif;
+                    notificationsDiv.innerText = `(${newNotif})`;
+                };
             }
-        },
-        error: function () {
-            console.log('could not load new notifications');
-        }
-    });
+        };
+                
+        ajax.get(options);
+    };
 };
 
-$(document).ready( function () {
-    newNotifications();
-});
+document.addEventListener('readystatechange', () => document.readyState === 'complete'? newNotifications(): void 0);
 
 // get notifications after every 30 seconds
 setInterval(newNotifications, 30*1000);

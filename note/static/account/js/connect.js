@@ -1,128 +1,99 @@
-// user to send conection requests
-$(document).on('click', '.connect-button', function (e) {
-    e.preventDefault();
-    // get the token
-    let button = this
-    let form = button.parentElement;
-    let url = form.children.connect_url.value;
-    let token = form.children.csrfmiddlewaretoken.value;
-    
-    // send 
-    $.ajax( {
-        type: "POST",
-        url: url,
-        data: {
-            csrfmiddlewaretoken: token
-        },
-        success: function (response) {
-            console.log(response['sent']);
-            if (response['sent']) {
-                button.innerText = "sent";
-            } else {
-                button.innerText = response['state']
-            }
-        },
-        error: function () {
-            button.innerText = "error";
-        }
-    });
-});
+/* 
+    Send, cancel, accept, deny and delete user connection requests
+*/
 
+// get document cookie
+const connectCookie = new Map([document.cookie.split('=')]);
+const connectionToken_ = connectCookie.has('csrftoken')? connectCookie.get('csrftoken'): '';
 
-// user to accepts conection requests
-$(document).on('click', '.accept-button', function (e) {
-    e.preventDefault();
-    // get the token
-    let button = this
-    let form = button.parentElement;
-    let url = form.children.accept_url.value;
-    let token = form.children.csrfmiddlewaretoken.value;
-    let denyButton = form.children.deny
-   
-    // send 
-    $.ajax( {
-        type: "POST",
-        url: url,
-        data: {
-            csrfmiddlewaretoken: token
-        },
-        success: function (response) {
-            if (response['accepted']) {
-                denyButton.style.display = "none";
-                button.innerText = response['state'];
+const connectionRequestsTypes = {
+    ACCEPT: 'a',
+    DENY: 'd',
+    SEND: 's',
+    DISCONNECT: 'di',
+    NONE: 'n'
+};
+
+function connetionRequests (url, button, token = connectionToken_, type_ = connectionRequests.NONE) {
+    const options = {
+        url,
+        headers: [{
+            name: 'X-CSRFToken',
+            value: token
+        }],
+        error: () => button.innerText = "error"
+    };
+
+    switch (type_) {
+        // send connection request
+        case connectionRequestsTypes.SEND:
+            options.success = (response_) => {
+                const response = response_.response;
+                response['sent']? button.innerText = "sent": button.innerText = response['state']
             };
-        },
-        error: function (err) {
-            console.log(err)
-            button.innerText = "error";
-        }
-    });
-});
+            break;
 
-
-
-// user to disconnects users
-$(document).on('click', '.disconnect-button', function (e) {
-    e.preventDefault();
-    // get the token
-    let button = this
-    let form = button.parentElement;
-    let url = form.children.diconnect_url.value;
-    let token = form.children.csrfmiddlewaretoken.value;
-
-    // send 
-    $.ajax( {
-        type: "POST",
-        url: url,
-        data: {
-            csrfmiddlewaretoken: token
-        },
-        success: function (response) {
-            if (response['exited']) {
+        // accept a connection request
+        case(connectionRequestsTypes.ACCEPT):
+            options.success = (response_) => {
+                const response = response_.response;
                 button.innerText = response['state'];
-            } else {
-                button.innerText = response['state'];
-            }   
-        },
-        error: function (err) {
-            console.log(err)
-            button.innerText = "error";
-        }
-    });
-});
 
-
-// user to denies users requests
-$(document).on('click', '.deny-button', function (e) {
-    e.preventDefault();
-    // get the token
-    let button = this
-    let form = button.parentElement;
-    let url = form.children.deny_url.value;
-    let token = form.children.csrfmiddlewaretoken.value;
-    let acceptButton = form.children.approve
-
-    // send 
-    $.ajax( {
-        type: "POST",
-        url: url,
-        data: {
-            csrfmiddlewaretoken: token
-        },
-        success: function (response) {
-            if (response['denied']) {
-                button.innerText = response['state'];
-                try {
-                    acceptButton.style.display = "none";
-                } catch (err) {
-                    console.log(err)
-                }
+                if (response['accepted']) {
+                    const denyButton = button.nextElementSibling;
+                    denyButton? denyButton.style.display = "none": void 0;
+                };
             };
-        },
-        error: function (response) {
-            if (response['denied'] == false) {
-                button.innerText = response['state'];
-            }
-        }
+            break;
+        
+        // deny a request
+        case(connectionRequestsTypes.DENY):
+            options.success = (response_) => {
+                button.innerText = response_.response['state'];
+                button.disabled = true;
+                const acceptBtn = button.previousElementSibling;
+                acceptBtn? acceptBtn.style.display = 'none': void 0;
+            };
+            break;
+        
+        // disconnect from a connection
+        case(connectionRequestsTypes.DISCONNECT):
+            options.success = (response_) => button.innerText = response_.response['state'];
+            break;
+
+        default:
+            break;
+    }
+
+
+    ajax.post(options)
+};
+
+
+[...document.getElementsByClassName('js-action-btn')].forEach((bt) => {
+    bt.addEventListener('click', (e) => {
+        const { actionUrl: actionUrl_, requestType: requestType_ } = e.target.dataset;
+
+        switch (requestType_) {
+            case 'send':
+                connetionRequests(actionUrl_, e.target, connectionToken_, connectionRequestsTypes.SEND);
+                break;
+
+            case 'accept':
+                connetionRequests(actionUrl_, e.target, connectionToken_, connectionRequestsTypes.ACCEPT);
+                break;
+
+            case 'deny':
+                connetionRequests(actionUrl_, e.target, connectionToken_, connectionRequestsTypes.DENY);
+                break;
+
+            case 'disconnect':
+                connetionRequests(actionUrl_, e.target, connectionToken_, connectionRequestsTypes.DISCONNECT);
+                break;
+        
+            default:
+                break;
+        };
+
     });
 });

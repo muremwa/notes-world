@@ -10,88 +10,79 @@
     <div id="foreign">
         <div id="user-image" class="col-md-7 container text-center">
             <img src="{{ foreign_user.profile.image.url }}" alt="image of {{ foreign_user.get_full_name }}">
+        </div>
         {% if foreign_user.is_active %}
-            <h2 class="text-info">{{ foreign_user.get_full_name }}</h2>
-            <h3 class="text-info">@{{ foreign_user }}</h3>
-        {% else %}
-            <h2>the user is temporarily unavailable</h2>
-        {% endif %}
-        <div>
-            <form method="POST">
-                {% csrf_token %}
-                {% if conn_type == "no_conn" %}
-                    {% comment %} you aren't connected {% endcomment %}
-                    <span class="lead">you are not connected to {{ foreign_user.first_name }}.</span><br />
-                    <input type="hidden" name="connect_url" value="{% url 'base_account:connect' foreign_user.id %}">
-                    <button type="submit" class="btn btn-outline-info connect-button">connect</button>
-                {% endif %}
-
-                {% if conn_type == "req_received" %}
-                    {% comment %} they sent a request {% endcomment %}
-                    <span class="lead">{{ foreign_user.first_name }} has sent you a connection request.</span><br />
-                    <input type="hidden" name="accept_url" value="{% url 'base_account:accept' conn.id %}">
-                    <input type="hidden" name="deny_url" value="{% url 'base_account:deny' conn.id %}">
-                    <button type="submit" name="approve" class="btn btn-outline-dark accept-button">approve</button>
-                    <button name="deny" class="btn btn-outline-danger deny-button">deny</button>        
-                {% endif %}
-
-                {% if conn_type == "req_sent" %}
-                    {% comment %} you sent a request {% endcomment %}
-                    <span class="lead">You have sent {{ foreign_user.first_name }} a connection request.</span><br />
-                    <input type="hidden" name="deny_url" value="{% url 'base_account:deny' conn.id %}">
-                    <button name="deny" class="btn btn-outline-danger deny-button">cancel</button>        
-                {% endif %}
-
-                {% if conn_type == "connected" %}
-                    {% comment %} you are connected {% endcomment %}
-                    <span class="lead">{{ foreign_user.first_name }} and you are connected</span><br />
-                    <input type="hidden" name="diconnect_url" value="{% url 'base_account:exit' foreign_user.id %}">
-                    <button class="btn btn-outline-danger disconnect-button" type="submit">dis-connect</button>            
-                {% endif %}
-                                    
-            </form>
-        </div>
-        </div>
-        <hr>
-        {% if notes or mutual_users %}
-            <div class="row">
-                {% if notes %}
-                    <div id="notes" class="col-md-6">
-                        <h2>notes by {{ foreign_user.first_name }}</h2>
-                        {% for note in notes %}
-                            <div class="note">
-                                <h5><a href="{{ note.get_absolute_url }}">{{ note.title }}</a></h5>
-                                <span class="text-info">{{ note.get_privacy }}</span> | <span class="text-warning">{% if note.collaborative %}collaborative{% else %}not collaborative{% endif %}</span>
-                            </div>
-                            <hr>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <h2 class="col-md-6 text-center">no notes here</h2>
-                {% endif %}
-
-
-                {% if mutual_users %}
-                    <div id="conns" class="col-md-6">
-                        <h2>mutual connected users</h2>
-                        {% for mutual_user in mutual_users %}
-                            <div class="row mutual_user">
-                                <div class="col-xs-2">
-                                    <img src="{{ mutual_user.profile.image.url }}" alt="image for {{ mutual_user.get_full_name }}">
-                                </div>
-                                <div class="col-xs-2 user-details text-info">
-                                    <span>{{ mutual_user.get_full_name }}</span><br />
-                                    <a href="{% url 'base_account:foreign-user' mutual_user.id %}">@{{mutual_user}}</a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-        {% else %}
             <div class="text-center">
-                <h1>nothing to show here</h1>
-            </div>
+                <h2 class="text-info">{{ foreign_user.get_full_name }}</h2>
+                <h3 class="text-info">@{{ foreign_user }}</h3>
+                
+                <div>
+                    {% if conn_type == 'no_conn' %}
+                        <span class="lead">you are not connected to {% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %}.</span><br />
+                        <button type="submit" class="btn btn-outline-info connect-button js-action-btn" data-request-type="send" data-action-url="{% url 'base_account:connect' foreign_user.id %}">connect</button>
+                    {% else %}
+                        {% if conn_type == 'req_received' %}
+                            <span class="lead">{% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} has sent you a connection request.</span><br />
+                            <button name="accept" data-request-type="accept" data-action-url="{% url 'base_account:accept' conn.id %}" class="btn btn-outline-dark accept-button js-action-btn">approve</button>
+                            <button name="deny" data-request-type="deny" data-action-url="{% url 'base_account:deny' conn.id %}" class="btn btn-outline-danger deny-button js-action-btn">deny</button>
+                        {% else %}
+                            {% if conn_type == 'req_sent' %}
+                                <span class="lead">You have sent {% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} a connection request.</span><br />
+                                <button data-request-type="disconnect" data-action-url="{% url 'base_account:exit' foreign_user.id %}" class="btn btn-outline-danger disconnect-button js-action-btn">cancel</button>
+                            {% else %}
+                                {% if conn_type == 'connected' %}
+                                    <span class="lead">{% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} and you are connected</span><br />
+                                    <button data-request-type="disconnect" data-action-url="{% url 'base_account:exit' foreign_user.id %}" class="btn btn-outline-danger disconnect-button js-action-btn">dis-connect</button>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+            </div>    
+            <hr>
+            {% if notes or mutual_users %}
+                <div class="row">
+                    {% if notes %}
+                        <div id="notes" class="col-md-6">
+                            <h2>notes by {{ foreign_user.first_name }}</h2>
+                            {% for note in notes %}
+                                <div class="note">
+                                    <h5><a href="{{ note.get_absolute_url }}">{{ note.title }}</a></h5>
+                                    <span class="text-info">{{ note.get_privacy }}</span> | <span class="text-warning">{% if note.collaborative %}collaborative{% else %}not collaborative{% endif %}</span>
+                                </div>
+                                <hr>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <h2 class="col-md-6 text-center">no notes here</h2>
+                    {% endif %}
+
+
+                    {% if mutual_users %}
+                        <div id="conns" class="col-md-6">
+                            <h2>mutual connected users</h2>
+                            {% for mutual_user in mutual_users %}
+                                <div class="row mutual_user">
+                                    <div class="col-sm-2">
+                                        <img src="{{ mutual_user.profile.image.url }}" alt="image for {{ mutual_user.get_full_name }}">
+                                    </div>
+                                    <div class="col-sm-8 user-details text-info">
+                                        <span>{{ mutual_user.get_full_name }}</span><br />
+                                        <a href="{% url 'base_account:foreign-user' mutual_user.id %}">@{{mutual_user}}</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <h1>nothing to show here</h1>
+                </div>
+            {% endif %}
+        {% else %}
+            <h2 class="text-center">the user is temporarily unavailable</h2>
         {% endif %}
     </div>
 </div>

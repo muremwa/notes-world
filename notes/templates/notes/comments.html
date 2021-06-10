@@ -23,35 +23,34 @@
                         <div class="comment-text">{{comment.comment_text|safe }}</div>
 
                         <!-- comment actions -->
-                        <form data-get-comment="{% url 'notes:get-comment-reply' 'comment' comment.id %}" class="form-inline" method="POST">
-                            {% csrf_token %}
+                        <div class="action-sq">
                             <a href="{% url 'notes:reply-comment' comment.id %}" class="btn btn-link text-danger">reply</a>
                             {% if comment.user == user %}
-                                <input type="submit" class="btn btn-link text-dark edit-comment" value="edit comment">
-                                <input type="submit" data-url="{% url 'notes:comment-delete' comment.id %}" class="btn btn-link text-dark delete-comment" value="delete comment">
-                            {% else %}
-                                {% if note.user == user %}
-                                    <input type="submit" data-url="{% url 'notes:comment-delete' comment.id %}" class="btn btn-link text-dark delete-comment" value="delete comment">
-                                {% endif %}
-                                <input type="submit" class="btn btn-link text-dark" value="flag">
+                                <button class="btn btn-link text-dark edit-comment" data-edit-form-id="edit-comment-{{ comment.pk }}">edit comment</button>
                             {% endif %}
-                        </form>
 
-                        <!-- comment edit -->
-                        <form style="display: none;" action="{% url 'notes:edit-comment' comment.id %}" method="POST" class="form-inline" name="edit-form">
+                            {% if comment.user == user or note.user == user %}
+                                <button data-comment-div-id="comment{{comment.id}}" data-delete-url="{% url 'notes:comment-delete' comment.id %}" class="btn btn-link text-dark delete-comment">delete comment</button>
+                            {% endif %}
+                        </div>
+
+                        <!-- comment edit form -->
+                        <form id="edit-comment-{{ comment.pk }}" style="display: none;" action="{% url 'notes:edit-comment' comment.id %}" method="POST" class="row edit-comment-form-old" name="edit-form">
                             {% csrf_token %}
                             <div class="form-group col-sm-7">
-                                {{ form.comment }}
+                                <textarea id="edit-comment-{{ comment.pk }}-textarea" name="comment" cols="40" rows="7" class="form-control" placeholder="add comment here (use '@username' to mention someone)" maxlength="140" required>{{ comment.original_comment }}</textarea>
                             </div>
-                            <div style="width: 30%;" class="form-group">
-                                <input type="submit" class="btn-outline" value="edit">
+                            <div class="form-group col-sm-3 text-center">
+                                <input type="submit" class="form-control" value="edit">
                             </div>
-                            <span class="btn text-danger close-edit">abort</span>
+                            <div class="col-sm-2 text-center">
+                                <span class="btn btn-link text-danger close-edit" data-close-id="edit-comment-{{ comment.pk }}">abort</span>
+                            </div>
                         </form>
 
                     </div>
+                    <hr style="margin-top: 1em;" />
                 </div>
-                <hr />
             {% endfor %}
         {% else %}
             <div id="no-comments">
