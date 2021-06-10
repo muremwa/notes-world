@@ -51,14 +51,19 @@ class ConnectionManager(models.Manager):
             chain(Connection.objects.filter(q_set_1), Connection.objects.filter(q_set_2))
         )
 
-    def exist(self, user_1, user_2):
+    def exist(self, user_1, user_2, **kwargs):
         """
         checks if a connection exists and returns true or false
         """
+        status = kwargs.get('status', False)
         result = False
         connections = self.main_conn(user1=user_1, user2=user_2)
         if len(connections) > 0:
             result = True
+
+            if status and connections[0].approved == False:
+                result = False              
+
         return result
 
     def get_conn(self, user_1, user_2):
