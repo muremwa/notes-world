@@ -21,7 +21,7 @@
             </div>
             <div class="col-sm-9 comment_text">
                 <div class="comment-body">
-                    <div class="row"><h4><strong>{{ comment.user.get_full_name }} </strong><a href="{% url 'base_account:foreign-user' comment.user.id %}">@{{ comment.user }}</a> posted {{ comment.get_created }}</h4> {% if comment.is_modified %} <span class="edited text-info">edited</span> {% endif %}<br /></div>
+                    <div class="row"><h4><strong>{{ comment.user.get_full_name }} </strong><a href="{% url 'base_account:foreign-user' comment.user.id %}">@{{ comment.user }}</a> <span>posted {{ comment.get_created }}</span>{% if comment.is_modified %} <span class="edited text-info">edited</span> {% endif %}</h4> <br /></div>
                     <div>{{ comment.comment_text|safe }}</div>
                 </div>
                 <a href="{{ comment.note.get_absolute_url }}#comment{{comment.id}}">see</a>
@@ -33,7 +33,7 @@
         <form method="post" action="{% url 'notes:reply-comment' comment.id %}">
             {% csrf_token %}
             <div class="form-group">
-                {{ form.comment }}
+                <textarea name="comment" cols="40" rows="4" class="form-control" placeholder="reply to the comment above (use '@username' to mention someone)" maxlength="140" required></textarea>
             </div>
             <hr>
             <div class="col-sm-3">
@@ -58,21 +58,29 @@
                             
                             {% if reply.user == user %}
                                 <!-- Reply actions-->
-                                <form method="POST" data-reply-url="{% url 'notes:get-comment-reply' 'reply' reply.id %}" action="{% url 'notes:reply-actions' reply.id 'delete' %}">
-                                    {% csrf_token %}
-                                    <a href="" id="edit_reply" class="btn">edit</a>
-                                    <button type="submit" id="delete_reply" class="btn">delete</button>
-                                </form>
-
+                                <div class="row">
+                                    <button data-edit-form-id="edit-reply-{{ reply.pk }}" class="edit-reply btn col-sm-4">edit</button>
+                                    <div class="col-sm-3"></div>
+                                    <form class="col-sm-4" method="POST" data-reply-url="{% url 'notes:get-comment-reply' 'reply' reply.id %}" action="{% url 'notes:reply-actions' reply.id 'delete' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" id="delete_reply" class="btn">delete</button>
+                                    </form>
+                                </div>
+                                    
                                 <!-- Reply edit form-->
-                                <form id="edit-reply" class="form-inline" name="edit_reply_form" style="display:none" action="{% url 'notes:reply-actions' reply.id 'edit' %}" method="POST">
+                                <form id="edit-reply-{{ reply.pk }}" style="display: none;" class="reply-edit-form" action="{% url 'notes:reply-actions' reply.id 'edit' %}" method="POST">
                                     {% csrf_token %}
                                     <div class="form-group">
-                                        {{ form.comment }}
+                                        <textarea id="edit-reply-{{ reply.pk }}-textarea" name="comment" cols="40" rows="4" class="form-control" placeholder="Edit the reply to the comment above (use '@username' to mention someone)" maxlength="140" required>{{ reply.original_reply }}</textarea>
                                     </div>
-                                    <div class="form-actions">
-                                        <button class="btn" type="submit">edit</button>
-                                        <button class="btn abort">abort</button>
+                                    <div class="form-actions row">
+                                        <div class="col-sm-5">
+                                            <button class="form-control" type="submit">edit</button>
+                                        </div>
+                                        <div class="col-sm-2"></div>
+                                        <div class="col-sm-5">
+                                            <span class="btn btn-link abort" data-close-id="edit-reply-{{ reply.pk }}">abort</span>
+                                        </div>
                                     </div>
                                 </form>
                             {% endif %}

@@ -1,34 +1,27 @@
-// reply.js
-$(document).ready( function() {
-    let replyArea = document.getElementById("id_comment");
-    replyArea.rows = 3;
-    replyArea.placeholder = "reply to the comment above";
-})
+function toggleForm (divId, open) {
+    const form = document.getElementById(divId);
+    const txt = document.getElementById(`${divId}-textarea`);
 
-// editing replies support
-$(document).on('click', '#edit_reply', function (e) {
-    e.preventDefault();
-    let url = this.parentElement.attributes['data-reply-url'].value;
-    let x = this.parentElement.parentElement.children;
-    let form = x['edit_reply_form'].children[1].children[0];
+    if (form) {
+        form.style.display = open? 'none': '';
+        txt && !open? txt.focus(): form.reset();
+    };
+};
 
-    $.ajax({
-        type: "GET",
-        url: url,
-        success: function (response) {
-            if (response['success']) {
-                x['edit_reply_form'].style.display = "";
-                form.innerText = response['text'];
-                form.rows = 2
-            }
-        },
-        error: function (e) {
-            console.log("an error occured");
-        }
+
+// open comment edit form
+[...document.getElementsByClassName('edit-reply')].forEach((element) => {
+    element.addEventListener('click', (event_) => {
+        const { editFormId } = event_.target.dataset;
+        editFormId? toggleForm(editFormId, false): void 0;
     });
 });
 
-$(document).on('click', '.abort', function (e) {
-    e.preventDefault();
-    this.parentElement.parentElement.style.display = "none";
-});
+
+// close comment edit form
+[...document.getElementsByClassName('abort')].forEach((element) => {
+    element.addEventListener('click', (event_) => {
+        const { closeId } = event_.target.dataset;
+        closeId? toggleForm(closeId, true): void 0;
+    })
+})

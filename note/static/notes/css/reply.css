@@ -23,7 +23,7 @@
 }
 
 .edited {
-    margin-left: 3em;
+    padding-left: 1em;
 }
 
 #edit-reply {
@@ -36,4 +36,12 @@
 
 .comment-body {
     padding-left: 1em;
+}
+
+.reply-edit-form {
+    margin-top: 1em;
+}
+
+.form-actions {
+    margin-top: 1em;
 }
