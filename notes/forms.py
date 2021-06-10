@@ -36,7 +36,10 @@ class NoteForeignForm(forms.ModelForm):
 
 
 class CommentForm(forms.Form):
-    comment = forms.CharField(max_length=140, widget=forms.Textarea(attrs={"class": "form-control"}))
+    comment = forms.CharField(max_length=140, widget=forms.Textarea(attrs={
+        "class": "form-control",
+        "placeholder": "add comment here (use '@username' to mention someone)"
+    }))
 
 
 class TagsField(forms.ModelMultipleChoiceField):
