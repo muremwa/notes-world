@@ -3,8 +3,8 @@
 */
 
 // get document cookie
-const cookie = new Map([document.cookie.split('=')]);
-const token_ = cookie.has('csrftoken')? cookie.get('csrftoken'): '';
+const connectCookie = new Map([document.cookie.split('=')]);
+const connectionToken_ = connectCookie.has('csrftoken')? connectCookie.get('csrftoken'): '';
 
 const connectionRequestsTypes = {
     ACCEPT: 'a',
@@ -14,7 +14,7 @@ const connectionRequestsTypes = {
     NONE: 'n'
 };
 
-function connetionRequests (url, button, token = token_, type_ = connectionRequests.NONE) {
+function connetionRequests (url, button, token = connectionToken_, type_ = connectionRequests.NONE) {
     const options = {
         url,
         headers: [{
@@ -76,19 +76,19 @@ function connetionRequests (url, button, token = token_, type_ = connectionReque
 
         switch (requestType_) {
             case 'send':
-                connetionRequests(actionUrl_, e.target, token_, connectionRequestsTypes.SEND);
+                connetionRequests(actionUrl_, e.target, connectionToken_, connectionRequestsTypes.SEND);
                 break;
 
             case 'accept':
-                connetionRequests(actionUrl_, e.target, token_, connectionRequestsTypes.ACCEPT);
+                connetionRequests(actionUrl_, e.target, connectionToken_, connectionRequestsTypes.ACCEPT);
                 break;
 
             case 'deny':
-                connetionRequests(actionUrl_, e.target, token_, connectionRequestsTypes.DENY);
+                connetionRequests(actionUrl_, e.target, connectionToken_, connectionRequestsTypes.DENY);
                 break;
 
             case 'disconnect':
-                connetionRequests(actionUrl_, e.target, token_, connectionRequestsTypes.DISCONNECT);
+                connetionRequests(actionUrl_, e.target, connectionToken_, connectionRequestsTypes.DISCONNECT);
                 break;
         
             default:

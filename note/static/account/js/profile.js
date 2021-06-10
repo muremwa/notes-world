@@ -3,8 +3,8 @@
 */
 
 // get document cookie
-const cookie = new Map([document.cookie.split('=')]);
-const token_ = cookie.has('csrftoken')? cookie.get('csrftoken'): '';
+const profileCookie = new Map([document.cookie.split('=')]);
+const profileToken_ = profileCookie.has('csrftoken')? profileCookie.get('csrftoken'): '';
 
 
 // open a notification
@@ -18,7 +18,7 @@ const token_ = cookie.has('csrftoken')? cookie.get('csrftoken'): '';
             responseType: 'json',
             headers: [{
                 name: 'X-CSRFToken',
-                value: token_
+                value: profileToken_
             }],
             error: errorOpening,
             success: (response_) => response_.response['success']? window.location = newLocation: errorOpening()
@@ -42,7 +42,7 @@ const token_ = cookie.has('csrftoken')? cookie.get('csrftoken'): '';
             responseType: 'json',
             headers: [{
                 name: 'X-CSRFToken',
-                value: token_
+                value: profileToken_
             }],
             error: errorDeleting,
             success: (response_) => {
