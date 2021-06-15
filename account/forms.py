@@ -16,15 +16,23 @@ class LoginForm(AuthenticationForm):
 
 
 class SignUpForm(UserCreationForm):
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={"class": "form-control"}))
     first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={"class": "form-control"}))
     last_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={"class": "form-control"}))
+    password1 = forms.CharField(
+        max_length=200,
+        widget=forms.PasswordInput(attrs={"class": 'form-control'}),
+        label='Password'
+    )
+    password2 = forms.CharField(
+        max_length=200,
+        widget=forms.PasswordInput(attrs={"class": 'form-control'}),
+        label='Confirm password'
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'password1', 'password2',)
-        widgets = {
-            'username': forms.TextInput(attrs={"class": "form-control"}),
-        }
+        fields = ('username', 'first_name', 'last_name', 'password1', 'password2')
 
     def clean_username(self):
         data = self.cleaned_data['username']
