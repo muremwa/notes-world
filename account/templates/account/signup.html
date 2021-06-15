@@ -2,7 +2,10 @@
 {% load staticfiles %}
 
 {% block title %}sign up{% endblock title %}
-{% block style %}<link href="{% static 'account/css/signup.css' %}" type="text/css" rel="stylesheet">{% endblock style %}
+{% block style %}
+    <link href="{% static 'account/css/signup.css' %}" type="text/css" rel="stylesheet">
+    {{ form.media.css }}
+{% endblock style %}
 
 {% block signup %}active{% endblock signup %}
 
@@ -23,3 +26,8 @@
         
         
 {% endblock content %}
+
+
+{% block bottomScript %}
+    {{ form.media.js }}
+{% endblock bottomScript %}

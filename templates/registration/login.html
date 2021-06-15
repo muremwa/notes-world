@@ -4,6 +4,8 @@
 
 {% block login %}active{% endblock login %}
 
+{% block style %}{{ form.media.css }}{% endblock style %}
+
 {% block content %}
     <style type="text/css">
         #login-form {
@@ -58,3 +60,5 @@
     </div>
 
 {% endblock content %}
+
+{% block bottomScript %}{{ form.media.js }}{% endblock bottomScript %}

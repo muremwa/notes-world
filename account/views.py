@@ -15,9 +15,9 @@ from itertools import chain
 
 # models & forms +
 from .models import Profile, Connection
-from .forms import SignUpForm, ProfileForm, UserEditForm
+from .forms import SignUpForm, ProfileForm, UserEditForm, PasswordChangeFormWithToggle
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import PasswordChangeForm
+# from django.contrib.auth.forms import PasswordChangeForm
 
 # sign ups
 from django.contrib.auth import authenticate, login
@@ -105,7 +105,7 @@ class ProfileUserEdit(LoginRequiredMixin, generic.UpdateView):
 # change user password
 class UserPasswordChange(generic.TemplateView):
     template_name = 'account/password_change.html'
-    form_class = PasswordChangeForm
+    form_class = PasswordChangeFormWithToggle
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

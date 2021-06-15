@@ -3,16 +3,16 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from .models import Profile
 
-from .widgets import UserFileInput
+from .widgets import UserFileInput, PasswordInputWithViewToggle
 
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={"class": "form-control"}))
-    password = forms.CharField(max_length=200, widget=forms.PasswordInput(attrs={"class": "form-control"}))
+    password = forms.CharField(max_length=200, widget=PasswordInputWithViewToggle(attrs={"class": "form-control"}))
 
 
 class SignUpForm(UserCreationForm):
@@ -21,12 +21,12 @@ class SignUpForm(UserCreationForm):
     last_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={"class": "form-control"}))
     password1 = forms.CharField(
         max_length=200,
-        widget=forms.PasswordInput(attrs={"class": 'form-control'}),
+        widget=PasswordInputWithViewToggle(attrs={"class": "form-control"}),
         label='Password'
     )
     password2 = forms.CharField(
         max_length=200,
-        widget=forms.PasswordInput(attrs={"class": 'form-control'}),
+        widget=PasswordInputWithViewToggle(attrs={"class": "form-control"}),
         label='Confirm password'
     )
 
@@ -71,3 +71,9 @@ class UserEditForm(forms.ModelForm):
         if re.search(r'@', data):
             raise ValidationError(_('no @ signs on username'), code="at_sign")
         return data
+
+
+class PasswordChangeFormWithToggle(PasswordChangeForm):
+    old_password = forms.CharField(widget=PasswordInputWithViewToggle(attrs={"class": "form-control"}))
+    new_password1 = forms.CharField(widget=PasswordInputWithViewToggle(attrs={"class": "form-control"}))
+    new_password2 = forms.CharField(widget=PasswordInputWithViewToggle(attrs={"class": "form-control"}))
