@@ -1,0 +1,25 @@
+<style type="text/css">
+    .c-image img {
+        height: 6em;
+        width: 6em;
+        border-radius: 50%;
+    }
+
+    .image-in {
+        margin: auto;
+    }
+</style>
+
+<div class="c-image row">
+    <div class="col-sm-6 image-in">
+        <input name="{{ widget.name }}" type="{{ widget.type }}" class="form-control" accept="{{ widget.attrs.accept }}" required id="{{ widget.attrs.id }}" />
+    </div>
+    {% if widget.value %}
+        <div class="col-sm-6 text-center">
+            <a href="{{ widget.value }}" target="_blank">
+                <img title="Click to open the image" alt="current profile" src="{{ widget.value }}"/><br />
+                <caption>Current profile image</caption>
+            </a>
+        </div>
+    {% endif %}
+</div>

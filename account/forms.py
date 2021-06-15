@@ -7,6 +7,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
 
+from .widgets import UserFileInput
+
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={"class": "form-control"}))
@@ -36,7 +38,7 @@ class ProfileForm(forms.ModelForm):
             'pen_name': forms.TextInput(attrs={"class": "form-control"}),
             'occupation': forms.TextInput(attrs={"class": "form-control"}),
             'gender': forms.Select(attrs={"class": "form-control"}),
-            'image': forms.FileInput(attrs={"class": "form-control"})
+            'image': UserFileInput()
         }
 
 
