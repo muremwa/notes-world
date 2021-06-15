@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from itertools import chain
+from django.utils.translation import ugettext_lazy as _
+from django.core.validators import ValidationError
+
 
 # create a ew profile every time a user is made
 from django.db.models.signals import post_save
@@ -18,11 +21,13 @@ class Profile(models.Model):
     pen_name = models.CharField(max_length=200)
     objects = models.Manager()
 
+    @staticmethod
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:
             Profile.objects.create(user=instance)
 
+    @staticmethod
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
@@ -61,8 +66,8 @@ class ConnectionManager(models.Manager):
         if len(connections) > 0:
             result = True
 
-            if status and connections[0].approved == False:
-                result = False              
+            if status and not connections[0].approved:
+                result = False
 
         return result
 
@@ -102,12 +107,24 @@ class Connection(models.Model):
     approved = models.BooleanField(default=False)
     objects = ConnectionManager()
 
+    class Meta:
+        unique_together = ('conn_sender', 'conn_receiver')
+
     def get_status(self):
         if self.approved:
             status = "approved"
         else:
             status = "pending"
         return status
+
+    def clean(self):
+        if ConnectionManager().exist(self.conn_sender, self.conn_receiver.user):
+            raise ValidationError(_('The connection already exists'))
+
+        if self.conn_receiver.user == self.conn_sender:
+            raise ValidationError(_('?'))
+
+        return super().clean()
 
     def __str__(self):
         return "connection between {} and {}".format(self.conn_sender, self.conn_receiver)

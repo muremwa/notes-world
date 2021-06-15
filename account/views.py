@@ -241,10 +241,10 @@ def connect(request, user_id):
             response['sent'] = True
         else:
             response['sent'] = False
-            connection = Connection.objects.get(conn_sender=sender, conn_receiver=receiver);
+            connection = Connection.objects.get(conn_sender=sender, conn_receiver=receiver)
 
             if connection.approved:
-                response['state'] = "connection already approved";
+                response['state'] = "connection already approved"
             else:
                 response['state'] = "request is sent already"
 
