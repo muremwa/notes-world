@@ -7,7 +7,7 @@ made in [**Django 2.0**](https://djangoproject.com  "Django website")
 > **requires python 3.x**
 
 **Note**
-the frontend requires [**Bootstrap framework**](http://getbootstrap.com "Bootstrap website") 5.x and [ReactJs](http://react.me, "React website")
+the frontend requires [**Bootstrap framework**](http://getbootstrap.com "Bootstrap website") 5.x and [ReactJs](https://reactjs.org "React website")
 
 > dropped use of JQuery.
  - - -
