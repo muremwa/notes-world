@@ -39,7 +39,7 @@
         <br />
 
         {% comment %}login form{% endcomment %}
-        <form method="post" action="{% url 'login' %}">
+        <form method="post" action="{% url 'base_account:login' %}">
             {% csrf_token %}
             <div class="form-group">
                 <label>{{ form.username.label_tag }}</label>
@@ -50,14 +50,10 @@
                 {{ form.password }}
             </div>
             <div class="col-sm-3 form-group">
-                <input type="submit" class="btn-outline" value="sign in">
+                <input type="submit" class="form-control" value="sign in">
             </div>
+            <br />
             <p>don't have an account? <a class="text-danger" href="{% url 'base_account:sign-up' %}">sign up</a></p>
-
-            <script>
-                // add form-control
-                Array.from(document.getElementsByTagName("input")).map(item => item.classList.add('form-control'));
-            </script>
         </form>
     </div>
 

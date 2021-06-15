@@ -279,7 +279,7 @@ class CommentsTestCase(TestCase):
         # post logged out redirect
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('login')+"?next="+url)
+        self.assertRedirects(response, f'{reverse("base_account:login")}?next={url}')
 
         # post logged in wrong user
         self.client.force_login(self.user_2)

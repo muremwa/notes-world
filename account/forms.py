@@ -3,11 +3,16 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from .models import Profile
 
 from .widgets import UserFileInput
+
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(max_length=100, widget=forms.TextInput(attrs={"class": "form-control"}))
+    password = forms.CharField(max_length=200, widget=forms.PasswordInput(attrs={"class": "form-control"}))
 
 
 class SignUpForm(UserCreationForm):

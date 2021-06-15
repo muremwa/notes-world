@@ -20,9 +20,6 @@ urlpatterns = [
     # redirect to notes
     path('', RedirectView.as_view(url="/notes/")),
 
-    # Accounts and authentication
-    path('accounts/', include("django.contrib.auth.urls")),
-
     # api(s)
     path('api/', include('api.urls')),
 
