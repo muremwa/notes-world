@@ -37,7 +37,7 @@ class ProfileForm(forms.ModelForm):
         widgets = {
             'pen_name': forms.TextInput(attrs={"class": "form-control"}),
             'occupation': forms.TextInput(attrs={"class": "form-control"}),
-            'gender': forms.Select(attrs={"class": "form-control"}),
+            'gender': forms.Select(attrs={"class": "form-select"}),
             'image': UserFileInput()
         }
 
