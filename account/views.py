@@ -79,7 +79,8 @@ class ProfilePage(LoginRequiredMixin, generic.TemplateView):
         context.update({
             'new': self.request.user.notification_set.filter(seen=False).count(),
             'notifications': self.get_notifications(),
-            'new_user': bool(self.request.GET.get('new', 0))
+            'new_user': bool(self.request.GET.get('new', 0)),
+            'not_del': int(self.request.GET.get('nd', 0)),
         })
         return context
 

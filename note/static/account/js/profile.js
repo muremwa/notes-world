@@ -67,3 +67,32 @@ const profileToken_ = profileCookie.has('csrftoken')? profileCookie.get('csrftok
         ajax.post(options);
     });
 });
+
+
+// Ensure correct values are sent when deleting bulk notifications
+function bulkClean (home, away, larger, ogDel, r = false) {
+    const home_value = home.value? home.value === 'all'? 1000: parseInt(home.value): 0;
+    const away_value = away.value? away.value === 'all'? 1000: parseInt(away.value): 0;
+
+    if (r) {
+        ogDel.disabled = true;
+    } else {
+        if (larger) {
+            home_value > away_value? ogDel.disabled = false: ogDel.disabled = true;
+        } else {
+            away_value > home_value? ogDel.disabled = false: ogDel.disabled = true;        
+        };
+    }
+};
+
+
+const formOg = document.getElementById('notifications-delete-form');
+const bDelBtn = document.getElementById('notifications-delete-btn');
+const from = document.getElementById('from_date');
+const to = document.getElementById('to_date');
+
+if (formOg && bDelBtn && from && to) {
+    from.addEventListener('change', () => bulkClean(from, to, false, bDelBtn));
+    to.addEventListener('change', () => bulkClean(to, from, true, bDelBtn));
+    formOg.addEventListener('reset', () => bulkClean(to, from, true, bDelBtn, true));
+}

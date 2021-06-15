@@ -12,4 +12,7 @@ urlpatterns = [
 
     # notification/delete/45/
     path('delete/<int:notification_id>/', views.delete_notification, name="delete"),
+
+    # notifications/delete/bulk/
+    path('delete/bulk/', views.bulk_delete_notifications, name='bulk-delete'),
 ]

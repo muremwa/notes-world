@@ -1,5 +1,6 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, reverse
+from django.utils import timezone
 
 from .models import Notification
 
@@ -34,3 +35,41 @@ def delete_notification(request, notification_id):
         if request.user == notification.to_user:
             notification.delete()
             return JsonResponse({'success': True, "message": "Notification deleted"})
+
+
+def bulk_delete_notifications(request):
+    notifications_deleted = 0
+
+    if request.method == 'POST':
+        try:
+            _from_date = int(request.POST.get('from', 0))
+            _to_date = request.POST.get('to', 0)
+            _all = False
+
+            if _to_date == 'all':
+                _to_date = _from_date + 1
+                _all = True
+            else:
+                _to_date = int(_to_date)
+
+            if (_from_date != _to_date) and (_to_date > _from_date):
+                from_ = timezone.now()
+                _del = (0,)
+
+                if _from_date > 0:
+                    from_ = from_ - timezone.timedelta(days=_from_date)
+
+                notifications = request.user.notification_set.filter(created__date__lte=from_)
+
+                if _all:
+                    _del = notifications.delete()
+                else:
+                    to_ = timezone.now() - timezone.timedelta(days=_to_date)
+                    _del = notifications.filter(created__date__gte=to_).delete()
+
+                notifications_deleted = _del[0]
+
+        except ValueError:
+            pass
+
+    return redirect(f'{reverse("base_account:profile")}?nd={notifications_deleted}')

@@ -33,3 +33,16 @@
 .unread:hover {
     background-color: #b7becc;
 }
+
+#notifications-delete-form {
+    margin-top: 3em;
+}
+
+#notifications-delete-form > div > div {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+#to-arrow {
+    padding-top: 2em;
+}

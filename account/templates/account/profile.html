@@ -62,23 +62,73 @@
                 
                 <!-- All notifications -->
                 {% if notifications %}
-                <div id="notifications">
-                    <p class="alert alert-info">{% if new %}{{ new }}{% else %}no{% endif %} new notifications</p>
-                    {% for notification in notifications %}
-                        <div id="notification-{{ notification.pk }}" class="super-notification {% if not notification.opened %}unread{% endif %}">
-                            <div class="notification">
-                                <p class="text-primary">{{ notification.created }} ({{ notification.get_created }}) {% if not notification.opened %}unread{% endif %}</p>
+                    <div id="notifications">
+                        <p class="alert alert-info">{% if new %}{{ new }}{% else %}no{% endif %} new notifications</p>
+
+                        {% if not_del %}
+                            <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                {{ not_del }} notification{% if not_del > 1 %}s{% endif %} deleted.
+                            </div>
+                        {% endif %}
+                        
+                        {% for notification in notifications %}
+                            <div id="notification-{{ notification.pk }}" class="super-notification {% if not notification.opened %}unread{% endif %}">
+                                <div class="notification">
+                                    <p class="text-primary">{{ notification.created }} ({{ notification.get_created }}) {% if not notification.opened %}unread{% endif %}</p>
+                                    <hr>
+                                    <p>{{ notification.message }}</p>                            
+                                </div>                           
                                 <hr>
-                                <p>{{ notification.message }}</p>                            
-                            </div>                           
-                            <hr>
-                            <div class="text-center">
-                                <button class="text-primary btn btn-link notification-open" data-read-url="{% url 'notifications:open' notification.id %}" data-new-location="{{ notification.url }}">open</button>
-                                <button class="text-danger btn btn-link notification-delete" data-delete-url="{{ notification.del_url}}" data-notification-div-id="notification-{{ notification.pk }}">delete!</button>
+                                <div class="text-center">
+                                    <button class="text-primary btn btn-link notification-open" data-read-url="{% url 'notifications:open' notification.id %}" data-new-location="{{ notification.url }}">open</button>
+                                    <button class="text-danger btn btn-link notification-delete" data-delete-url="{{ notification.del_url}}" data-notification-div-id="notification-{{ notification.pk }}">delete!</button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <form action="{% url 'notifications:bulk-delete' %}" method="POST" id="notifications-delete-form">
+                        <p class="text-center">Delete notifications</p>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="form-group col-sm-5">
+                                <label for="from_date">Delete from:</label>
+                                <select name="from" id="from_date" class="form-select">
+                                    <option value="0">Today</option>
+                                    <option value="1">Yesterday</option>
+                                    <option value="7">A week ago</option>
+                                    <option value="30">A month ago</option>
+                                    <option value="365">A year ago</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-2 text-center" id="to-arrow">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="blue" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                                </svg>
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <label for="to_date">Delete upto:</label>
+                                <select name="to" id="to_date" class="form-select">
+                                    <option value="0">Today</option>
+                                    <option value="1">Yesterday</option>
+                                    <option value="7">A week ago</option>
+                                    <option value="30">A month ago</option>
+                                    <option value="365">A year ago</option>
+                                    <option value="all">The start</option>
+                                </select>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
+                        <div class="row">
+                            <div class="col-sm-5">
+                                <input type="submit" value="delete" class="form-control" id="notifications-delete-btn" disabled>
+                            </div>
+                            <span class="col-sm-2"></span>
+                            <div class="col-sm-5">
+                                <input type="reset" value="reset" class="form-control" id="notifications-delete-btn">
+                            </div>
+                        </div>
+                    </form>
                 {% else %}
                     <div class="alert alert-info text-center"><h5>no notifications</h5></div>
                 {% endif %}
