@@ -17,7 +17,6 @@ from itertools import chain
 from .models import Profile, Connection
 from .forms import SignUpForm, ProfileForm, UserEditForm, PasswordChangeFormWithToggle
 from django.contrib.auth.models import User
-# from django.contrib.auth.forms import PasswordChangeForm
 
 # sign ups
 from django.contrib.auth import authenticate, login
