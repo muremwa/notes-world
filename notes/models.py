@@ -4,6 +4,7 @@ from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils.timesince import timesince
 
 from account.models import Profile, Connection
 
@@ -73,7 +74,7 @@ class NoteManager(models.Manager):
 
 
 # notes model
-class Note(models.Model, Timing):
+class Note(models.Model):
     privacy_options = (("PB", "public"), ("CO", "connected"), ("PR", "private"),)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     title = models.CharField(max_length=500)
@@ -96,10 +97,10 @@ class Note(models.Model, Timing):
 
     # get the last time it was modified
     def get_last_modified(self):
+        respond_with = None
+
         if self.last_modified:
-            respond_with = self.how_long_ago(self.last_modified)
-        else:
-            respond_with = None
+            respond_with = f'{timesince(self.last_modified)} ago'
 
         return respond_with
 
@@ -126,7 +127,7 @@ class Note(models.Model, Timing):
 
 
 # comments model
-class Comment(models.Model, Timing):
+class Comment(models.Model):
     note = models.ForeignKey(Note, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment_text = models.TextField()
@@ -140,10 +141,9 @@ class Comment(models.Model, Timing):
         ordering = ['-created']
 
     def get_created(self):
+        response = None
         if self.created:
-            response = self.how_long_ago(self.created)
-        else:
-            response = None
+            response = f'{timesince(self.created)} ago'
         return response
 
     def is_modified(self):
@@ -159,7 +159,7 @@ class Comment(models.Model, Timing):
         return "comment by {} on {}".format(self.user, self.note)
 
 
-class Reply(models.Model, Timing):
+class Reply(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     reply_text = models.TextField()
@@ -174,7 +174,7 @@ class Reply(models.Model, Timing):
         verbose_name_plural = "Replies"
 
     def get_created(self):
-        return self.how_long_ago(self.created)
+        return f'{timesince(self.created)} ago'
 
     def __str__(self):
         return "Reply by {} to {}".format(self.user, self.comment)

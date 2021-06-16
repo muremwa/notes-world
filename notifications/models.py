@@ -1,11 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.shortcuts import reverse
+from django.utils.timesince import timesince
 
-from notes.models import Timing
 
-
-class Notification(models.Model, Timing):
+class Notification(models.Model):
     to_user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField(max_length=200)
     created = models.DateTimeField(auto_now_add=True)
@@ -18,7 +17,7 @@ class Notification(models.Model, Timing):
         ordering = ['-created']
 
     def get_created(self):
-        return self.how_long_ago(self.created)
+        return f'{timesince(self.created)} ago'
 
     def del_url(self):
         return reverse("notifications:delete", args=[str(self.pk)])
