@@ -1,5 +1,4 @@
 from functools import reduce
-from datetime import datetime
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -7,52 +6,6 @@ from django.urls import reverse
 from django.utils.timesince import timesince
 
 from account.models import Profile, Connection
-
-
-class Timing:
-    @staticmethod
-    def difference(og_time, time):
-        current_time = str(og_time)
-        modified_time = str(time)
-        time_format = "%Y-%m-%d %H:%M:%S.%f"
-        difference = datetime.strptime(current_time, time_format) - datetime.strptime(modified_time[:-6], time_format)
-        return difference
-
-    def how_long_ago(self, time):
-        try:
-            difference = self.difference(time=time, og_time=(str(datetime.utcnow())))
-        except ValueError:
-            return ''
-
-        days = difference.days
-        seconds = difference.seconds
-        minutes = (seconds / 60)
-        hours = (minutes / 60)
-
-        if days < 1:
-            if hours < 1:
-                if minutes < 1:
-                    if seconds < 20:
-                        respond_with = "just now"
-                    else:
-                        respond_with = "{} seconds ago".format(int(seconds))
-                else:
-                    respond_with = "{} minutes ago".format(int(minutes))
-            else:
-                respond_with = "{} hours ago".format(int(hours))
-        elif days < 50:
-            respond_with = "{} days ago".format(int(days))
-
-        elif days < 365:
-            respond_with = "{} months ago".format(int(int(days)/28))
-
-        elif days < (365*2):
-            respond_with = "1 year ago"
-
-        else:
-            respond_with = "{} years ago".format(int(int(days)/365))
-
-        return respond_with
 
 
 # notes manager

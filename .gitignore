@@ -1,9 +1,7 @@
 .idea/*
 *.pyc
 db.sqlite3
-api/migrations/*
-account/migrations/*
-notes/migrations/*
+*/migrations/*
 .vscode/*
 media/profile_images/*
 mail/*
