@@ -17,7 +17,7 @@ class NoteManager(models.Manager):
         q_sets = [list(Note.objects.filter(user=connected_user)) for connected_user in connected_users]
         if not q_sets:
             return []
-        notes = reduce(lambda set_1, set_2: set_1 + set_2, q_sets)
+        notes = [note for q_set in q_sets for note in q_set]
         return [note for note in notes if note.privacy != "PR"]
 
     def collaborations(self, user):
