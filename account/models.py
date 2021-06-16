@@ -127,7 +127,7 @@ class Connection(models.Model):
         super().save(*args, **kwargs)
 
     def clean(self):
-        if ConnectionManager().exist(self.conn_sender, self.conn_receiver.user):
+        if not self.since and ConnectionManager().exist(self.conn_sender, self.conn_receiver.user):
             raise ValidationError(_('The connection already exists'))
 
         if self.conn_receiver.user == self.conn_sender:
