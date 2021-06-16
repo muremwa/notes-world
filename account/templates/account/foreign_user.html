@@ -22,16 +22,16 @@
                         <button type="submit" class="btn btn-outline-info connect-button js-action-btn" data-request-type="send" data-action-url="{% url 'base_account:connect' foreign_user.id %}">connect</button>
                     {% else %}
                         {% if conn_type == 'req_received' %}
-                            <span class="lead">{% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} has sent you a connection request.</span><br />
+                            <span class="lead">{% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} sent you a connection request {{ conn.connection_sent_when }} ago.</span><br />
                             <button name="accept" data-request-type="accept" data-action-url="{% url 'base_account:accept' conn.id %}" class="btn btn-outline-dark accept-button js-action-btn">approve</button>
                             <button name="deny" data-request-type="deny" data-action-url="{% url 'base_account:deny' conn.id %}" class="btn btn-outline-danger deny-button js-action-btn">deny</button>
                         {% else %}
                             {% if conn_type == 'req_sent' %}
-                                <span class="lead">You have sent {% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} a connection request.</span><br />
+                                <span class="lead">You sent {% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} a connection request {{ conn.connection_sent_when }} ago.</span><br />
                                 <button data-request-type="disconnect" data-action-url="{% url 'base_account:exit' foreign_user.id %}" class="btn btn-outline-danger disconnect-button js-action-btn">cancel</button>
                             {% else %}
                                 {% if conn_type == 'connected' %}
-                                    <span class="lead">{% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} and you are connected</span><br />
+                                    <span class="lead">{% if foreign_user.first_name %}{{ foreign_user.first_name }}{% else %}{{ foreign_user }}{% endif %} and you are connected{% if conn.approved_date %} since {{ conn.approved_date }}{% endif %}</span><br />
                                     <button data-request-type="disconnect" data-action-url="{% url 'base_account:exit' foreign_user.id %}" class="btn btn-outline-danger disconnect-button js-action-btn">dis-connect</button>
                                 {% endif %}
                             {% endif %}

@@ -1,7 +1,10 @@
+from itertools import chain
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from itertools import chain
+from django.utils.timezone import now
+from django.utils.timesince import timesince
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import ValidationError
 
@@ -105,6 +108,7 @@ class Connection(models.Model):
     conn_receiver = models.ForeignKey(Profile, blank=False, on_delete=models.CASCADE)
     since = models.DateTimeField(auto_now_add=True)
     approved = models.BooleanField(default=False)
+    approved_date = models.DateTimeField(blank=True, null=True)
     objects = ConnectionManager()
 
     class Meta:
@@ -117,6 +121,11 @@ class Connection(models.Model):
             status = "pending"
         return status
 
+    def save(self, *args, **kwargs):
+        if self.approved:
+            self.approved_date = now()
+        super().save(*args, **kwargs)
+
     def clean(self):
         if ConnectionManager().exist(self.conn_sender, self.conn_receiver.user):
             raise ValidationError(_('The connection already exists'))
@@ -125,6 +134,17 @@ class Connection(models.Model):
             raise ValidationError(_('?'))
 
         return super().clean()
+
+    @property
+    def connected_since(self):
+        s_ = None
+        if self.approved:
+            s_ = timesince(self.approved_date)
+        return s_
+
+    @property
+    def connection_sent_when(self):
+        return timesince(self.since)
 
     def __str__(self):
         return "connection between {} and {}".format(self.conn_sender, self.conn_receiver)
