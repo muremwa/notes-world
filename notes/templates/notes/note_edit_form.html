@@ -1,0 +1,40 @@
+<form action="" method="POST" name="note-edit-form">
+    {% csrf_token %}
+    {% if input_name == "new note" or user.id == note.user.id %}
+        <div class="row">
+            <div class="form-group col-sm-5">
+                <label for="title">Title</label>
+                {{ form.title }}
+            </div>
+            <div class="col-sm-2"></div>
+            <div class="form-group col-sm-5">
+                <label for="privacy">Note Privay (default privacy is private)</label>
+                {{ form.privacy }}
+            </div>
+        </div>
+    {% endif %}
+
+    <hr>
+    {% if form.content.errors %}
+        {% for error in form.content.errors %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {{ form.content }}
+
+    <hr>
+
+    <div class="row">
+        <div class="col-sm-3 ">
+            <input id="ogSubmit" type="submit" class="btn-outline form-control" value="{{ input_name }}">
+        </div>
+        {% if second_btn %}
+            <span class="col-sm-5"></span>
+            <div class="col-sm-3">
+                <button id="second-btn" class="btn-outline form-control" data-second-url="{{ second_btn.url }}" data-form-name="note-edit-form">{{ second_btn.name }}</button>
+            </div>
+        {% endif %}
+    </div>
+</form>

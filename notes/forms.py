@@ -1,22 +1,25 @@
+import re
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 
-import re
 from .models import Note, Tag
-from pagedown.widgets import PagedownWidget
+from .widgets import NotesWorldMarkdownEditor
 
 
 # note creation or edit form
 class NoteForm(forms.ModelForm):
-    content = forms.CharField(widget=PagedownWidget(attrs={"class": "form-control"}))
-
     class Meta:
         model = Note
         fields = ("title", 'content', 'privacy')
         widgets = {
-            'title': forms.TextInput(attrs={"class": "form-control"}),
-            'privacy': forms.Select(attrs={"class": "form-control"})
+            'title': forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "enter a descriptive title for your note"
+            }),
+            'privacy': forms.Select(attrs={"class": "form-select"}),
+            'content': NotesWorldMarkdownEditor()
         }
 
     def clean_content(self):
@@ -28,11 +31,12 @@ class NoteForm(forms.ModelForm):
 
 
 class NoteForeignForm(forms.ModelForm):
-    content = forms.CharField(widget=PagedownWidget(attrs={"class": "form-control"}))
-
     class Meta:
         model = Note
         fields = ('content',)
+        widgets = {
+            'content': NotesWorldMarkdownEditor()
+        }
 
 
 class CommentForm(forms.Form):

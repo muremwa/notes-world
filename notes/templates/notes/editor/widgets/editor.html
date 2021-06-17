@@ -1,0 +1,140 @@
+{% load staticfiles %}
+
+<div id="editor-grp">
+    <ul id="nav-tabs-sec" class="nav nav-tabs">
+        <!-- The ids of the anchor tags should never start with the same letter ever! -->
+        <li class="nav-item">
+            <a class="nav-link tab-nav active" href="#" data-section-to="editor" data-section-from="" id="editor-open">Editor</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link tab-nav" href="#" data-section-to="preview" data-section-from="" id="preview-open">Preview</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link tab-nav" href="#" data-section-to="help" data-section-from="" id="help-open">Help</a>
+        </li>
+    </ul>
+
+    <div id="editor" class="editor-tab editor-tab-active">
+        <div class="row sticky-top" id="shorcut-sections">
+
+            <!-- Headings -->
+            <div class="dropdown shortcut-item-m col">
+                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{% static 'svg/editor/title.svg' %}" alt="" title="Insert heading">
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <span class="dropdown-item shortcut-item" data-short="h1">H1</span>
+                    <span class="dropdown-item shortcut-item" data-short="h2">H2</span>
+                    <span class="dropdown-item shortcut-item" data-short="h3">H3</span>
+                    <span class="dropdown-item shortcut-item" data-short="h4">H4</span>
+                    <span class="dropdown-item shortcut-item" data-short="h5">H5</span>
+                    <span class="dropdown-item shortcut-item" data-short="h6">H6</span>
+                </ul>
+            </div>
+
+            <div class="sec-div col"></div>
+
+            <!-- Bold text -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/bold.svg' %}" alt="bold letter b" class="shortcut-item" data-short="bold" title="Bold text">
+            </div>
+
+            <!-- Italic text -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/italic.svg' %}" alt="italic letter i" class="shortcut-item" data-short="italic" title="Italicize text">
+            </div>
+
+            <!-- Strikethrough -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/strikethrough.svg' %}" alt="striked through t" class="shortcut-item" data-short="strike" title="Strike through text">
+            </div>
+
+            <div class="sec-div col"></div>
+
+            <!-- Text cases -->
+            <div class="dropdown shortcut-item-m col" title="Insert heading">
+                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{% static 'svg/editor/case.svg' %}" alt="">
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <span class="dropdown-item shortcut-item" data-short="case-u">UPPERCASE</span>
+                    <span class="dropdown-item shortcut-item" data-short="case-l">lower case</span>
+                    <span class="dropdown-item shortcut-item" data-short="case-s">Sentence case</span>
+                    <span class="dropdown-item shortcut-item" data-short="case-t">Title Case</span>
+                </ul>
+            </div>
+
+            <div class="sec-div col"></div>
+
+            <!-- Bullet list -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/list_bulleted.svg' %}" alt="list bullets" class="shortcut-item" data-short="bullets" title="Insert bullet list">
+            </div>
+
+            <!-- Numbered list -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/list_numbered.svg' %}" alt="numbered list" class="shortcut-item" data-short="numbers" title="Insert numbered list">
+            </div>
+
+            <div class="sec-div col"></div>
+
+            <!-- Link -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/insert_link.svg' %}" alt="chain icon" class="shortcut-item" data-short="link" title="Insert link">
+            </div>
+
+            <!-- Insert image -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/insert_photo.svg' %}" alt="image icon" class="shortcut-item" data-short="image" title="Insert image">
+            </div>
+
+            <div class="sec-div col"></div>
+
+            <!-- Add line -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/line.svg' %}" alt="pen drawing" class="shortcut-item" data-short="line" title="Insert line">
+            </div>
+
+            <!-- Quote -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/quote.svg' %}" alt="quotation marks" class="shortcut-item" data-short="quote" title="Insert blockquote">
+            </div>
+
+            <div class="sec-div col"></div>
+
+            <!-- Single line code -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/code.svg' %}" alt="Angle brackets" class="shortcut-item" data-short="s-code" title="Insert single line code">
+            </div>
+
+            <!-- Multiline code -->
+            <div class="shortcut-item-m col">
+                <img src="{% static 'svg/editor/code.svg' %}" alt="Angle brackets" class="shortcut-item" data-short="code" title="Insert multiline code" style="transform: rotate(90deg);">
+            </div>
+        </div>
+
+        <div class="row">
+            <textarea name="{{ widget.name }}" id="note-edit" cols="30" rows="10" class="form-control col-8">{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+            <div id="s-c" class="col-4">
+                <div id="s-c-c">
+                    <div class="dropdown" title="Insert heading">
+                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            Change editor font size (<span id="f-size">10</span>)
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="editor-size-change"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="preview" class="editor-tab">
+        <div id="js-preview-window"></div>
+    </div>
+
+    <div id="help" class="editor-tab">
+        <h2>Help</h2>
+        <p>Follow this <a href="" target="_blank">link</a> to see help in using the editor</p>
+    </div>
+</div>

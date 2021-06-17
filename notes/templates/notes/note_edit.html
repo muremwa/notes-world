@@ -2,37 +2,42 @@
 {% load staticfiles %}
 
 {% block title %}note-edit{% endblock title %}
-{% block style %}{{ form.media }}{% endblock style %}
+{% block style %}
+    {{ form.media.css }}
+    <link rel="stylesheet" type="text/css" href="{% static 'notes/css/note.css' %}"/>
+{% endblock style %}
 {% block notes %}active{% endblock notes %}
 
 
 {% block content %}
     <div class="container">
-        <div class="row">
-            <div class="col-sm-9">
-                {% if input_name == "new note" %}
-                    <h2>{{ input_name }}</h2>
+        {% if input_name == "new note" %}
+            <h2>{{ input_name }}</h2>
+            <div>
+                {% include "notes/note_edit_form.html" %}
+            </div>
+        {% else %}
+            {% if note.user.id == user.id %}
+                <h2>{{ input_name }}</h2>
+                <div>
+                    {% include "notes/note_edit_form.html" %}
+                </div>
+            {% else %}
+                {% if can_edit %}
+                    <h2>you are editing {{ note.user }}'s note ({{ note.title }})</h2>
                     <div>
-                        {% include "form_template.html" %}
+                        {% include "notes/note_edit_form.html" %}
                     </div>
                 {% else %}
-                    {% if note.user.id == user.id %}
-                        <h2>{{ input_name }}</h2>
-                        <div>
-                            {% include "form_template.html" %}
-                        </div>
-                    {% else %}
-                        {% if can_edit %}
-                            <h2>you are editing {{ note.user }}'s note ({{ note.title }})</h2>
-                            <div>
-                                {% include "form_template.html" %}
-                            </div>
-                        {% else %}
-                            {% include 'action_forbiden.html' %}
-                        {% endif %}
-                    {% endif %}
+                    {% include 'action_forbiden.html' %}
                 {% endif %}
-            </div>
-        </div>
+            {% endif %}
+        {% endif %}
     </div>
 {% endblock content %}
+
+
+{% block bottomScript %}
+    {{ form.media.js }}
+    <script src="{% static 'js/formTemplate.js' %}"></script>
+{% endblock bottomScript %}

@@ -269,28 +269,46 @@ edt.addEventListener('keydown', (event) => {
 /* 
     font size control
 */
-const sizeX = document.getElementById('f-size');
+const size = document.getElementById('editor-size-change');
+const sizeD = document.getElementById('f-size');
+let active = 10;
+let activeE;
 
-if (sizeX) {
-    const changeFontSize = (newValue, wh = edt, h = sizeX) => {
+if (size && edt && sizeD) {
+
+    // creates a dropdown item with a specific number on the size changer
+    const buildSize = (num = 7, home = size) => {
+        const item_ = document.createElement('span');
+        item_.innerText = num
+        item_.dataset.size = num;
+        item_.className = 'dropdown-item js-editor-size';
+
+        if (num === active) {
+            item_.classList.add('active');
+            activeE = item_;
+        };
+
+        home.appendChild(item_)
+    };
+
+    // create dropdown of sizes 7 to 20
+    Array.from(Array(20 - 6), (_, i) => i + 7).forEach((n) => buildSize(n, size));
+    
+    const changeFontSize = (newValue, wh = edt, h = sizeD) => {
         const nv = +newValue;
 
-        if (nv !== NaN && ((6 < nv) && (nv < 20))) {
+        if (nv !== NaN && ((6 < nv) && (nv < 21))) {
             wh.style.fontSize = `${nv}px`;
-            h.value = nv;
+            h.innerText = nv;
         };
     };
 
-    sizeX.addEventListener('change', (event) => {
-        event.preventDefault();
-        changeFontSize(event.target.value);
-    })
-
-    sizeX.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            changeFontSize(event.target.value);
-        }
+    [...document.getElementsByClassName('js-editor-size')].forEach((element) => {
+        element.addEventListener('click', (event_) => {
+            changeFontSize(event_.target.dataset.size, edt, sizeD);
+            activeE.classList.remove('active');
+            activeE = event_.target;
+            event_.target.classList.add('active');
+        });
     });
-
 };
