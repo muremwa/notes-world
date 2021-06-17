@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}note-edit{% endblock title %}
+{% block title %}editing {{ note.title }}{% endblock title %}
 {% block style %}
     {{ form.media.css }}
     <link rel="stylesheet" type="text/css" href="{% static 'notes/css/note.css' %}"/>
@@ -11,6 +11,7 @@
 
 {% block content %}
     <div class="container">
+        <a href="{{ note.get_absolute_url }}">Go to note</a>
         {% if input_name == "new note" %}
             <h2>{{ input_name }}</h2>
             <div>
