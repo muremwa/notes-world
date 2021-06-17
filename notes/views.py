@@ -61,7 +61,7 @@ class NoteIndex(generic.ListView):
                         tag_obj = Tag.objects.get(name=_tag)
                         sanitized_notes = filter(lambda note_: tag_obj in note_.tags.all(), sanitized_notes)
                     except ObjectDoesNotExist:
-                        pass
+                        sanitized_notes = []
 
         return sorted(sanitized_notes, key=lambda note_: note_.pk, reverse=True)
 
