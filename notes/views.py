@@ -1,6 +1,5 @@
 # other imports
 from itertools import chain
-from datetime import datetime
 from random import choices
 import re
 
@@ -16,6 +15,7 @@ from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.dispatch import Signal
 from django.http import Http404, HttpResponseForbidden
+from django.utils.timezone import now
 
 from markdown_deux import markdown
 
@@ -218,7 +218,7 @@ class NoteEdit(LoginRequiredMixin, generic.UpdateView):
         return super().get_success_url()
 
     def form_valid(self, form):
-        form.instance.last_modified = datetime.now()
+        form.instance.last_modified = now()
         form.instance.last_modifier = int(self.request.user.id)
         return super().form_valid(form)
 
@@ -379,7 +379,7 @@ class EditComment(CommentProcessing):
                 comment.original_comment = form.cleaned_data['comment']
                 post_process = self.mark(form.cleaned_data['comment'])
                 comment.comment_text = post_process['processed_comment']
-                comment.modified = datetime.now()
+                comment.modified = now()
                 comment.save()
                 notify = []
                 for user_ in post_process['mentioned']:
