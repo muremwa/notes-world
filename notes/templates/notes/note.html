@@ -42,7 +42,12 @@
                             <a style="margin-right: 1em;" href="#note-top"><button type="button" class="btn btn-outline-dark">Back to top</button></a>
                         </nav>
                         
-                        <div id="note-top" class="js-note">{{ note.content }}</div>
+                        <div id="note-top" class="js-note">
+                            <div class="text-center">
+                                <img src="{% static 'svg/200.gif' %}">
+                            </div>
+                            <input type="hidden" id="js-note-content" value="{{ note.content }}">
+                        </div>
                     </div>
                     <hr />
                     <div id="note-tags">

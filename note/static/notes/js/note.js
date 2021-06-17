@@ -2,11 +2,12 @@
 document.addEventListener('readystatechange', () => {
     if (document.readyState === 'complete') {
         const noteDiv = document.getElementById('note-top');
+        const noteContent = document.getElementById('js-note-content');
 
-        if (noteDiv) {
+        if (noteDiv && noteContent) {
             const paintEvent = new Event('paint');
             noteDiv.addEventListener('paint', (e) => loadNoteNav(e.target));
-            noteDiv.innerHTML = marked(noteDiv.innerHTML);
+            noteDiv.innerHTML = marked(noteContent.value);
             noteDiv.dispatchEvent(paintEvent);
         };
     };
