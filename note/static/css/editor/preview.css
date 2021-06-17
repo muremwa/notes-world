@@ -1,0 +1,16 @@
+#preview {
+    border: 1px solid #e5e5e5;
+    min-height: 70vh;
+}
+
+#js-preview-window {
+    border: 1px solid rgba(0, 0, 255, 0.055);
+    min-height: 70vh;
+    margin: 1em 1em 1em 1em;
+    padding: 0.3em;
+    overflow: hidden;
+}
+
+img {
+    max-width: 100%;
+}
