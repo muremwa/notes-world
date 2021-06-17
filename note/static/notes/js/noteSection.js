@@ -2,18 +2,27 @@
 function navPainter (items = []) {
     const noteNav = document.getElementById('note-nav-drop-down');
     const distances = new Map (Array.from(Array(6), (x, i) => [`H${1+i}`, i*15]));
+    const sectionClick = new Event('sectionClick');
+    let ac;
 
-    const htmlText = items.map((item, i) => {
-        let navText = `<a class="dropdown-item" href="${item.link}" style="padding-left: ${distances.get(item.tag)+3}px;">${item.name}</a>`;
-
-        if (i > 0) {
-            navText = '<div class="dropdown-divider stupid-divider"></div>' + navText;
-        };
-
-        return navText;
+    noteNav.innerHTML = '';
+    items.forEach((item) => {
+        const nav = document.createElement('a');
+        nav.className = "dropdown-item";
+        nav.href = item.link;
+        nav.style.paddingLeft = `${distances.get(item.tag) + 3}px`;
+        noteNav.appendChild(nav);
+        nav.innerText = item.name;
+        nav.addEventListener('sectionClick', (event_) => {
+            ac? ac.classList.remove('active'): void 0;
+            event_.target.classList.add('active');
+            ac = event_.target;
+        });
+        nav.addEventListener('click', () => nav.dispatchEvent(sectionClick));
+        const divider = document.createElement('div');
+        divider.className = "dropdown-divider stupid-divider";
+        noteNav.appendChild(divider);
     });
-
-    noteNav.innerHTML = htmlText.join(' ');
 };
 
 
@@ -47,3 +56,5 @@ function loadNoteNav (noteDiv) {
         document.getElementById('note-sections-nav').classList.remove('sticky-top')
     };
 }
+
+
