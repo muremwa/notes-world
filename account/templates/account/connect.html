@@ -31,22 +31,26 @@
             {% endif %}
 
             <!-- Connection suggestions -->
-            <h2>choose other users to connect with</h2>
-            {% for friend in suggestions %}
-            <div class="row user">
-                <div class="usr-img-d">
-                    <img class="user-img" alt="image of {{ friend.username }}" src="{{ friend.profile.image.url }}">
+            {% if suggestions %}
+                <h2>choose other users to connect with</h2>
+                {% for friend in suggestions %}
+                <div class="row user">
+                    <div class="usr-img-d">
+                        <img class="user-img" alt="image of {{ friend.username }}" src="{{ friend.profile.image.url }}">
+                    </div>
+                    <div class="user-info">
+                        <span class="text-info">{{ friend.first_name }} {{ friend.last_name }}</span><br />
+                        <a href="{% url 'base_account:foreign-user' friend.id %}">@{{ friend }}</a>
+                    </div>
+                    <div class="action-btn">
+                        <button type="submit" class="btn btn-outline-info connect-button js-action-btn" data-request-type="send" data-action-url="{% url 'base_account:connect' friend.id %}">connect</button>
+                    </div>
                 </div>
-                <div class="user-info">
-                    <span class="text-info">{{ friend.first_name }} {{ friend.last_name }}</span><br />
-                    <a href="{% url 'base_account:foreign-user' friend.id %}">@{{ friend }}</a>
-                </div>
-                <div class="action-btn">
-                    <button type="submit" class="btn btn-outline-info connect-button js-action-btn" data-request-type="send" data-action-url="{% url 'base_account:connect' friend.id %}">connect</button>
-                </div>
-            </div>
-            <hr>
-            {% endfor %}
+                <hr>
+                {% endfor %}
+            {% else %}
+                <h2>no users to connect with available</h2>
+            {% endif %}
         </div>
         <div class="col-sm-6">
             {% if requests %}
