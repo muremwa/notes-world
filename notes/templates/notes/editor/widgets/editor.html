@@ -1,19 +1,24 @@
 {% load staticfiles %}
 
 <div id="editor-grp">
-    <ul id="nav-tabs-sec" class="nav nav-tabs">
-        <!-- The ids of the anchor tags should never start with the same letter ever! -->
-        <li class="nav-item">
-            <a class="nav-link tab-nav active" href="#" data-section-to="editor" data-section-from="" id="editor-open">Editor</a>
-        </li>
+    <div class="row">
+        <ul id="nav-tabs-sec" class="nav nav-tabs col-md-10">
+            <!-- The ids of the anchor tags should never start with the same letter ever! -->
+            <li class="nav-item">
+                <span class="nav-link tab-nav active" data-section-to="editor" data-section-from="" id="editor-open">Editor</span>
+            </li>
 
-        <li class="nav-item">
-            <a class="nav-link tab-nav" href="#" data-section-to="preview" data-section-from="" id="preview-open">Preview</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link tab-nav" href="#" data-section-to="help" data-section-from="" id="help-open">Help</a>
-        </li>
-    </ul>
+            <li class="nav-item">
+                <span class="nav-link tab-nav" data-section-to="preview" data-section-from="" id="preview-open">Preview</span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-link tab-nav" data-section-to="help" data-section-from="" id="help-open">Help</span>
+            </li>
+        </ul>
+        <span class="fullscreen-home col-md-2">
+            <img title="Enter fullscreen" id="fullscreen-toogle" src="{% static 'svg/editor/fullscreen.svg' %}" data-enter-icon="{% static 'svg/editor/fullscreen.svg' %}" data-exit-icon="{% static 'svg/editor/fullscreen_exit.svg' %}" data-state="0">
+        </span>
+    </div>
 
     <div id="editor" class="editor-tab editor-tab-active">
         <div class="row sticky-top" id="shorcut-sections">
@@ -115,12 +120,12 @@
         </div>
 
         <div class="row">
-            <textarea name="{{ widget.name }}" id="note-edit" cols="30" rows="10" class="form-control col-8">{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+            <textarea name="{{ widget.name }}" id="text-edit" cols="30" rows="10" class="form-control col-8">{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
             <div id="s-c" class="col-4">
                 <div id="s-c-c">
                     <div class="dropdown" title="Insert heading">
                         <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Change editor font size (<span id="f-size">10</span>)
+                            Change editor font size (<span id="f-size">14</span>)
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="editor-size-change"></ul>
                     </div>

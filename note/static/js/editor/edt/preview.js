@@ -3,7 +3,7 @@
     Requires markedJS
 */
 
-const txt = document.getElementById('note-edit');
+const txt = document.getElementById('text-edit');
 const preSect = document.getElementById('js-preview-window');
 
 const previewContent = (md = txt.value? txt.value: '', sect = preSect) => {

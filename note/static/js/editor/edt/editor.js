@@ -168,7 +168,7 @@ const _actions = new Map ([
 /* 
     Editor caret selecetion and text input
 */
-const edt = document.getElementById('note-edit');
+const edt = document.getElementById('text-edit');
 
 
 // get the position of the cursor on the textarea
@@ -271,10 +271,19 @@ edt.addEventListener('keydown', (event) => {
 */
 const size = document.getElementById('editor-size-change');
 const sizeD = document.getElementById('f-size');
-let active = 10;
+const sizeDVal = parseInt(sizeD.innerText);
+let active = sizeDVal === NaN? 10: sizeDVal;
 let activeE;
 
-if (size && edt && sizeD) {
+if (size && edt && sizeD) {    
+    const changeFontSize = (newValue, wh = edt, h = sizeD) => {
+        const nv = +newValue;
+
+        if (nv !== NaN && ((6 < nv) && (nv < 21))) {
+            wh.style.fontSize = `${nv}px`;
+            h.innerText = nv;
+        };
+    };
 
     // creates a dropdown item with a specific number on the size changer
     const buildSize = (num = 7, home = size) => {
@@ -286,6 +295,7 @@ if (size && edt && sizeD) {
         if (num === active) {
             item_.classList.add('active');
             activeE = item_;
+            changeFontSize(num, edt, sizeD);
         };
 
         home.appendChild(item_)
@@ -293,15 +303,6 @@ if (size && edt && sizeD) {
 
     // create dropdown of sizes 7 to 20
     Array.from(Array(20 - 6), (_, i) => i + 7).forEach((n) => buildSize(n, size));
-    
-    const changeFontSize = (newValue, wh = edt, h = sizeD) => {
-        const nv = +newValue;
-
-        if (nv !== NaN && ((6 < nv) && (nv < 21))) {
-            wh.style.fontSize = `${nv}px`;
-            h.innerText = nv;
-        };
-    };
 
     [...document.getElementsByClassName('js-editor-size')].forEach((element) => {
         element.addEventListener('click', (event_) => {
@@ -312,3 +313,28 @@ if (size && edt && sizeD) {
         });
     });
 };
+
+
+// make editor fullscreen
+const textHome = document.getElementById('editor-grp');
+const fullScreenToogle = document.getElementById('fullscreen-toogle');
+
+
+if (textHome && fullScreenToogle) {
+    fullScreenToogle.addEventListener('click', () => {
+        const fullScreenState = fullScreenToogle.dataset.state? parseInt(fullScreenToogle.dataset.state): null;
+        
+        if (fullScreenState === 1) {
+            fullScreenToogle.src = fullScreenToogle.dataset.enterIcon;
+            fullScreenToogle.dataset.state = 0;
+            fullScreenToogle.title = "Enter fullscreen"
+            textHome.classList.remove('fsx')
+        } else if (fullScreenState === 0) {
+            fullScreenToogle.src = fullScreenToogle.dataset.exitIcon;
+            fullScreenToogle.dataset.state = 1;
+            fullScreenToogle.title = "Exit fullscreen"
+            textHome.classList.add('fsx')
+        }
+    });
+};
+
