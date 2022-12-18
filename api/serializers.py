@@ -69,3 +69,12 @@ class ApiUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'full_name', 'profile')
+
+
+class ApiNoteSerializer(serializers.ModelSerializer):
+    note = serializers.CharField(source='title')
+    user = ApiUserSerializer(many=False)
+
+    class Meta:
+        model = Note
+        fields = ('id', 'note', 'user',)
