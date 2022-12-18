@@ -60,3 +60,12 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'note', 'user', 'original_comment', 'created')
+
+
+class ApiUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source='get_full_name')
+    profile = serializers.ImageField(source='profile.image')
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'full_name', 'profile')
