@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from rest_framework import views, generics
 from rest_framework import status
 from django.http import Http404
+from django.utils import timezone
 
 from .serializers import NotesSerializer, NoteSerializer, UserSerializer, ApiUserSerializer, ApiNoteSerializer, \
     ApiCommentSerializer
@@ -68,6 +69,7 @@ class NoteCreationApi(views.APIView):
         })
 
 
+# TODO: DEPRECATE
 class AllComments(views.APIView, CommentProcessor):
     @staticmethod
     def shape(comment, user_id, host):
@@ -135,6 +137,7 @@ class AllComments(views.APIView, CommentProcessor):
         })
 
 
+# TODO: DEPRECATE
 @api_view(['POST'])
 def comment_actions(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
@@ -242,3 +245,55 @@ class AllCommentsV2(views.APIView, CommentProcessor):
             })
 
         return Response(response, status=res_status)
+
+
+@api_view(['DELETE', 'PATCH'])
+def comment_actions_v2(request, comment_pk):
+    response = {'success': False}
+    res_status = status.HTTP_403_FORBIDDEN
+    comment = get_object_or_404(Comment, pk=comment_pk)
+
+    # update a comment
+    if request.method == 'PATCH':
+        if request.user == comment.user:
+            posted_comment = request.data.get('comment')
+
+            if posted_comment:
+                processor = CommentProcessor()
+                processed_comment = processor.mark(posted_comment)
+                comment.original_comment = posted_comment
+                comment.comment_text = processed_comment.get('processed_comment')
+                comment.modified = timezone.now()
+                comment.save()
+                notify = []
+
+                # add mentioned users
+                for mentioned in processed_comment.get('mentioned'):
+                    if mentioned.profile not in comment.mentioned.all():
+                        comment.mentioned.add(mentioned.profile)
+                        notify.append(mentioned)
+
+                # notify new mentioned users
+                if notify:
+                    notes_signal.send(comment_actions, comment=comment, mentioned=notify)
+
+                response.update({
+                    'success': True,
+                    'comment': ApiCommentSerializer(comment).data
+                })
+
+            else:
+                res_status = status.HTTP_400_BAD_REQUEST
+                response.update({
+                    'success': False,
+                    'message': 'Missing data \'comment\'.'
+                })
+
+    # delete a comment
+    elif request.method == 'DELETE':
+        if request.user == comment.user or request.user == comment.note.user:
+            comment.delete()
+            res_status = status.HTTP_200_OK
+            response.update({'success': True})
+
+    return Response(response, status=res_status)
