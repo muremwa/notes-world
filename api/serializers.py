@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth.models import User
+
+from account.models import Profile
 from notes.models import Note, Comment
 
 
@@ -71,10 +73,39 @@ class ApiUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'full_name', 'profile')
 
 
+class ApiProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    user_id = serializers.IntegerField(source='pk')
+
+    class Meta:
+        model = Profile
+        fields = ('username', 'user_id')
+
+
+class ApiCommentSerializer(serializers.ModelSerializer):
+    comment_id = serializers.IntegerField(source='pk')
+    key = serializers.FloatField(source='stamp')
+    user = ApiUserSerializer(many=False)
+    mentioned = ApiProfileSerializer(many=True)
+    time = serializers.CharField(source='get_created')
+    text = serializers.CharField(source='original_comment')
+    edited = serializers.BooleanField(source='is_modified')
+    replies = serializers.IntegerField(source='reply_set.count')
+    reply_url = serializers.URLField()
+    action_url = serializers.URLField()
+
+    class Meta:
+        model = Comment
+        fields = (
+            'comment_id', 'key', 'user', 'time', 'text', 'edited', 'replies', 'reply_url', 'action_url', 'mentioned',
+        )
+
+
 class ApiNoteSerializer(serializers.ModelSerializer):
     note = serializers.CharField(source='title')
     user = ApiUserSerializer(many=False)
+    comments = ApiCommentSerializer(many=True)
 
     class Meta:
         model = Note
-        fields = ('id', 'note', 'user',)
+        fields = ('id', 'note', 'user', 'comments')

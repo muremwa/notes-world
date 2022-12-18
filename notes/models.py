@@ -106,6 +106,18 @@ class Comment(models.Model):
         else:
             return False
 
+    @property
+    def stamp(self):
+        return self.modified.timestamp() if self.is_modified() else self.created.timestamp()
+
+    @property
+    def reply_url(self):
+        return reverse('notes:reply-comment', kwargs={'comment_id': str(self.pk)})
+
+    @property
+    def action_url(self):
+        return reverse('api:comment-actions', kwargs={'pk': str(self.pk)})
+
     def __str__(self):
         return "comment by {} on {}".format(self.user, self.note)
 
