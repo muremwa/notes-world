@@ -9,7 +9,8 @@ from rest_framework import views, generics
 from rest_framework import status
 from django.http import Http404
 
-from .serializers import NotesSerializer, NoteSerializer, UserSerializer, ApiUserSerializer, ApiNoteSerializer
+from .serializers import NotesSerializer, NoteSerializer, UserSerializer, ApiUserSerializer, ApiNoteSerializer, \
+    ApiCommentSerializer
 from notes.views import CommentProcessor, notes_signal
 from notes.models import Note, Comment
 
@@ -205,3 +206,39 @@ class AllCommentsV2(views.APIView, CommentProcessor):
             'current_user': ApiUserSerializer(self.request.user).data,
             'notes_info': ApiNoteSerializer(note).data
         })
+
+    def post(self, *args, **kwargs):
+        response = {'success': False}
+        res_status = status.HTTP_400_BAD_REQUEST
+        note = get_object_or_404(Note, pk=kwargs.get('note_pk'))
+        posted_comment = self.request.data.get('comment')
+
+        if posted_comment:
+            processed_comment = self.mark(posted_comment)
+            comment = Comment.objects.create(
+                note=note,
+                user=self.request.user,
+                comment_text=processed_comment.get('processed_comment'),
+                original_comment=posted_comment
+            )
+
+            # add mentioned
+            for mentioned_user in processed_comment.get('mentioned'):
+                comment.mentioned.add(mentioned_user.profile)
+
+            # notify mentioned
+            notes_signal.send(self.__class__, comment=comment, mentioned=processed_comment.get('mentioned'))
+
+            res_status = status.HTTP_201_CREATED
+            response.update({
+                'success': True,
+                'comment': ApiCommentSerializer(comment).data
+            })
+
+        else:
+            response.update({
+                'success': False,
+                'message': 'Missing data \'comment\''
+            })
+
+        return Response(response, status=res_status)
