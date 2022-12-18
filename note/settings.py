@@ -153,3 +153,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 # comment out when debug is True
 # STATIC_ROOT = os.path.join(BASE_DIR, 'note/static')
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

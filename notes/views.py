@@ -25,7 +25,7 @@ from account.models import Connection, Profile
 from .models import Note, Comment, Reply, Tag
 
 
-notes_signal = Signal(providing_args=['note', 'user', 'comment', 'reply', 'mentioned'])
+notes_signal = Signal(['note', 'user', 'comment', 'reply', 'mentioned'])
 
 
 # all user notes

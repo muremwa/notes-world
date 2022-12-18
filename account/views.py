@@ -21,7 +21,7 @@ from django.contrib.auth.models import User
 # sign ups
 from django.contrib.auth import authenticate, login
 
-account_signal = Signal(providing_args=['connection', ])
+account_signal = Signal(['connection', ])
 
 
 # account page

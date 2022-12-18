@@ -3,7 +3,7 @@ import re
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth.models import User
 from notes.models import Note, Comment

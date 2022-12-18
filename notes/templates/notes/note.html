@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 
 {% block title %}
     {% if user == note.user or note.privacy == "PB" or connected_note %}
