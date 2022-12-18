@@ -76,10 +76,11 @@ class ApiUserSerializer(serializers.ModelSerializer):
 class ApiProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     user_id = serializers.IntegerField(source='pk')
+    profile_url = serializers.URLField(source='get_absolute_url')
 
     class Meta:
         model = Profile
-        fields = ('username', 'user_id')
+        fields = ('username', 'user_id', 'profile_url')
 
 
 class ApiCommentSerializer(serializers.ModelSerializer):
@@ -104,7 +105,7 @@ class ApiCommentSerializer(serializers.ModelSerializer):
 class ApiNoteSerializer(serializers.ModelSerializer):
     note = serializers.CharField(source='title')
     user = ApiUserSerializer(many=False)
-    comments = ApiCommentSerializer(many=True)
+    comments = ApiCommentSerializer(many=True, source='comment_set')
 
     class Meta:
         model = Note

@@ -9,7 +9,7 @@ from rest_framework import views, generics
 from rest_framework import status
 from django.http import Http404
 
-from .serializers import NotesSerializer, NoteSerializer, UserSerializer
+from .serializers import NotesSerializer, NoteSerializer, UserSerializer, ApiUserSerializer, ApiNoteSerializer
 from notes.views import CommentProcessor, notes_signal
 from notes.models import Note, Comment
 
@@ -136,7 +136,7 @@ class AllComments(views.APIView, CommentProcessor):
 
 @api_view(['POST'])
 def comment_actions(request, pk):
-    comment = comment = get_object_or_404(Comment, pk=pk)
+    comment = get_object_or_404(Comment, pk=pk)
     response = Response(status=status.HTTP_403_FORBIDDEN)
 
     if 'HTTP_X_HTTP_METHOD_OVERRIDE' in request.META:
@@ -195,3 +195,13 @@ def get_user(request):
         return render(request, 'notes/user_not_found.html', {'failed_user': username_query})
 
     return redirect(reverse('base_account:foreign-user', kwargs={'user_id': str(ava_users[0].pk)}))
+
+
+class AllCommentsV2(views.APIView, CommentProcessor):
+
+    def get(self, *args, **kwargs):
+        note = Note.objects.get(pk=kwargs.get('note_pk'))
+        return Response({
+            'current_user': ApiUserSerializer(self.request.user).data,
+            'notes_info': ApiNoteSerializer(note).data
+        })
