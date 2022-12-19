@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if re.search(r'@', data.get('username', '')):
             raise ValidationError(_('no @ signs on username'), code="at_sign")
-        
+
         if data.get('email', None) is None:
             raise ValidationError(_('Email field is missing'), code='email-mia')
 
@@ -67,10 +67,18 @@ class CommentSerializer(serializers.ModelSerializer):
 class ApiUserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source='get_full_name')
     profile = serializers.ImageField(source='profile.image')
+    token = serializers.CharField(source='auth_token.key')
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'profile')
+        fields = ('id', 'username', 'full_name', 'profile', 'token')
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('token'):
+            kwargs.pop('token')
+        else:
+            self.fields.pop('token')
+        super().__init__(*args, **kwargs)
 
 
 class ApiProfileSerializer(serializers.ModelSerializer):

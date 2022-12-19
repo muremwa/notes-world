@@ -206,7 +206,7 @@ class AllCommentsV2(views.APIView, CommentProcessor):
     def get(self, *args, **kwargs):
         note = Note.objects.get(pk=kwargs.get('note_pk'))
         return Response({
-            'current_user': ApiUserSerializer(self.request.user).data,
+            'current_user': ApiUserSerializer(self.request.user, token=True).data,
             'notes_info': ApiNoteSerializer(note).data
         })
 
