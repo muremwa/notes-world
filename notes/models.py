@@ -116,7 +116,7 @@ class Comment(models.Model):
 
     @property
     def action_url(self):
-        return reverse('api:comment-actions', kwargs={'pk': str(self.pk)})
+        return reverse('api:comment-actions-v2', kwargs={'pk': str(self.pk)})
 
     def __str__(self):
         return "comment by {} on {}".format(self.user, self.note)
