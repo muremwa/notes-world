@@ -31,8 +31,8 @@ urlpatterns = [
     # api/comment/4/actions/
     path('comment/<int:pk>/actions/', views.comment_actions, name='comment-actions'),
 
-    # api/comment/4/actions/v2/
-    path('comment/<int:comment_pk>/actions/v2/', views.comment_actions_v2, name='comment-actions-v2'),
+    # api/v2/comment/4/actions/
+    path('v2/comment/<int:comment_pk>/actions/', views.comment_actions_v2, name='comment-actions-v2'),
 
     # user/get/
     path('user/get/', views.get_user, name='get-user'),
