@@ -1,5 +1,6 @@
 from datetime import datetime
 from itertools import chain
+from typing import Dict
 
 from django.shortcuts import get_object_or_404, redirect, reverse, render
 from rest_framework.decorators import api_view
@@ -9,6 +10,7 @@ from rest_framework import views, generics
 from rest_framework import status
 from django.http import Http404
 from django.utils import timezone
+from rest_framework.authtoken.models import Token
 
 from .serializers import NotesSerializer, NoteSerializer, UserSerializer, ApiUserSerializer, ApiNoteSerializer, \
     ApiCommentSerializer
@@ -203,10 +205,21 @@ def get_user(request):
 
 class AllCommentsV2(views.APIView, CommentProcessor):
 
+    def process_token(self, serial_data: Dict) -> Dict:
+        """
+        This checks whether there is a token on the user; if not a new one is created
+        """
+        if serial_data.get('token') is None:
+            new_token = Token.objects.create(user_id=self.request.user.pk)
+            serial_data.update({
+                'token': new_token.key
+            })
+        return serial_data
+
     def get(self, *args, **kwargs):
         note = Note.objects.get(pk=kwargs.get('note_pk'))
         return Response({
-            'current_user': ApiUserSerializer(self.request.user, token=True).data,
+            'current_user': self.process_token(ApiUserSerializer(self.request.user, token=True).data),
             'notes_info': ApiNoteSerializer(note).data
         })
 
