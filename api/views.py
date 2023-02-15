@@ -277,6 +277,7 @@ def comment_actions_v2(request, comment_pk):
                 if notify:
                     notes_signal.send(comment_actions, comment=comment, mentioned=notify)
 
+                res_status = status.HTTP_200_OK
                 response.update({
                     'success': True,
                     'comment': ApiCommentSerializer(comment).data
@@ -294,6 +295,6 @@ def comment_actions_v2(request, comment_pk):
         if request.user == comment.user or request.user == comment.note.user:
             comment.delete()
             res_status = status.HTTP_200_OK
-            response.update({'success': True})
+            response.update({'success': True, 'comment_id': comment_pk})
 
     return Response(response, status=res_status)

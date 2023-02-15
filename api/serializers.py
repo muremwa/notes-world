@@ -94,6 +94,7 @@ class ApiProfileSerializer(serializers.ModelSerializer):
 class ApiCommentSerializer(serializers.ModelSerializer):
     comment_id = serializers.IntegerField(source='pk')
     key = serializers.FloatField(source='stamp')
+    created = serializers.FloatField(source='created_stamp')
     user = ApiUserSerializer(many=False)
     mentioned = ApiProfileSerializer(many=True)
     time = serializers.CharField(source='get_created')
@@ -106,7 +107,8 @@ class ApiCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = (
-            'comment_id', 'key', 'user', 'time', 'text', 'edited', 'replies', 'reply_url', 'action_url', 'mentioned',
+            'comment_id', 'key', 'user', 'time', 'text', 'edited', 'replies',
+            'reply_url', 'action_url', 'mentioned', 'created'
         )
 
 

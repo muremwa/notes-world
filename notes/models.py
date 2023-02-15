@@ -111,6 +111,10 @@ class Comment(models.Model):
         return self.modified.timestamp() if self.is_modified() else self.created.timestamp()
 
     @property
+    def created_stamp(self):
+        return self.created.timestamp()
+
+    @property
     def reply_url(self):
         return reverse('notes:reply-comment', kwargs={'comment_id': str(self.pk)})
 
