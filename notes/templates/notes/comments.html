@@ -1,8 +1,8 @@
 <!-- Comments -->
 <div id="comments">
     {% if not normal_comment_section %}
-        {% csrf_token %}
-        <div id="comment-zone" data-comments-url="{% url 'api:comments' note.pk %}" data-search-user-url="{% url 'api:get-user' %}"></div>
+        <div id="comment-zone" data-comments-url="{% url 'api:comments-v2' note.pk %}"></div>
+
         <div class="text-center">
             <p>Your are using the <strong>new comment section</strong>. To opt out <a href="?normal_comment_section=1">click here</a>. You can opt in any time.</p>
         </div>

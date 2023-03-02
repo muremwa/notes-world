@@ -12,10 +12,17 @@
 {% block style %}
     <link rel="stylesheet" type="text/css" href="{% static 'notes/css/note.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'notes/css/pill.css' %}"/>
+
+    {% if not normal_comment_section %}
+        {#  React comment section style   #}
+        <link rel="stylesheet" href="{% static 'notes/css/comment-section/main.dca3aaa5.css' %}">
+    {% endif %}
 {% endblock style %}
+
 {% block topScript %}
-<script src="{% static 'notes/js/marked.min.js' %}"></script>
+    <script src="{% static 'notes/js/marked.min.js' %}"></script>
 {% endblock topScript %}
+
 {% block notes %}active{% endblock notes %}
 
 {% block content %}
@@ -44,7 +51,7 @@
                         
                         <div id="note-top" class="js-note">
                             <div class="text-center">
-                                <img src="{% static 'svg/200.gif' %}">
+                                <img alt="loading gif" src="{% static 'svg/200.gif' %}">
                             </div>
                             <input type="hidden" id="js-note-content" value="{{ note.content }}">
                         </div>
@@ -68,7 +75,7 @@
                 <div class="col-sm-4">
                     <div class="align-content-center">
                         {% if note.collaborative %}
-                        <span>Collabrators</span>
+                        <span>Collaborators</span>
                         <ul>
                             {% if collaborators %}
                                 {% for c in collaborators %}
@@ -131,11 +138,11 @@
 {% endblock content %}
 
 {% block bottomScript %}
-{% if not normal_comment_section %}
-    <script>!function(l){function e(e){for(var r,t,n=e[0],o=e[1],u=e[2],f=0,i=[];f<n.length;f++)t=n[f],p[t]&&i.push(p[t][0]),p[t]=0;for(r in o)Object.prototype.hasOwnProperty.call(o,r)&&(l[r]=o[r]);for(s&&s(e);i.length;)i.shift()();return c.push.apply(c,u||[]),a()}function a(){for(var e,r=0;r<c.length;r++){for(var t=c[r],n=!0,o=1;o<t.length;o++){var u=t[o];0!==p[u]&&(n=!1)}n&&(c.splice(r--,1),e=f(f.s=t[0]))}return e}var t={},p={2:0},c=[];function f(e){if(t[e])return t[e].exports;var r=t[e]={i:e,l:!1,exports:{}};return l[e].call(r.exports,r,r.exports,f),r.l=!0,r.exports}f.m=l,f.c=t,f.d=function(e,r,t){f.o(e,r)||Object.defineProperty(e,r,{enumerable:!0,get:t})},f.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},f.t=function(r,e){if(1&e&&(r=f(r)),8&e)return r;if(4&e&&"object"==typeof r&&r&&r.__esModule)return r;var t=Object.create(null);if(f.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:r}),2&e&&"string"!=typeof r)for(var n in r)f.d(t,n,function(e){return r[e]}.bind(null,n));return t},f.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return f.d(r,"a",r),r},f.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},f.p="./";var r=window.webpackJsonp=window.webpackJsonp||[],n=r.push.bind(r);r.push=e,r=r.slice();for(var o=0;o<r.length;o++)e(r[o]);var s=n;a()}([])</script>
-    <script src="{% static 'notes/js/comment-section/1.e01e3c76.chunk.js' %}"></script>
-    <script src="{% static 'notes/js/comment-section/main.c6f4d957.chunk.js' %}"></script>
-{% endif %}
-<script src="{% static 'notes/js/note.js' %}"></script>
-<script src="{% static 'notes/js/noteSection.js' %}"></script>
+    {% if not normal_comment_section %}
+        {#  React comment section files      #}
+        <script src="{% static 'notes/js/comment-section/main.8ee60cc3.js' %}"></script>
+    {% endif %}
+
+    <script src="{% static 'notes/js/note.js' %}"></script>
+    <script src="{% static 'notes/js/noteSection.js' %}"></script>
 {% endblock bottomScript %}
