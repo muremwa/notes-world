@@ -21,15 +21,8 @@ urlpatterns = [
     # api/create_note/
     path('create_note/', views.NoteCreationApi.as_view(), name="create-note"),
 
-    # TODO: DEPRECATE
-    # api/comments/
-    path('<int:pk>/comments/', views.AllComments.as_view(), name='comments'),
-
     # api/v2/33/comments/
     path('v2/<int:note_pk>/comments/', views.AllCommentsV2.as_view(), name='comments-v2'),
-
-    # api/comment/4/actions/
-    path('comment/<int:pk>/actions/', views.comment_actions, name='comment-actions'),
 
     # api/v2/comment/4/actions/
     path('v2/comment/<int:comment_pk>/actions/', views.comment_actions_v2, name='comment-actions-v2'),

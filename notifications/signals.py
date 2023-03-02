@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 
 from notes.views import add_collaborator, notes_signal, CommentProcessing, EditComment, CommentReply, ReplyActions
-from api.views import AllComments, comment_actions, AllCommentsV2
+from api.views import comment_actions_v2, AllCommentsV2
 from account.views import accept, account_signal
 from notes.models import Comment, Reply
 from account.models import Connection
@@ -52,21 +52,10 @@ def notify_mention_middle(type_, users, obj, url, **kwargs):
 
 
 def notify_mention_top(type_, mentioned, location_url, **kwargs):
-    if type_ in [CommentProcessing, EditComment, AllComments, AllCommentsV2, comment_actions]:
+    if type_ in [CommentProcessing, EditComment, AllCommentsV2, comment_actions_v2]:
         notify_mention_middle('comment', mentioned, kwargs['comment'], location_url, to_what=kwargs['comment'].note)
     elif type_ == CommentReply or type_ == ReplyActions:
         notify_mention_middle('reply', mentioned, kwargs['reply'], location_url, to_what=kwargs['reply'].comment)
-
-
-# notify a user they have been mentioned using create through the API app
-# TODO: DEPRECATE
-@receiver(notes_signal, sender=AllComments)
-def notify_mentioning_comment_creation_api(sender, **kwargs):
-    type_ = sender
-    comment = kwargs.get('comment', None)
-    mentioned = kwargs.get('mentioned')
-    url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
-    notify_mention_top(type_, mentioned, url, comment=comment)
 
 
 @receiver(notes_signal, sender=AllCommentsV2)
@@ -79,7 +68,7 @@ def notify_mentioning_comment_creation_api_v2(sender, **kwargs):
 
 
 # notify a user they have been mentioned using edit through the API app
-@receiver(notes_signal, sender=comment_actions)
+@receiver(notes_signal, sender=comment_actions_v2)
 def notify_mentioning_comment_api(sender, **kwargs):
     type_ = sender
     comment = kwargs.get('comment', None)
