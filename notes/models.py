@@ -122,6 +122,9 @@ class Comment(models.Model):
     def action_url(self):
         return reverse('api:comment-actions-v2', kwargs={'comment_pk': str(self.pk)})
 
+    def get_absolute_url(self):
+        return f"{reverse('notes:note-page', args=[str(self.note.pk)])}#comment{self.pk}"
+
     def __str__(self):
         return "comment by {} on {}".format(self.user, self.note)
 
@@ -142,6 +145,9 @@ class Reply(models.Model):
 
     def get_created(self):
         return f'{timesince(self.created)} ago'
+
+    def get_absolute_url(self):
+        return f"{reverse('notes:reply-comment', args=[str(self.comment.pk)])}#reply{self.pk}"
 
     def __str__(self):
         return "Reply by {} to {}".format(self.user, self.comment)

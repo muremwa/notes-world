@@ -1,4 +1,7 @@
+from typing import List
+
 from django.db.models.signals import post_save
+from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.urls import reverse
 
@@ -36,85 +39,35 @@ def notify_new_reply(sender, instance, **kwargs):
             )
 
 
-def notify_mention_now(user, message, url):
-    Notification.objects.create(
-        to_user=user,
-        message=message,
-        url=url
-    )
-
-
-def notify_mention_middle(type_, users, obj, url, **kwargs):
-    for user in users:
-        to = user
-        message = "{} mentioned you in their {} on {}".format(obj.user.get_full_name(), type_, kwargs['to_what'])
-        notify_mention_now(to, message, url)
-
-
-def notify_mention_top(type_, mentioned, location_url, **kwargs):
-    if type_ in [CommentProcessing, EditComment, AllCommentsV2, comment_actions_v2]:
-        notify_mention_middle('comment', mentioned, kwargs['comment'], location_url, to_what=kwargs['comment'].note)
-    elif type_ == CommentReply or type_ == ReplyActions:
-        notify_mention_middle('reply', mentioned, kwargs['reply'], location_url, to_what=kwargs['reply'].comment)
-
-
-@receiver(notes_signal, sender=AllCommentsV2)
-def notify_mentioning_comment_creation_api_v2(sender, **kwargs):
-    type_ = sender
-    comment = kwargs.get('comment', None)
-    mentioned = kwargs.get('mentioned')
-    url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
-    notify_mention_top(type_, mentioned, url, comment=comment)
-
-
-# notify a user they have been mentioned using edit through the API app
-@receiver(notes_signal, sender=comment_actions_v2)
-def notify_mentioning_comment_api(sender, **kwargs):
-    type_ = sender
-    comment = kwargs.get('comment', None)
-    mentioned = kwargs.get('mentioned')
-    url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
-    notify_mention_top(type_, mentioned, url, comment=comment)
-
-
-# notify a user they have been mentioned in a comment
-@receiver(notes_signal, sender=CommentProcessing)
-def notify_mentioning_comment(sender, **kwargs):
-    type_ = sender
-    comment = kwargs['comment']
-    mentioned = kwargs['mentioned']
-    url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
-    notify_mention_top(type_, mentioned, url, comment=comment)
-
-
-# notify a user they have been mentioned in an edited comment
-@receiver(notes_signal, sender=EditComment)
-def notify_mentioning_comment_edit(sender, **kwargs):
-    type_ = sender
-    comment = kwargs['comment']
-    mentioned = kwargs['mentioned']
-    url = reverse("notes:note-page", args=[str(comment.note.id)])+"#comment"+str(comment.id)
-    notify_mention_top(type_, mentioned, url, comment=comment)
-
-
-# notify a user they have been mentioned in a reply
-@receiver(notes_signal, sender=CommentReply)
-def notify_mentioning_reply(sender, **kwargs):
-    type_ = sender
-    reply = kwargs['reply']
-    mentioned = kwargs['mentioned']
-    url = reverse("notes:reply-comment", args=[str(reply.comment.id)])+"#reply"+str(reply.id)
-    notify_mention_top(type_, mentioned, url, reply=reply)
-
-
-# notify a user they have been mentioned in an edited reply
+# create notifications for mentioning on comments or replies
 @receiver(notes_signal, sender=ReplyActions)
-def notify_mentioning_reply(sender, **kwargs):
-    type_ = sender
-    reply = kwargs['reply']
-    mentioned = kwargs['mentioned']
-    url = reverse("notes:reply-comment", args=[str(reply.comment.id)])+"#reply"+str(reply.id)
-    notify_mention_top(type_, mentioned, url, reply=reply)
+@receiver(notes_signal, sender=CommentReply)
+@receiver(notes_signal, sender=CommentProcessing)
+@receiver(notes_signal, sender=EditComment)
+@receiver(notes_signal, sender=comment_actions_v2)
+@receiver(notes_signal, sender=AllCommentsV2)
+def dispatch_mentioned_notification(sender, **kwargs):
+    is_comment = sender not in [CommentReply, ReplyActions]
+    item: Comment | Reply = kwargs.get('comment' if is_comment else 'reply')
+    mentioned: List[User] | None = kwargs.get('mentioned')
+
+    if item:
+        url = item.get_absolute_url()
+
+        if mentioned:
+            if is_comment:
+                subject = item.note.title
+                subject_name = 'comment'
+                __p = 'on'
+
+            else:
+                subject = f"comment by {item.comment.user.get_full_name()} on {item.comment.note.title}"
+                subject_name = 'reply'
+                __p = 'to'
+
+            for user in mentioned:
+                message = f"{item.user.get_full_name()} mentioned you in a {subject_name} {__p} {subject}"
+                Notification.objects.create(to_user=user, message=message, url=url)
 
 
 # notify a user of the new requests they have
