@@ -10,8 +10,12 @@ const profileToken_ = profileCookie.has('csrftoken')? profileCookie.get('csrftok
 // open a notification
 [...document.getElementsByClassName('notification-open')].forEach((element) => {
     element.addEventListener('click', (event_) => {
+        event_.target.innerText = 'opening...';
         const { newLocation, readUrl } = event_.target.dataset;
-        const errorOpening = () => event_.target.innerText = 'error';
+        const errorOpening = () => {
+            event_.target.innerText = 'error opening notification';
+            event_.target.disabled = true;
+        };
 
         const options = {
             url: readUrl,
@@ -52,15 +56,15 @@ const profileToken_ = profileCookie.has('csrftoken')? profileCookie.get('csrftok
                     } else {
                         event_.target.innerText = 'deleted'
                         event_.target.disabled = true;
-                    };
+                    }
                 } else {
                     if (response_.response['responseText']) {
                         event_.target.innerText = response_.response['responseText']
                         event_.target.disabled = true;
                     } else {
                         errorDeleting();
-                    };
-                };
+                    }
+                }
             }
         };
 
@@ -81,9 +85,9 @@ function bulkClean (home, away, larger, ogDel, r = false) {
             home_value > away_value? ogDel.disabled = false: ogDel.disabled = true;
         } else {
             away_value > home_value? ogDel.disabled = false: ogDel.disabled = true;        
-        };
+        }
     }
-};
+}
 
 
 const formOg = document.getElementById('notifications-delete-form');

@@ -81,7 +81,11 @@
                                 </div>                           
                                 <hr>
                                 <div class="text-center">
-                                    <button class="text-primary btn btn-link notification-open" data-read-url="{% url 'notifications:open' notification.id %}" data-new-location="{{ notification.url }}">open</button>
+                                    {% if notification.opened %}
+                                        <a href="{{ notification.url }}" class="text-primary btn btn-link">open</a>
+                                    {% else %}
+                                        <button class="text-primary btn btn-link notification-open" data-read-url="{% url 'notifications:open' notification.id %}" data-new-location="{{ notification.url }}">open</button>
+                                    {% endif %}
                                     <button class="text-danger btn btn-link notification-delete" data-delete-url="{{ notification.del_url}}" data-notification-div-id="notification-{{ notification.pk }}">delete!</button>
                                 </div>
                             </div>
