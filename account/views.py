@@ -21,8 +21,6 @@ from django.contrib.auth.models import User
 # sign ups
 from django.contrib.auth import authenticate, login
 
-account_signal = Signal(['connection', ])
-
 
 # account page
 class AccountIndex(generic.TemplateView):
@@ -188,7 +186,7 @@ class ForeignUser(LoginRequiredMixin, generic.TemplateView):
 
     @staticmethod
     def user_notes(user, conn_type):
-        """Get all Foreign users's notes"""
+        """Get all Foreign user's notes"""
         pub_notes = user.note_set.filter(privacy="PB")
         if conn_type == "connected":
             co_notes = user.note_set.filter(privacy="CO")
@@ -265,10 +263,9 @@ def accept(request, conn_id):
             response['accepted'] = False
         else:
             _connection.approved = True
-            _connection.save()
+            _connection.save(update_fields=['approved', 'approved_date'])
             response['state'] = "you have approved"
             response['accepted'] = True
-            account_signal.send(accept, connection=_connection)
 
         return JsonResponse(response)
     else:

@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import ValidationError
 
 
-# create a ew profile every time a user is made
+# create a new profile every time a user is made
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
