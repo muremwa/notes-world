@@ -13,29 +13,27 @@ from account.models import Connection
 from .models import Notification
 
 
-# notify a note's owner that a comment on it has been made
 @receiver(post_save, sender=Comment)
-def notify_new_comment(sender, instance, **kwargs):
-    if kwargs['created']:
-        note_owner = instance.note.user
-        if instance.user != note_owner:
-            Notification.objects.create(
-                to_user=note_owner,
-                message="{} commented on {}".format(instance.user.get_full_name(), instance.note),
-                url=instance.note.get_absolute_url()+"#comment"+str(instance.id)
-            )
-
-
-# notify a comment's owner that it has been replied to
 @receiver(post_save, sender=Reply)
-def notify_new_reply(sender, instance, **kwargs):
-    if kwargs['created']:
-        comment_owner = instance.comment.user
-        if instance.user != comment_owner:
+def dispatch_comment_or_reply_notification(sender, instance: Comment | Reply, **kwargs):
+    """
+    Notify a Note owner they have a new comment
+    Notify a Comment owner they have a new reply
+    """
+    if kwargs.get('created'):
+        is_comment = sender == Comment
+        item_owner = instance.note.user if is_comment else instance.comment.user
+
+        if instance.user != item_owner:
+            if is_comment:
+                message = f"{instance.user.get_full_name()} commented on your note '{instance.note.title}'"
+            else:
+                message = f"{instance.user.get_full_name()} replied to your comment on '{instance.comment.note.title}'"
+
             Notification.objects.create(
-                to_user=comment_owner,
-                message="{} replied to your comment on {}".format(instance.user.get_full_name(), instance.comment.note),
-                url=reverse('notes:reply-comment', args=[str(instance.comment.id)])+"#reply"+str(instance.id)
+                to_user=item_owner,
+                message=message,
+                url=instance.get_absolute_url()
             )
 
 
