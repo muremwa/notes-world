@@ -86,7 +86,9 @@
                                 {% endif %}
                             {% else %}
                                 {% if user == note.user %}
-                                    <a href="{% url 'notes:edit-collaborators' note.id %}" class="btn btn-link">edit Collabrators</a>                    
+                                    <a href="{% url 'notes:edit-collaborators' note.id %}" class="btn btn-link">edit Collabrators</a>
+                                {% else %}
+                                    <span>No collaborators at the moment</span>
                                 {% endif %}
                             {% endif %}
                         </ul>
