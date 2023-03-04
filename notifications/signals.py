@@ -3,11 +3,9 @@ from typing import List
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
-from django.urls import reverse
 
 from notes.views import add_collaborator, notes_signal, CommentProcessing, EditComment, CommentReply, ReplyActions
 from api.views import comment_actions_v2, AllCommentsV2
-from account.views import accept, account_signal
 from notes.models import Comment, Reply
 from account.models import Connection
 from .models import Notification
@@ -26,9 +24,9 @@ def dispatch_comment_or_reply_notification(sender, instance: Comment | Reply, **
 
         if instance.user != item_owner:
             if is_comment:
-                message = f"{instance.user.get_full_name()} commented on your note '{instance.note.title}'"
+                message = f"{instance.user.get_full_name()} commented on your note '{instance.note.title}'."
             else:
-                message = f"{instance.user.get_full_name()} replied to your comment on '{instance.comment.note.title}'"
+                message = f"{instance.user.get_full_name()} replied to your comment on '{instance.comment.note.title}'."
 
             Notification.objects.create(
                 to_user=item_owner,
@@ -64,36 +62,8 @@ def dispatch_mentioned_notification(sender, **kwargs):
                 __p = 'to'
 
             for user in mentioned:
-                message = f"{item.user.get_full_name()} mentioned you in a {subject_name} {__p} {subject}"
+                message = f"{item.user.get_full_name()} mentioned you in a {subject_name} {__p} {subject}."
                 Notification.objects.create(to_user=user, message=message, url=url)
-
-
-# notify a user of the new requests they have
-@receiver(post_save, sender=Connection)
-def notify_received_request(sender, instance, **kwargs):
-    if kwargs['created']:
-        Notification.objects.create(
-            to_user=instance.conn_receiver.user,
-            message="{} sent you a connection request. Click here to see.".format(instance.conn_sender.get_full_name()),
-            url=reverse('base_account:foreign-user', args=[str(instance.conn_sender.id)])
-        )
-
-
-# notify a user their request has been accepted
-@receiver(account_signal, sender=accept)
-def notify_accepted_request(sender, **kwargs):
-    connection = kwargs['connection']
-    to_user_ = connection.conn_sender
-    from_user = connection.conn_receiver.user
-    message = "{} accepted your connection request. You are now connected. " \
-              "Click here to see.".format(from_user.get_full_name())
-    url = reverse("base_account:foreign-user", args=[str(from_user.id)])
-
-    Notification.objects.create(
-        to_user=to_user_,
-        message=message,
-        url=url
-    )
 
 
 # notify a user that they have been added as a collaborator
@@ -108,3 +78,30 @@ def notify_collaboration(sender, **kwargs):
         message=message,
         url=url
     )
+
+
+@receiver(post_save, sender=Connection)
+def dispatch_connection_requests_collaborations(sender, instance: Connection, **kwargs):
+    """
+    Notify a user of connection requests, received request or accepted request
+    """
+    is_sent = sender == Connection and kwargs.get('created', False)
+    request_sender: User = instance.conn_sender
+    request_receiver: User = instance.conn_receiver.user
+
+    if is_sent:
+        Notification.objects.create(
+            to_user=request_receiver,
+            message=f"{request_sender.get_full_name()} sent you a connection request.",
+            url=request_sender.profile.get_absolute_url()
+        )
+
+    else:
+        update_fields: frozenset | None = kwargs.get('update_fields')
+
+        if update_fields and 'approved' in update_fields:
+            Notification.objects.create(
+                to_user=request_sender,
+                message=f"{request_receiver.get_full_name()} accepted your connection request.",
+                url=request_receiver.profile.get_absolute_url()
+            )
