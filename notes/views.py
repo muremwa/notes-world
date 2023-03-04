@@ -499,6 +499,7 @@ def rm_collaborator(request, **kwargs):
         raise Http404
     else:
         note.collaborators.remove(remove_this)
+        notes_signal.send(rm_collaborator, note=note, user=remove_this.user)
 
     return redirect(reverse("notes:edit-collaborators", args=[str(kwargs['note_id'])]))
 

@@ -4,9 +4,10 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 
-from notes.views import add_collaborator, notes_signal, CommentProcessing, EditComment, CommentReply, ReplyActions
+from notes.views import add_collaborator, notes_signal, CommentProcessing, EditComment, CommentReply, ReplyActions, \
+    rm_collaborator
 from api.views import comment_actions_v2, AllCommentsV2
-from notes.models import Comment, Reply
+from notes.models import Comment, Reply, Note
 from account.models import Connection
 from .models import Notification
 
@@ -66,22 +67,24 @@ def dispatch_mentioned_notification(sender, **kwargs):
                 Notification.objects.create(to_user=user, message=message, url=url)
 
 
-# notify a user that they have been added as a collaborator
 @receiver(notes_signal, sender=add_collaborator)
-def notify_collaboration(sender, **kwargs):
-    to = kwargs['user']
-    message = "You were added as a collaborator on {}".format(kwargs['note'])
-    url = kwargs['note'].get_absolute_url()
+@receiver(notes_signal, sender=rm_collaborator)
+def dispatch_added_collaboration_notification(sender, **kwargs):
+    note: Note = kwargs.get('note')
+    user: User = kwargs.get('user')
 
-    Notification.objects.create(
-        to_user=to,
-        message=message,
-        url=url
-    )
+    if note and user:
+        prefix = "You were added as" if sender == add_collaborator else "You are no longer"
+
+        Notification.objects.create(
+            to_user=user,
+            message=f"{prefix} a collaborator on {note.title}",
+            url=note.get_absolute_url()
+        )
 
 
 @receiver(post_save, sender=Connection)
-def dispatch_connection_requests_collaborations(sender, instance: Connection, **kwargs):
+def dispatch_connection_requests_notification(sender, instance: Connection, **kwargs):
     """
     Notify a user of connection requests, received request or accepted request
     """
