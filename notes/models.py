@@ -154,7 +154,7 @@ class Reply(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, unique=True)
     description = models.TextField(blank=True, null=True)
     objects = models.Manager()
 

@@ -6,7 +6,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.http import JsonResponse
-from django.dispatch import Signal
 from django.contrib.auth import update_session_auth_hash
 
 # normal
@@ -25,10 +24,6 @@ from django.contrib.auth import authenticate, login
 # account page
 class AccountIndex(generic.TemplateView):
     template_name = 'account/index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["no_of_users"] = Profile.objects.all().count()
 
 
 # sign up
@@ -150,10 +145,10 @@ class ConnectedUser(LoginRequiredMixin, generic.TemplateView):
         requests = self.request.user.profile.connection_set.filter(approved=False)
         # suggestions
         for i in range(10):
-                suggestion = random.choice(users)
-                status = Connection.objects.exist(request.user, suggestion)
-                if suggestion != self.request.user and suggestion not in suggestions and not status:
-                    suggestions.append(suggestion)
+            suggestion = random.choice(users)
+            status = Connection.objects.exist(request.user, suggestion)
+            if suggestion != self.request.user and suggestion not in suggestions and not status:
+                suggestions.append(suggestion)
 
         # sent connections
         sent_connections = self.request.user.connection_set.filter(approved=False)
@@ -185,7 +180,7 @@ class ForeignUser(LoginRequiredMixin, generic.TemplateView):
             return conn_types[0]
 
     @staticmethod
-    def user_notes(user, conn_type):
+    def user_notes(user: User, conn_type: str) -> []:
         """Get all Foreign user's notes"""
         pub_notes = user.note_set.filter(privacy="PB")
         if conn_type == "connected":
@@ -195,8 +190,7 @@ class ForeignUser(LoginRequiredMixin, generic.TemplateView):
             return list(pub_notes)
 
     def mutual_conns(self, user):
-        """Return all users that both the foreign user and request.user are connected to"""
-        conns = []
+        """Return all users that both the foreign user and `request.user` are connected to"""
         my_conns = Connection.objects.get_user_conn(self.request.user)
         foreign_conns = Connection.objects.get_user_conn(user)
         return [user_ for user_ in my_conns if foreign_conns.count(user_) > 0]

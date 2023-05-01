@@ -2,6 +2,7 @@
 from itertools import chain
 from random import choices
 import re
+from typing import Literal, Type
 
 # django imports
 from django.shortcuts import redirect, reverse,  get_object_or_404, render
@@ -34,10 +35,10 @@ class NoteIndex(generic.ListView):
     context_object_name = "notes"
 
     def connected_users_notes(self):
-        public_note = Note.objects.filter(privacy="PB")
-        # get all connected users
-        other_notes = Note.objects.notes_user_can_see(self.request.user)
-        return chain(public_note, other_notes)
+        return chain(
+            Note.objects.filter(privacy="PB"),  # public notes
+            Note.objects.notes_user_can_see(self.request.user)  # connected users notes
+        )
 
     def get_queryset(self):
         notes = chain(self.request.user.note_set.all(), self.connected_users_notes())
@@ -57,10 +58,11 @@ class NoteIndex(generic.ListView):
                     sanitized_notes = filter(lambda note_: note_.user != self.request.user, sanitized_notes)
 
                 else:
-                    try:
-                        tag_obj = Tag.objects.get(name=_tag)
-                        sanitized_notes = filter(lambda note_: tag_obj in note_.tags.all(), sanitized_notes)
-                    except ObjectDoesNotExist:
+                    tag_objs = Tag.objects.filter(name__iexact=_tag)
+
+                    if tag_objs.count() > 0:
+                        sanitized_notes = filter(lambda note_: tag_objs[0] in note_.tags.all(), sanitized_notes)
+                    else:
                         sanitized_notes = []
 
         return sorted(sanitized_notes, key=lambda note_: note_.pk, reverse=True)
@@ -68,28 +70,19 @@ class NoteIndex(generic.ListView):
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect(reverse('base_account:account-index'))
-        else:
-            return super().get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        tags = list(Tag.objects.all())
-        tags_count = len(tags)
-
-        if tags_count == 0:
-            tc = 0
-        elif tags_count < 6:
-            tc = tags_count
-        else:
-            tc = 5
-
-        _qt = self.request.GET.get('tag', '')
+        _query_tags = list(map(lambda tag: tag.strip(), self.request.GET.get('tag', '').split(',')))
+        query_tags = Tag.objects.filter(name__in=_query_tags)
+        tags = Tag.objects.exclude(name__in=_query_tags)
 
         context.update({
-            'count': self.request.user.note_set.all().count(),
-            'tags': set(choices(tags, k=tc)),
-            'q_tag': _qt,
-            'q_tags': _qt.split(',')
+            'tags': {*query_tags, *choices(tags, k=(6-query_tags.count()))},
+            'q_tag': self.request.GET.get('tag', ''),
+            'q_tags': _query_tags,
+            'count': self.request.user.note_set.count()
         })
         return context
 
@@ -138,11 +131,13 @@ class NoteCreate(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['input_name'] = "new note"
-        context['second_btn'] = {
-            'name': 'Save and edit tags',
-            'url': f'{self.request.path}?editTags=1'
-        }
+        context.update({
+            'input_name': 'new note',
+            'second_btn': {
+                'name': 'Save and edit tags',
+                'url': f'{self.request.path}?editTags=1'
+            }
+        })
         return context
 
     def get_success_url(self):
@@ -294,7 +289,6 @@ class CommentProcessor:
         """Takes a comment or reply and returns a markdown version with links to all tagged users"""
         mentioned = []
         split_comment = comment_text.split(" ")
-        new_comment = comment_text
 
         for k, text in enumerate(split_comment):
             if re.search(r'@\w+', text):
@@ -346,6 +340,7 @@ class CommentProcessing(LoginRequiredMixin, CommentProcessor, View):
     # process
     def post(self, *args, **kwargs):
         form = CommentForm(self.request.POST)
+
         if form.is_valid():
             original_text = form.cleaned_data['comment']
             post_process = self.mark(original_text)
@@ -360,7 +355,7 @@ class CommentProcessing(LoginRequiredMixin, CommentProcessor, View):
             comment.save()
             notify = []
             for user_ in mentioned:
-                if user_ != self.request.user and user_ != get_object_or_404(Note, pk=kwargs['note_id']).user:
+                if user_ != self.request.user and user_ != comment.note.user:
                     comment.mentioned.add(user_.profile)
                     notify.append(user_)
             if notify:
@@ -421,7 +416,7 @@ class CommentReply(CommentProcessing):
             new_reply.save()
             notify = []
             for user_ in post_process['mentioned']:
-                if user_ != self.request.user:
+                if user_ != self.request.user and user_ != new_reply.comment.user:
                     new_reply.mentioned.add(user_.profile)
                     notify.append(user_)
 
@@ -446,7 +441,7 @@ class ReplyActions(CommentProcessing):
 
         for user_ in post_process['mentioned']:
             if user_.profile not in reply.mentioned.all():
-                if user_ != user:
+                if user_ != user and user_ != reply.comment.user:
                     reply.mentioned.add(user_.profile)
                     notify.append(user_)
 
@@ -484,9 +479,12 @@ def add_collaborator(request, **kwargs):
     if request.user != note.user:
         raise PermissionDenied("You are not authorised to add a collaborator")
     else:
-        note.collaborators.add(add_this)
-        notes_signal.send(add_collaborator, note=note, user=add_this.user)
-    return redirect(reverse("notes:edit-collaborators", args=[str(kwargs['note_id'])]))
+        if Connection.objects.exist(request.user, add_this.user, status=True):
+            note.collaborators.add(add_this)
+            notes_signal.send(add_collaborator, note=note, user=add_this.user)
+        else:
+            raise PermissionDenied(f"@{add_this.user.username} cannot be a collaborator, they are not in your network")
+    return redirect(reverse("notes:edit-collaborators",  args=[str(kwargs['note_id'])]))
 
 
 # remove collaboration
@@ -529,11 +527,7 @@ def undo_collaborative(request, note_id):
     if note.user != request.user:
         raise Http404
     else:
-        collaborators = note.collaborators.all()
-        # remove all collaborators first
-        for collaborator in collaborators:
-            note.collaborators.remove(collaborator)
-        # make collaborative false
+        note.collaborators.clear()
         note.collaborative = False
         note.save()
 
@@ -548,18 +542,21 @@ def delete_comment(request, comment_id):
     if comment.user == request.user or comment.note.user == request.user:
         if request.method == "POST":
             comment.delete()
-            response['success'] = True
-            response['message'] = "Comment Deleted"
+            response.update({
+                'success': True,
+                'message': 'Comment Deleted'
+            })
         else:
             raise Http404
     else:
-        response['success'] = False
-        response['message'] = "server couldn't complete your request"
-
+        response.update({
+            'success': False,
+            'message': "server couldn't complete your request"
+        })
     return JsonResponse(response)
 
 
-def retrieve(what, what_, what_id, user_, response):
+def retrieve(what: Type[Comment | Reply], what_: Literal['comment', 'reply'], what_id: int, user_: User, response):
     try:
         obj = what.objects.get(pk=what_id)
         if obj.user == user_:
@@ -569,12 +566,16 @@ def retrieve(what, what_, what_id, user_, response):
             else:
                 response['text'] = obj.original_comment
         else:
-            response['success'] = False
-            response['message'] = "the {} does not belong to you".format(what_)
+            response.update({
+                'success': False,
+                'message': f'the {what_} does not belong to you'
+            })
 
     except ObjectDoesNotExist:
-        response['success'] = False
-        response['message'] = "The {} does not exist".format(what_)
+        response.update({
+            'success': False,
+            'message': f'The {what_} does not exits'
+        })
 
     return response
 
@@ -582,11 +583,12 @@ def retrieve(what, what_, what_id, user_, response):
 @login_required
 def get_comment_or_reply(request, **kwargs):
     response = {}
+    what_item = kwargs.get('what', '')
 
-    if kwargs['what'] == "comment":
+    if what_item == "comment":
         result = retrieve(Comment, 'comment', kwargs['what_id'], request.user, response)
 
-    elif kwargs['what'] == "reply":
+    elif what_item == "reply":
         result = retrieve(Reply, 'reply', kwargs['what_id'], request.user, response)
 
     else:

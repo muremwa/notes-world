@@ -16,7 +16,6 @@ class ConnectionAdmin(admin.ModelAdmin):
             queryset.update(approved=False)
             self.message_user(request, 'Disapproved selected connections')
 
-
     def approve_connections(self, request, queryset):
         if self.has_change_permission(request):
             queryset.update(approved=True)
