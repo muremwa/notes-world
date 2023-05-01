@@ -355,7 +355,7 @@ class CommentProcessing(LoginRequiredMixin, CommentProcessor, View):
             comment.save()
             notify = []
             for user_ in mentioned:
-                if user_ != self.request.user and user_ != get_object_or_404(Note, pk=kwargs['note_id']).user:
+                if user_ != self.request.user and user_ != comment.note.user:
                     comment.mentioned.add(user_.profile)
                     notify.append(user_)
             if notify:
@@ -416,7 +416,7 @@ class CommentReply(CommentProcessing):
             new_reply.save()
             notify = []
             for user_ in post_process['mentioned']:
-                if user_ != self.request.user:
+                if user_ != self.request.user and user_ != new_reply.comment.user:
                     new_reply.mentioned.add(user_.profile)
                     notify.append(user_)
 
@@ -441,7 +441,7 @@ class ReplyActions(CommentProcessing):
 
         for user_ in post_process['mentioned']:
             if user_.profile not in reply.mentioned.all():
-                if user_ != user:
+                if user_ != user and user_ != reply.comment.user:
                     reply.mentioned.add(user_.profile)
                     notify.append(user_)
 
@@ -556,7 +556,7 @@ def delete_comment(request, comment_id):
     return JsonResponse(response)
 
 
-def retrieve(what: Type[Comment, Reply], what_: Literal['comment', 'reply'], what_id: int, user_: User, response):
+def retrieve(what: Type[Comment | Reply], what_: Literal['comment', 'reply'], what_id: int, user_: User, response):
     try:
         obj = what.objects.get(pk=what_id)
         if obj.user == user_:

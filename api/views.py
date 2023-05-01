@@ -116,11 +116,15 @@ class AllCommentsV2(views.APIView, CommentProcessor):
             )
 
             # add mentioned
+            notify = []
             for mentioned_user in processed_comment.get('mentioned'):
                 comment.mentioned.add(mentioned_user.profile)
 
+                if mentioned_user != self.request.user and mentioned_user != comment.note.user:
+                    notify.append(mentioned_user)
+
             # notify mentioned
-            notes_signal.send(self.__class__, comment=comment, mentioned=processed_comment.get('mentioned'))
+            notes_signal.send(self.__class__, comment=comment, mentioned=notify)
 
             res_status = status.HTTP_201_CREATED
             response.update({
@@ -161,7 +165,9 @@ def comment_actions_v2(request, comment_pk):
                 for mentioned in processed_comment.get('mentioned'):
                     if mentioned.profile not in comment.mentioned.all():
                         comment.mentioned.add(mentioned.profile)
-                        notify.append(mentioned)
+
+                        if mentioned != comment.note.user:
+                            notify.append(mentioned)
 
                 # notify new mentioned users
                 if notify:
