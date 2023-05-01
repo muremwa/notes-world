@@ -7,7 +7,7 @@ import re
 from django.shortcuts import redirect, reverse,  get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied, MultipleObjectsReturned
+from django.core.exceptions import PermissionDenied
 from django.db.models import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.views import generic, View
@@ -287,7 +287,6 @@ class CommentProcessor:
         """Takes a comment or reply and returns a markdown version with links to all tagged users"""
         mentioned = []
         split_comment = comment_text.split(" ")
-        new_comment = comment_text
 
         for k, text in enumerate(split_comment):
             if re.search(r'@\w+', text):
