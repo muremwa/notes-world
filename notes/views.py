@@ -7,7 +7,7 @@ import re
 from django.shortcuts import redirect, reverse,  get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, MultipleObjectsReturned
 from django.db.models import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.views import generic, View
@@ -57,10 +57,11 @@ class NoteIndex(generic.ListView):
                     sanitized_notes = filter(lambda note_: note_.user != self.request.user, sanitized_notes)
 
                 else:
-                    try:
-                        tag_obj = Tag.objects.get(name=_tag)
-                        sanitized_notes = filter(lambda note_: tag_obj in note_.tags.all(), sanitized_notes)
-                    except ObjectDoesNotExist:
+                    tag_objs = Tag.objects.filter(name__iexact=_tag)
+
+                    if tag_objs.count() > 0:
+                        sanitized_notes = filter(lambda note_: tag_objs[0] in note_.tags.all(), sanitized_notes)
+                    else:
                         sanitized_notes = []
 
         return sorted(sanitized_notes, key=lambda note_: note_.pk, reverse=True)
