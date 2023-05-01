@@ -159,15 +159,15 @@ def comment_actions_v2(request, comment_pk):
                 comment.comment_text = processed_comment.get('processed_comment')
                 comment.modified = timezone.now()
                 comment.save()
+
+                # notify users
                 notify = []
+                for mentioned in processed_comment.get('mentioned'):
+                    if mentioned.profile not in comment.mentioned.all() and mentioned != comment.note.user:
+                        notify.append(mentioned)
 
                 # add mentioned users
-                for mentioned in processed_comment.get('mentioned'):
-                    if mentioned.profile not in comment.mentioned.all():
-                        comment.mentioned.add(mentioned.profile)
-
-                        if mentioned != comment.note.user:
-                            notify.append(mentioned)
+                comment.mentioned.set(map(lambda usr: usr.profile, processed_comment.get('mentioned')))
 
                 # notify new mentioned users
                 if notify:
