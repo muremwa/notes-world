@@ -2,6 +2,7 @@
 from itertools import chain
 from random import choices
 import re
+from typing import Literal, Type
 
 # django imports
 from django.shortcuts import redirect, reverse,  get_object_or_404, render
@@ -34,10 +35,10 @@ class NoteIndex(generic.ListView):
     context_object_name = "notes"
 
     def connected_users_notes(self):
-        public_note = Note.objects.filter(privacy="PB")
-        # get all connected users
-        other_notes = Note.objects.notes_user_can_see(self.request.user)
-        return chain(public_note, other_notes)
+        return chain(
+            Note.objects.filter(privacy="PB"),  # public notes
+            Note.objects.notes_user_can_see(self.request.user)  # connected users notes
+        )
 
     def get_queryset(self):
         notes = chain(self.request.user.note_set.all(), self.connected_users_notes())
@@ -69,8 +70,7 @@ class NoteIndex(generic.ListView):
     def get(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect(reverse('base_account:account-index'))
-        else:
-            return super().get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -131,11 +131,13 @@ class NoteCreate(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['input_name'] = "new note"
-        context['second_btn'] = {
-            'name': 'Save and edit tags',
-            'url': f'{self.request.path}?editTags=1'
-        }
+        context.update({
+            'input_name': 'new note',
+            'second_btn': {
+                'name': 'Save and edit tags',
+                'url': f'{self.request.path}?editTags=1'
+            }
+        })
         return context
 
     def get_success_url(self):
@@ -338,6 +340,7 @@ class CommentProcessing(LoginRequiredMixin, CommentProcessor, View):
     # process
     def post(self, *args, **kwargs):
         form = CommentForm(self.request.POST)
+
         if form.is_valid():
             original_text = form.cleaned_data['comment']
             post_process = self.mark(original_text)
@@ -539,18 +542,21 @@ def delete_comment(request, comment_id):
     if comment.user == request.user or comment.note.user == request.user:
         if request.method == "POST":
             comment.delete()
-            response['success'] = True
-            response['message'] = "Comment Deleted"
+            response.update({
+                'success': True,
+                'message': 'Comment Deleted'
+            })
         else:
             raise Http404
     else:
-        response['success'] = False
-        response['message'] = "server couldn't complete your request"
-
+        response.update({
+            'success': False,
+            'message': "server couldn't complete your request"
+        })
     return JsonResponse(response)
 
 
-def retrieve(what, what_, what_id, user_, response):
+def retrieve(what: Type[Comment, Reply], what_: Literal['comment', 'reply'], what_id: int, user_: User, response):
     try:
         obj = what.objects.get(pk=what_id)
         if obj.user == user_:
@@ -560,12 +566,16 @@ def retrieve(what, what_, what_id, user_, response):
             else:
                 response['text'] = obj.original_comment
         else:
-            response['success'] = False
-            response['message'] = "the {} does not belong to you".format(what_)
+            response.update({
+                'success': False,
+                'message': f'the {what_} does not belong to you'
+            })
 
     except ObjectDoesNotExist:
-        response['success'] = False
-        response['message'] = "The {} does not exist".format(what_)
+        response.update({
+            'success': False,
+            'message': f'The {what_} does not exits'
+        })
 
     return response
 
@@ -573,11 +583,12 @@ def retrieve(what, what_, what_id, user_, response):
 @login_required
 def get_comment_or_reply(request, **kwargs):
     response = {}
+    what_item = kwargs.get('what', '')
 
-    if kwargs['what'] == "comment":
+    if what_item == "comment":
         result = retrieve(Comment, 'comment', kwargs['what_id'], request.user, response)
 
-    elif kwargs['what'] == "reply":
+    elif what_item == "reply":
         result = retrieve(Reply, 'reply', kwargs['what_id'], request.user, response)
 
     else:
