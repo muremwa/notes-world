@@ -79,7 +79,10 @@ class ViewsTest(TestCase):
         }
         response_post = self.client.post(url, data=form_data)
         self.assertEqual(response_post.status_code, 302)
-        self.assertEqual(response_post.url, reverse("base_account:foreign-user", kwargs={"user_id": str(self.profile.user.pk)}))
+        self.assertEqual(
+            response_post.url,
+            reverse('base_account:foreign-user', kwargs={'user_id': str(self.profile.user.pk)})
+        )
 
     # test the ajax user requests
 
@@ -174,5 +177,3 @@ class ViewsTest(TestCase):
         # if does not exist
         response_post = self.client.post(url)
         self.assertEqual(response_post.status_code, 404)
-
-        # TODO: tests user registration forms
