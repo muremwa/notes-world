@@ -7,7 +7,7 @@
 {% block style %}{{ form.media.css }}{% endblock style %}
 
 {% block content %}
-    <style type="text/css">
+    <style>
         #login-form {
             margin-top: 3em;
             border: 0.4px solid rgb(230, 179, 170);
@@ -21,7 +21,7 @@
     </style>
 
     <div class="container col-sm-3">
-        <p class="lead">sign in and imporove your experience</p>
+        <p class="lead">Sign in and improve your experience</p>
     </div>
 
     <div class="container col-sm-3" id="login-form">
@@ -40,23 +40,31 @@
         {% endif %}
         <br />
 
-        {% comment %}login form{% endcomment %}
-        <form method="post" action="{% url 'base_account:login' %}">
-            {% csrf_token %}
-            <div class="form-group">
-                <label>{{ form.username.label_tag }}</label>
-                {{ form.username }}
+        {% if user.is_authenticated %}
+            <div class="text-center">
+                <p>You're signed in as @{{ user.username }}</p>
+                <a href="{% url 'base_account:logout' %}" class="btn">sign out</a>
             </div>
-            <div class="form-group">
-                <label>{{ form.password.label_tag }}</label>
-                {{ form.password }}
-            </div>
-            <div class="col-sm-3 form-group">
-                <input type="submit" class="form-control" value="sign in">
-            </div>
-            <br />
-            <p>don't have an account? <a class="text-danger" href="{% url 'base_account:sign-up' %}">sign up</a></p>
-        </form>
+        {% else %}
+            {% comment %}login form{% endcomment %}
+            <form method="post" action="{% url 'base_account:login' %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+                <div class="form-group">
+                    <label>{{ form.username.label_tag }}</label>
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    <label>{{ form.password.label_tag }}</label>
+                    {{ form.password }}
+                </div>
+                <div class="col-sm-3 form-group">
+                    <input type="submit" class="form-control" value="sign in">
+                </div>
+                <br />
+                <p>don't have an account? <a class="text-danger" href="{% url 'base_account:sign-up' %}">sign up</a></p>
+            </form>
+        {% endif %}
     </div>
 
 {% endblock content %}
