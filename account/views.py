@@ -25,11 +25,6 @@ from django.contrib.auth import authenticate, login
 class AccountIndex(generic.TemplateView):
     template_name = 'account/index.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["no_of_users"] = Profile.objects.all().count()
-        return context
-
 
 # sign up
 class SignUp(generic.TemplateView):
