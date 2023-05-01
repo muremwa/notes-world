@@ -476,9 +476,12 @@ def add_collaborator(request, **kwargs):
     if request.user != note.user:
         raise PermissionDenied("You are not authorised to add a collaborator")
     else:
-        note.collaborators.add(add_this)
-        notes_signal.send(add_collaborator, note=note, user=add_this.user)
-    return redirect(reverse("notes:edit-collaborators", args=[str(kwargs['note_id'])]))
+        if Connection.objects.exist(request.user, add_this.user, status=True):
+            note.collaborators.add(add_this)
+            notes_signal.send(add_collaborator, note=note, user=add_this.user)
+        else:
+            raise PermissionDenied(f"@{add_this.user.username} cannot be a collaborator, they are not in your network")
+    return redirect(reverse("notes:edit-collaborators",  args=[str(kwargs['note_id'])]))
 
 
 # remove collaboration
@@ -521,11 +524,7 @@ def undo_collaborative(request, note_id):
     if note.user != request.user:
         raise Http404
     else:
-        collaborators = note.collaborators.all()
-        # remove all collaborators first
-        for collaborator in collaborators:
-            note.collaborators.remove(collaborator)
-        # make collaborative false
+        note.collaborators.clear()
         note.collaborative = False
         note.save()
 
